@@ -8,6 +8,10 @@
 import Foundation
 import UIKit
 
+protocol NewHabitOrEventViewControllerDelegate: AnyObject {
+    func didCreateTracker(_ tracker: Tracker)
+}
+
 final class NewHabitOrEventViewController: UIViewController, CategorySelectionDelegate {
     
     
@@ -15,6 +19,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     var selectedCategories: [String] = []
     var categoryCellIndexPath: IndexPath?
     var tracker: Tracker?
+    
+    weak var delegate: NewHabitOrEventViewControllerDelegate?
     
     private var schedule: [Weekday] = []
     
@@ -92,14 +98,9 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     }()
     
     @objc private func createButtonDidTap() {
-        let tracker = makeTracker()
-        //delegate?.didMakeTracker(tracker)
-        
+        let newTracker = makeTracker()
+                delegate?.didCreateTracker(newTracker)
         presentingViewController?.presentingViewController?.dismiss(animated: true)
-
-        
-
-        print("\(tracker)")
     }
     
     private func createButtonIsAvailable(){

@@ -89,11 +89,20 @@ class TrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        print("\(trackers)")
         setupUI()
+        showPlaceholder()
         view.backgroundColor = .white
         
+    }
+    
+    private func showPlaceholder(){
+        if trackers.isEmpty {
+            placeholderImage.isHidden = false
+            placeholderLabel.isHidden = false
+        } else {
+            placeholderLabel.isHidden = true
+            placeholderImage.isHidden = true
+        }
     }
     
     private func setupUI() {
@@ -124,6 +133,7 @@ class TrackerViewController: UIViewController {
             placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
             placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
                         collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
                         collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                         collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
@@ -138,6 +148,7 @@ class TrackerViewController: UIViewController {
     
     @objc private func createTrackerOrHabit(){
         let createTrackerVC = CreateTrackerViewController()
+        createTrackerVC.delegate = self
         present(createTrackerVC, animated: true)
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
@@ -170,6 +181,15 @@ extension TrackerViewController: UICollectionViewDataSource {
 
 extension TrackerViewController: UITextFieldDelegate{
     
+}
+
+extension TrackerViewController: NewHabitOrEventViewControllerDelegate {
+    func didCreateTracker(_ tracker: Tracker) {
+        print("🎯 Новый трекер \(tracker.name) будет добавлен.")
+          trackers.append(tracker)
+          print("🎯 Массив после добавления: \(trackers)")
+          collectionView.reloadData()  // Обновляем UI
+      }
 }
 
     

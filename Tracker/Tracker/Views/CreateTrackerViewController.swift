@@ -10,6 +10,8 @@ import UIKit
 
 final class CreateTrackerViewController: UIViewController {
     
+    weak var delegate: NewHabitOrEventViewControllerDelegate?
+    
     private lazy var createHabitButton: UIButton = {
         let createHabitButton = UIButton()
         createHabitButton.setTitle("Привычка", for: .normal)
@@ -69,12 +71,14 @@ final class CreateTrackerViewController: UIViewController {
     
     @objc private func createHabitButtonDidTap(){
         let createNewHabitVC = NewHabitOrEventViewController()
+        createNewHabitVC.delegate = delegate
         createNewHabitVC.isHabit = true
         present(createNewHabitVC, animated: true)
     }
     
     @objc private func createEventButtonDidTap(){
         let createNewEventVC = NewHabitOrEventViewController()
+        createNewEventVC.delegate = delegate
         createNewEventVC.isHabit = false
         present(createNewEventVC, animated: true)
     }
