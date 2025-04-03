@@ -9,6 +9,9 @@ import UIKit
 
 class TrackerViewController: UIViewController {
     
+    private var trackers: [Tracker] = []
+    var tracker: Tracker?
+    
     private lazy var addTrackerButton: UIButton = {
         let addTrackerButton = UIButton()
         addTrackerButton.setImage(UIImage(named: "addTracker"), for: .normal)
@@ -17,12 +20,12 @@ class TrackerViewController: UIViewController {
     }()
     
     private lazy var trackerLabel: UILabel = {
-        let trackerLabel = UILabel()
-        trackerLabel.text = "Трекеры"
-        trackerLabel.font = UIFont(name: "YSDisplay-Bold", size: 34)
-        trackerLabel.textColor = .black
+        let label = UILabel()
+        label.text = "Трекеры"
+        label.font = UIFont(name: "YSDisplay-Bold", size: 34)
+        label.textColor = .black
         
-        return trackerLabel
+        return label
     }()
     
     private lazy var datePicker: UIDatePicker = {
@@ -87,6 +90,7 @@ class TrackerViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print("\(trackers)")
         setupUI()
         view.backgroundColor = .white
         
@@ -118,7 +122,11 @@ class TrackerViewController: UIViewController {
             placeholderImage.widthAnchor.constraint(equalToConstant: 80),
             placeholderImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
-            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
+                        collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+                        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
 
             
         ])
@@ -145,13 +153,15 @@ extension TrackerViewController: UICollectionViewDelegate {
 
 extension TrackerViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        return trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCell.trackerCellIdentifier, for: indexPath) as? TrackerCell else {
             return UICollectionViewCell()
         }
+        let tracker = trackers[indexPath.row]
+        cell.configureCell(tracker: tracker)
         return cell
         
         
@@ -161,6 +171,10 @@ extension TrackerViewController: UICollectionViewDataSource {
 extension TrackerViewController: UITextFieldDelegate{
     
 }
+
+    
+    
+
 #Preview {
     TrackerViewController()
 }

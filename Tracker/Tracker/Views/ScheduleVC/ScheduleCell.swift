@@ -8,9 +8,15 @@
 import Foundation
 import UIKit
 
+protocol ScheduleCellDelegate: AnyObject {
+    func switchStateChanged(isOn: Bool, for day: String?)
+}
+
 final class ScheduleCell: UITableViewCell {
     
     static let scheduleCellIdentifier = "ScheduleCell"
+    
+    weak var delegate: ScheduleCellDelegate?
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -39,11 +45,12 @@ final class ScheduleCell: UITableViewCell {
     }
     
     @objc private func switchDidChanged(){
-        
+        delegate?.switchStateChanged(isOn: switchControl.isOn, for: titleLabel.text)
     }
     
-    func configureCell(with weekdays: Weekday) {
-        titleLabel.text = weekdays.rawValue
+    func configureCell(with weekdays: String, isOn: Bool) {
+        titleLabel.text = weekdays
+        switchControl.isOn = isOn
     }
     
     private func setupUI(){

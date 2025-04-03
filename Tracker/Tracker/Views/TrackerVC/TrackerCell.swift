@@ -12,44 +12,44 @@ final class TrackerCell: UICollectionViewCell {
     static let trackerCellIdentifier = "TrackerCell"
     
     private lazy var trackerCardView: UIView = {
-        let trackerCardView = UIView()
-        trackerCardView.layer.masksToBounds = true
-        trackerCardView.layer.cornerRadius = 16
-        return trackerCardView
+        let view = UIView()
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = 16
+        return view
     }()
     
     private lazy var trackerCardEmojiLabel: UILabel = {
-        let trackerCardEmojiLabel = UILabel()
-        trackerCardEmojiLabel.backgroundColor = UIColor(white: 1, alpha: 0.3)
-        trackerCardEmojiLabel.layer.masksToBounds = true
-        trackerCardEmojiLabel.layer.cornerRadius = 12
-        trackerCardEmojiLabel.textAlignment = .center
-        trackerCardEmojiLabel.font = UIFont(name: "YSDisplay-Medium", size: 16)
-        return trackerCardEmojiLabel
+        let label = UILabel()
+        label.backgroundColor = UIColor(white: 1, alpha: 0.3)
+        label.layer.masksToBounds = true
+        label.layer.cornerRadius = 12
+        label.textAlignment = .center
+        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        return label
     }()
     
     private lazy var trackerCardNameLabel: UILabel = {
-        let trackerCardNameLabel = UILabel()
-        trackerCardNameLabel.font = UIFont(name: "YSDisplay-Medium", size: 12)
-        trackerCardNameLabel.textColor = .white
-        trackerCardNameLabel.numberOfLines = 2
-        return trackerCardNameLabel
+        let label = UILabel()
+        label.font = UIFont(name: "YSDisplay-Medium", size: 12)
+        label.textColor = .white
+        label.numberOfLines = 2
+        return label
     }()
     
     private lazy var trackerButton: UIButton = {
-        let trackerButton = UIButton()
-        trackerButton.layer.masksToBounds = true
-        trackerButton.layer.cornerRadius = 17
-        trackerButton.addTarget(self, action: #selector(didTapTrackerButton), for: .touchUpInside)
-        return trackerButton
+        let button = UIButton()
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 17
+        button.addTarget(self, action: #selector(didTapTrackerButton), for: .touchUpInside)
+        return button
     }()
     
     private lazy var daysCounterLabel: UILabel = {
-        let daysCounterLabel = UILabel()
-        daysCounterLabel.text = "1 день"
-        daysCounterLabel.textColor = .black
-        daysCounterLabel.font = UIFont(name: "YSDisplay-Medium", size: 12)
-        return daysCounterLabel
+        let label = UILabel()
+        label.text = "1 день"
+        label.textColor = .black
+        label.font = UIFont(name: "YSDisplay-Medium", size: 12)
+        return label
     }()
     
     @objc private func didTapTrackerButton(){
@@ -87,6 +87,12 @@ final class TrackerCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configureCell(tracker: Tracker){
+        trackerCardView.backgroundColor = tracker.color
+        trackerCardNameLabel.text = tracker.name
+        trackerCardEmojiLabel.text = tracker.emoji
     }
     
 }

@@ -8,9 +8,17 @@
 import Foundation
 import UIKit
 
+protocol ScheduleViewControllerDelegate: AnyObject {
+    func didSelectDays(days: [Weekday])
+}
+
 final class ScheduleViewController: UIViewController {
     
     private let weekdays = Weekday.allCases
+    private var selectedDays: [Weekday] = []
+    private let tableViewItems = Weekday.allCases.map(\.rawValue)
+    
+    weak var delegate: ScheduleViewControllerDelegate?
     
     private lazy var scheduleLabel: UILabel = {
         let label = UILabel()
@@ -67,6 +75,7 @@ final class ScheduleViewController: UIViewController {
     }
     
     @objc private func doneButtonDidTap(){
+        delegate?.didSelectDays(days: selectedDays)
         dismiss(animated: true)
     }
 }
@@ -86,12 +95,14 @@ extension ScheduleViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        7
+        weekdays.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.scheduleCellIdentifier, for: indexPath) as! ScheduleCell
-        cell.configureCell(with: weekdays[indexPath.row])
+        cell.delegate = self
+        let isOn = selectedDays.contains(where: { $0.rawValue == tableViewItems[indexPath.row] })
+        cell.configureCell(with: tableViewItems[indexPath.row], isOn: isOn)
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         return cell
     }
@@ -122,6 +133,24 @@ extension ScheduleViewController: UITableViewDataSource {
         }
         
         cell.layer.masksToBounds = true
+    }
+    
+    
+}
+
+extension ScheduleViewController: ScheduleCellDelegate {
+    func switchStateChanged(isOn: Bool, for day: String?) {
+        guard let day = Weekday(rawValue: day ?? "") else {return}
+        if isOn {
+             if !selectedDays.contains(day) {
+                 selectedDays.append(day)
+             }
+         } else {
+             if let index = selectedDays.firstIndex(of: day) {
+                 selectedDays.remove(at: index)
+             }
+         }
+        print("\(selectedDays)")
     }
     
     

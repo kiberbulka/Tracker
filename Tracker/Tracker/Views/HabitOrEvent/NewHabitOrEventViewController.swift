@@ -10,72 +10,79 @@ import UIKit
 
 final class NewHabitOrEventViewController: UIViewController, CategorySelectionDelegate {
     
-
+    
     var isHabit: Bool = true
     var selectedCategories: [String] = []
     var categoryCellIndexPath: IndexPath?
-
+    var tracker: Tracker?
+    
+    private var schedule: [Weekday] = []
+    
     
     private lazy var newHabitLabel: UILabel = {
-        let newHabitLabel = UILabel()
-        newHabitLabel.text = "Новая привычка"
-        newHabitLabel.font = UIFont(name: "YSDisplay-Medium", size: 16)
-        newHabitLabel.textColor = .black
-        return newHabitLabel
+        let label = UILabel()
+        label.text = "Новая привычка"
+        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.textColor = .black
+        return label
     }()
     
     private lazy var trackerNameTF: UITextField = {
-        let trackerNameTF = UITextField()
-        trackerNameTF.backgroundColor = .ypGray
-        trackerNameTF.layer.masksToBounds = true
-        trackerNameTF.layer.cornerRadius = 16
-        trackerNameTF.placeholder = "Введите название трекера"
-        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: trackerNameTF.frame.height))
-        trackerNameTF.leftView = leftPaddingView
+        let textField = UITextField()
+        textField.backgroundColor = .ypGray
+        textField.layer.masksToBounds = true
+        textField.layer.cornerRadius = 16
+        textField.placeholder = "Введите название трекера"
+        let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
+        textField.leftView = leftPaddingView
         let clearButton = UIButton(type: .custom)
         clearButton.setImage(.xmark, for: .normal)
-              clearButton.frame = CGRect(x: 0, y: 0, width: 17, height: 17)
-              clearButton.addTarget(self, action: #selector(clearButtonDidTap), for: .touchUpInside)
-              
-              let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: clearButton.frame.width + 12, height: clearButton.frame.height))
-              rightPaddingView.addSubview(clearButton)
-              trackerNameTF.rightView = rightPaddingView
-              trackerNameTF.rightViewMode = .whileEditing
-        trackerNameTF.leftViewMode = .always
-        return trackerNameTF
+        clearButton.frame = CGRect(x: 0, y: 0, width: 17, height: 17)
+        clearButton.addTarget(self, action: #selector(clearButtonDidTap), for: .touchUpInside)
+        
+        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: clearButton.frame.width + 12, height: clearButton.frame.height))
+        rightPaddingView.addSubview(clearButton)
+        textField.rightView = rightPaddingView
+        textField.rightViewMode = .whileEditing
+        textField.leftViewMode = .always
+        textField.delegate = self
+        return textField
     }()
     
     private lazy var cancelButton: UIButton = {
-        let cancelButton = UIButton()
-        cancelButton.setTitle("Отменить", for: .normal)
-        cancelButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
-        cancelButton.setTitleColor(.ypRed, for: .normal)
-        cancelButton.layer.borderColor = UIColor.ypRed.cgColor
-        cancelButton.layer.borderWidth = 1
-        cancelButton.layer.cornerRadius = 16
-        cancelButton.addTarget(self, action: #selector(cancelButtonDidTap), for: .touchUpInside)
-        return cancelButton
+        let button = UIButton()
+        button.setTitle("Отменить", for: .normal)
+        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.setTitleColor(.ypRed, for: .normal)
+        button.layer.borderColor = UIColor.ypRed.cgColor
+        button.layer.borderWidth = 1
+        button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(cancelButtonDidTap), for: .touchUpInside)
+        return button
     }()
     
     private lazy var characterLimitLabel: UILabel = {
-        let characterLimitLabel = UILabel()
-        characterLimitLabel.textColor = .ypRed
-        characterLimitLabel.text = "Ограничение 38 символов"
-        characterLimitLabel.font = UIFont(name: "YSDisplay-Medium", size: 17)
-        characterLimitLabel.textAlignment = .center
-        characterLimitLabel.isHidden = true
-        return characterLimitLabel
+        let label = UILabel()
+        label.textColor = .ypRed
+        label.text = "Ограничение 38 символов"
+        label.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        label.textAlignment = .center
+        label.isHidden = true
+        return label
     }()
     
     private lazy var createButton: UIButton = {
-        let createButton = UIButton()
-        createButton.backgroundColor = .ypLightGray
-        createButton.layer.masksToBounds = true
-        createButton.layer.cornerRadius = 16
-        createButton.setTitle("Создать", for: .normal)
-        createButton.titleLabel?.textColor = .white
-        createButton.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
-        return createButton
+        let button = UIButton()
+        button.backgroundColor = .ypLightGray
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 16
+        button.setTitle("Создать", for: .normal)
+        button.addTarget(self, action: #selector(createButtonDidTap), for: .touchUpInside)
+        button.titleLabel?.textColor = .white
+        button.isEnabled = false
+        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        
+        return button
     }()
     
     private lazy var tableView: UITableView = {
@@ -84,7 +91,45 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         return tableView
     }()
     
+    @objc private func createButtonDidTap() {
+        let tracker = makeTracker()
+        //delegate?.didMakeTracker(tracker)
+        
+        presentingViewController?.presentingViewController?.dismiss(animated: true)
+
+        
+
+        print("\(tracker)")
+    }
     
+    private func createButtonIsAvailable(){
+        let isText = trackerNameTF.hasText
+        let selectedCategories = !selectedCategories.isEmpty
+        let selectedScedule = !schedule.isEmpty
+        let buttonIsAvailable: Bool
+        
+        if isHabit{
+            buttonIsAvailable = isText && selectedScedule && selectedCategories
+        } else {
+            buttonIsAvailable = isText && selectedCategories
+        }
+        createButton.isEnabled = buttonIsAvailable
+        createButton.backgroundColor = buttonIsAvailable ? .black : .ypLightGray
+        
+    }
+    
+    private func makeTracker()->Tracker{
+        let name = trackerNameTF.text ?? ""
+        let id = UUID()
+        let emoji = "🤪"
+        let color = UIColor.colorSelection6
+        let schedule = schedule
+        
+        let type = isHabit ? TrackerType.habit : TrackerType.irregularEvent
+
+        
+        return Tracker(id: id, name: name, emoji: emoji, color: color, schedule: schedule, type: type)
+    }
     
     private func setupUI(){
         view.backgroundColor = .white
@@ -103,19 +148,19 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             trackerNameTF.heightAnchor.constraint(equalToConstant: 75),
             
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
-                       cancelButton.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 24),
-                       cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                       cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            cancelButton.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 24),
+            cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             createButton.heightAnchor.constraint(equalToConstant: 60),
-                       createButton.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 24),
-                       createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                       createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            createButton.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 24),
+            createButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             tableView.topAnchor.constraint(equalTo: characterLimitLabel.bottomAnchor, constant: 24),
-                       tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             tableView.bottomAnchor.constraint(equalTo: createButton.topAnchor,constant: -16),
-                       tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
             characterLimitLabel.heightAnchor.constraint(equalToConstant: 32),
             characterLimitLabel.widthAnchor.constraint(equalToConstant: 286),
@@ -151,21 +196,36 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         tableView.reloadData()
     }
     
+    private func scheduleSubtitle()->String{
+        if schedule.count == 7 {
+            return "Каждый день"
+        } else {
+            let shortNames = schedule
+                .sorted {
+                    guard let firstIndex = Weekday.allCases.firstIndex(of: $0),
+                          let secondIndex = Weekday.allCases.firstIndex(of: $1) else { return false }
+                    return firstIndex < secondIndex
+                }
+                .map { $0.shortName }
+            return shortNames.joined(separator: ", ")
+        }
+    }
+    
     func didSelectCategory(_ category: String) {
         if !selectedCategories.contains(category) {
-                    selectedCategories.append(category)
-                }
-
-                // Обновляем отображение категорий в subtitle
-                if let indexPath = categoryCellIndexPath {
-                    if let cell = tableView.cellForRow(at: indexPath) {
-                        // Объединяем все категории в одну строку
-                        cell.detailTextLabel?.text = selectedCategories.joined(separator: ", ")
-                    }
-                }
-
-                // Перезагружаем таблицу, чтобы обновить все данные
-                tableView.reloadData()
+            selectedCategories.append(category)
+        }
+        
+        // Обновляем отображение категорий в subtitle
+        if let indexPath = categoryCellIndexPath {
+            if let cell = tableView.cellForRow(at: indexPath) {
+                // Объединяем все категории в одну строку
+                cell.detailTextLabel?.text = selectedCategories.joined(separator: ", ")
+            }
+        }
+        
+        // Перезагружаем таблицу, чтобы обновить все данные
+        tableView.reloadData()
     }
 }
 
@@ -176,20 +236,23 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-               configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
-               cell.backgroundColor = .ypGray
-               cell.textLabel?.font = UIFont(name: "YSDisplay-Medium", size: 17)
-               cell.selectionStyle = .none
-
-               if indexPath.row == 0 {
-                   cell.textLabel?.text = "Категория"
-                   // Показываем все выбранные категории через запятую
-                   cell.detailTextLabel?.text = selectedCategories.isEmpty ? "" : selectedCategories.joined(separator: ", ")
-               } else {
-                   cell.textLabel?.text = "Расписание"
-               }
-
-               return cell
+        configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
+        cell.backgroundColor = .ypGray
+        cell.textLabel?.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        cell.detailTextLabel?.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        cell.detailTextLabel?.textColor = .ypLightGray
+        cell.selectionStyle = .none
+        
+        if indexPath.row == 0 {
+            cell.textLabel?.text = "Категория"
+            // Показываем все выбранные категории через запятую
+            cell.detailTextLabel?.text = selectedCategories.isEmpty ? "" : selectedCategories.joined(separator: ", ")
+        } else {
+            cell.textLabel?.text = "Расписание"
+            cell.detailTextLabel?.text = scheduleSubtitle()
+        }
+        
+        return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -198,21 +261,22 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-                 // Сохраняем индекс выбранной ячейки
-                 categoryCellIndexPath = indexPath
-                 let categoryVC = CategoryViewController()
-                 categoryVC.delegate = self // Передаем делегат
-                 present(categoryVC, animated: true)
-             } else {
-                 let scheduleVC = ScheduleViewController()
-                 present(scheduleVC, animated: true)
-             }
+            // Сохраняем индекс выбранной ячейки
+            categoryCellIndexPath = indexPath
+            let categoryVC = CategoryViewController()
+            categoryVC.delegate = self // Передаем делегат
+            present(categoryVC, animated: true)
+        } else {
+            let scheduleVC = ScheduleViewController()
+            scheduleVC.delegate = self
+            present(scheduleVC, animated: true)
+        }
     }
     
     private func configureCornerRadius(for cell: UITableViewCell, indexPath: IndexPath, tableView: UITableView) {
         let cornerRadius:CGFloat = 16
         let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
-
+        
         if numberOfRows == 1 {
             cell.layer.cornerRadius = cornerRadius
             cell.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
@@ -238,9 +302,9 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         
         if isLastCell {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
-        } 
+        }
     }
- 
+    
     
 }
 
@@ -250,12 +314,27 @@ extension NewHabitOrEventViewController: UITableViewDelegate {
 
 extension NewHabitOrEventViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-           let currentText = textField.text ?? ""
-           let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
-           characterLimitLabel.isHidden = newText.count < 38
+        let currentText = textField.text ?? ""
+        let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+        characterLimitLabel.isHidden = newText.count < 38
+        
+        return newText.count <= 39
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            textField.resignFirstResponder()
+            createButtonIsAvailable()
+            return true
+        }
+}
 
-           return newText.count <= 39
-       }
+extension NewHabitOrEventViewController: ScheduleViewControllerDelegate {
+    func didSelectDays(days: [Weekday]) {
+        schedule = days
+        tableView.reloadData()
+    }
+    
+    
 }
 #Preview{
     NewHabitOrEventViewController()
