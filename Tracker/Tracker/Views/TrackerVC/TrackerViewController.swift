@@ -10,7 +10,8 @@ import UIKit
 class TrackerViewController: UIViewController {
     
     private var trackers: [Tracker] = []
-    var tracker: Tracker?
+    private var tracker: Tracker?
+    
     
     private lazy var addTrackerButton: UIButton = {
         let addTrackerButton = UIButton()
@@ -89,6 +90,10 @@ class TrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        trackers = [
+              Tracker(id: UUID(), name: "Трекер 1", emoji: "😊", color: .red, schedule: [], type: .habit),
+              Tracker(id: UUID(), name: "Трекер 2", emoji: "😎", color: .blue, schedule: [], type: .habit)
+          ]
         setupUI()
         showPlaceholder()
         view.backgroundColor = .white
@@ -133,10 +138,10 @@ class TrackerViewController: UIViewController {
             placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
             placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
-            collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor, constant: 54),
                         collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-                        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+                        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
 
             
         ])
@@ -172,11 +177,31 @@ extension TrackerViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         let tracker = trackers[indexPath.row]
-        cell.configureCell(tracker: tracker)
+        cell.configureCell(tracker: tracker, isCompletedToday: <#T##Bool#>)
         return cell
         
         
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        viewForSupplementaryElementOfKind kind: String,
+                        at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionHeader {
+            let header = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: "header",
+                for: indexPath) as! SupplementaryView
+            return header
+        }
+        return UICollectionReusableView()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: view.frame.width, height: 50)
+    }
+
 }
 
 extension TrackerViewController: UITextFieldDelegate{
@@ -185,11 +210,32 @@ extension TrackerViewController: UITextFieldDelegate{
 
 extension TrackerViewController: NewHabitOrEventViewControllerDelegate {
     func didCreateTracker(_ tracker: Tracker) {
-        print("🎯 Новый трекер \(tracker.name) будет добавлен.")
           trackers.append(tracker)
-          print("🎯 Массив после добавления: \(trackers)")
-          collectionView.reloadData()  // Обновляем UI
+          collectionView.reloadData()
       }
+}
+
+extension TrackerViewController: UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let itemCount: CGFloat = 2
+        let space: CGFloat = 9
+        let width: CGFloat = (collectionView.bounds.width - space - 32) / itemCount
+        let height: CGFloat = 148
+        return CGSize(width: width, height: height)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 9
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 5
+    }
 }
 
     

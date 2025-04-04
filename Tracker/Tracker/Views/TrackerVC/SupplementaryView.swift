@@ -14,6 +14,7 @@ final class SupplementaryView: UICollectionReusableView {
         let titleLabel = UILabel()
         titleLabel.font = UIFont(name: "YSDisplay-Bold", size: 19)
         titleLabel.textColor = .black
+        titleLabel.text = "Важное"
         return titleLabel
     }()
     
