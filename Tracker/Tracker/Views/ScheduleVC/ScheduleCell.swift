@@ -68,6 +68,4 @@ final class ScheduleCell: UITableViewCell {
         ])
     }
 }
-#Preview{
-    ScheduleCell()
-}
+

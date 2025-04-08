@@ -13,33 +13,35 @@ final class CreateTrackerViewController: UIViewController {
     weak var delegate: NewHabitOrEventViewControllerDelegate?
     
     private lazy var createHabitButton: UIButton = {
-        let createHabitButton = UIButton()
-        createHabitButton.setTitle("Привычка", for: .normal)
-        createHabitButton.backgroundColor = .black
-        createHabitButton.setTitleColor(.white, for: .normal)
-        createHabitButton.layer.masksToBounds = true
-        createHabitButton.layer.cornerRadius = 16
-        createHabitButton.addTarget(self, action: #selector(createHabitButtonDidTap), for: .touchUpInside)
-        return createHabitButton
+        let button = UIButton()
+        button.setTitle("Привычка", for: .normal)
+        button.backgroundColor = .black
+        button.setTitleColor(.white, for: .normal)
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 16
+        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.addTarget(self, action: #selector(createHabitButtonDidTap), for: .touchUpInside)
+        return button
     }()
     
     private lazy var createEventButton: UIButton = {
-        let createEventButton = UIButton()
-        createEventButton.setTitle("Нерегулярное событие", for: .normal)
-        createEventButton.backgroundColor = .black
-        createEventButton.setTitleColor(.white, for: .normal)
-        createEventButton.layer.masksToBounds = true
-        createEventButton.layer.cornerRadius = 16
-        createEventButton.addTarget(self, action: #selector(createEventButtonDidTap), for: .touchUpInside)
-        return createEventButton
+        let button = UIButton()
+        button.setTitle("Нерегулярное событие", for: .normal)
+        button.backgroundColor = .black
+        button.setTitleColor(.white, for: .normal)
+        button.layer.masksToBounds = true
+        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(createEventButtonDidTap), for: .touchUpInside)
+        return button
     }()
     
     private lazy var createLabel: UILabel = {
-        let createLable = UILabel()
-        createLable.text = "Создание трекера"
-        createLable.font = UIFont(name: "YSDisplay-Medium", size: 16)
-        createLable.textColor = .black
-        return createLable
+        let label = UILabel()
+        label.text = "Создание трекера"
+        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.textColor = .black
+        return label
     }()
     
     
@@ -83,6 +85,4 @@ final class CreateTrackerViewController: UIViewController {
         present(createNewEventVC, animated: true)
     }
 }
-#Preview{
-    CreateTrackerViewController()
-}
+

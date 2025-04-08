@@ -8,13 +8,24 @@
 import Foundation
 import UIKit
 
+protocol TrackerCellDelegate: AnyObject {
+    func completeTracker(id: UUID, at indexPath: IndexPath)
+    func uncompletedTracker(id:UUID, at indexPath: IndexPath)
+}
+
 final class TrackerCell: UICollectionViewCell {
+    
     static let trackerCellIdentifier = "TrackerCell"
+    
+    private var isCompletedToday: Bool = false
+    private var trackerId: UUID?
+    private var indexPath: IndexPath?
+    
+    weak var delegate: TrackerCellDelegate?
     
     private lazy var trackerCardView: UIView = {
         let view = UIView()
         view.layer.masksToBounds = true
-        view.backgroundColor = trackerButton.backgroundColor
         view.layer.cornerRadius = 16
         return view
     }()
@@ -41,7 +52,6 @@ final class TrackerCell: UICollectionViewCell {
         let button = UIButton()
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 17
-        button.backgroundColor = .colorSelection6
         button.addTarget(self, action: #selector(didTapTrackerButton), for: .touchUpInside)
         return button
     }()
@@ -55,7 +65,11 @@ final class TrackerCell: UICollectionViewCell {
     }()
     
     @objc private func didTapTrackerButton(){
-        
+        guard let id = trackerId, let indexPath = indexPath else {
+            assertionFailure("no trackerId")
+            return
+        }
+        isCompletedToday ? delegate?.uncompletedTracker(id: id, at: indexPath) : delegate?.completeTracker(id: id, at: indexPath)
     }
     
     private func setupUI(){
@@ -77,7 +91,7 @@ final class TrackerCell: UICollectionViewCell {
             
             trackerButton.heightAnchor.constraint(equalToConstant: 34),
             trackerButton.widthAnchor.constraint(equalToConstant: 34),
-            trackerButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            trackerButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             trackerButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             
             daysCounterLabel.centerYAnchor.constraint(equalTo: trackerButton.centerYAnchor),
@@ -99,16 +113,33 @@ final class TrackerCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureCell(tracker: Tracker, isCompletedToday: Bool){
+    func configureCell(tracker: Tracker, isCompletedToday: Bool, completedDays:Int, indexPath: IndexPath){
+        self.trackerId = tracker.id
+        self.isCompletedToday = isCompletedToday
+        self.indexPath = indexPath
         trackerCardView.backgroundColor = tracker.color
         trackerCardNameLabel.text = tracker.name
         trackerCardEmojiLabel.text = tracker.emoji
-        trackerButton.backgroundColor = trackerCardView.backgroundColor
-        let image = isCompletedToday ? UIImage(named: "doneButton") : UIImage(named: "plusButton")
-        trackerButton.setImage(image, for: .normal)
+        daysCounterLabel.text = pluralizeDays(completedDays)
+        trackerButton.tintColor = tracker.color
+        let imageName = isCompletedToday ? "doneButton" : "plusButton"
+        if let image = UIImage(named: imageName)?.withRenderingMode(.alwaysTemplate) {
+            trackerButton.setImage(image, for: .normal)
+            trackerButton.tintColor = tracker.color
+        }
+
     }
     
-}
-#Preview {
-    TrackerCell()
+    private func pluralizeDays(_ count: Int) -> String {
+            let remainder10 = count % 10
+            let remainder100 = count % 100
+            if remainder10 == 1 && remainder100 != 11 {
+                return "\(count) день"
+            } else if remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 10 || remainder100 >= 2) {
+                return "\(count) дня"
+            } else {
+                return "\(count) дней"
+            }
+        }
+    
 }

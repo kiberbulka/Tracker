@@ -9,16 +9,17 @@ import Foundation
 import UIKit
 
 protocol NewHabitOrEventViewControllerDelegate: AnyObject {
-    func didCreateTracker(_ tracker: Tracker)
+    func didCreateTrackerOrEvent(tracker: Tracker)
 }
 
 final class NewHabitOrEventViewController: UIViewController, CategorySelectionDelegate {
     
     
     var isHabit: Bool = true
-    var selectedCategories: [String] = []
+    var selectedCategories :[String] = []
     var categoryCellIndexPath: IndexPath?
     var tracker: Tracker?
+    private var category: TrackerCategory? = TrackerCategory(title: "Домашний уют", trackers: [])
     
     weak var delegate: NewHabitOrEventViewControllerDelegate?
     
@@ -98,17 +99,25 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     }()
     
     @objc private func createButtonDidTap() {
-        let newTracker = makeTracker()
-                delegate?.didCreateTracker(newTracker)
+        let name = trackerNameTF.text ?? ""
+        let id = UUID()
+        let emoji = "🤪"
+        let color = UIColor.colorSelection6
+        let schedule = schedule
+        
+        let type = isHabit ? TrackerType.habit : TrackerType.irregularEvent
+        
+        let tracker = Tracker(id: id, name: name, emoji: emoji, color: color, schedule: schedule, type: type)
+        
+        delegate?.didCreateTrackerOrEvent(tracker: tracker)
         presentingViewController?.presentingViewController?.dismiss(animated: true)
     }
     
     private func createButtonIsAvailable(){
         let isText = trackerNameTF.hasText
-        let selectedCategories = !selectedCategories.isEmpty
         let selectedScedule = !schedule.isEmpty
         let buttonIsAvailable: Bool
-        
+        let selectedCategories = !selectedCategories.isEmpty
         if isHabit{
             buttonIsAvailable = isText && selectedScedule && selectedCategories
         } else {
@@ -117,19 +126,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         createButton.isEnabled = buttonIsAvailable
         createButton.backgroundColor = buttonIsAvailable ? .black : .ypLightGray
         
-    }
-    
-    private func makeTracker()->Tracker{
-        let name = trackerNameTF.text ?? ""
-        let id = UUID()
-        let emoji = "🤪"
-        let color = UIColor.colorSelection6
-        let schedule = schedule
-        
-        let type = isHabit ? TrackerType.habit : TrackerType.irregularEvent
-
-        
-        return Tracker(id: id, name: name, emoji: emoji, color: color, schedule: schedule, type: type)
     }
     
     private func setupUI(){
@@ -216,16 +212,11 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         if !selectedCategories.contains(category) {
             selectedCategories.append(category)
         }
-        
-        // Обновляем отображение категорий в subtitle
         if let indexPath = categoryCellIndexPath {
             if let cell = tableView.cellForRow(at: indexPath) {
-                // Объединяем все категории в одну строку
                 cell.detailTextLabel?.text = selectedCategories.joined(separator: ", ")
             }
         }
-        
-        // Перезагружаем таблицу, чтобы обновить все данные
         tableView.reloadData()
     }
 }
@@ -246,7 +237,6 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         
         if indexPath.row == 0 {
             cell.textLabel?.text = "Категория"
-            // Показываем все выбранные категории через запятую
             cell.detailTextLabel?.text = selectedCategories.isEmpty ? "" : selectedCategories.joined(separator: ", ")
         } else {
             cell.textLabel?.text = "Расписание"
@@ -262,10 +252,9 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            // Сохраняем индекс выбранной ячейки
             categoryCellIndexPath = indexPath
             let categoryVC = CategoryViewController()
-            categoryVC.delegate = self // Передаем делегат
+            categoryVC.delegate = self
             present(categoryVC, animated: true)
         } else {
             let scheduleVC = ScheduleViewController()
@@ -336,7 +325,4 @@ extension NewHabitOrEventViewController: ScheduleViewControllerDelegate {
     }
     
     
-}
-#Preview{
-    NewHabitOrEventViewController()
 }

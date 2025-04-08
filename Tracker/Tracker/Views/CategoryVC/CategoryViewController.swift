@@ -14,7 +14,7 @@ protocol CategorySelectionDelegate: AnyObject {
 
 final class CategoryViewController: UIViewController {
     
-    var categories: [String] = ["Категория 1", "Категория 2"]
+    var categories: [String] = ["Домашний уют"]
     var selectedCategory: String?
     
     weak var delegate: CategorySelectionDelegate?
@@ -150,6 +150,4 @@ extension CategoryViewController: UITableViewDataSource {
     
     
 }
-#Preview{
-    CategoryViewController()
-}
+

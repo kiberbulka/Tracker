@@ -155,6 +155,3 @@ extension ScheduleViewController: ScheduleCellDelegate {
     
     
 }
-#Preview{
-    ScheduleViewController()
-}
