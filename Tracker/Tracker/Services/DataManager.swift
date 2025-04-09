@@ -17,5 +17,6 @@ final class DataManager {
     
     func add(category: TrackerCategory){
         categories.append(category)
+        
     }
 }

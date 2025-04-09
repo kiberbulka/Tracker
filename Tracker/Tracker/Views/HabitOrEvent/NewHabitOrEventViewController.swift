@@ -14,17 +14,20 @@ protocol NewHabitOrEventViewControllerDelegate: AnyObject {
 
 final class NewHabitOrEventViewController: UIViewController, CategorySelectionDelegate {
     
+    // MARK: - Public Properties
     
     var isHabit: Bool = true
     var selectedCategories :[String] = []
     var categoryCellIndexPath: IndexPath?
     var tracker: Tracker?
-    private var category: TrackerCategory? = TrackerCategory(title: "Домашний уют", trackers: [])
     
     weak var delegate: NewHabitOrEventViewControllerDelegate?
     
-    private var schedule: [Weekday] = []
+    // MARK: - Private Properties
     
+    private var category: TrackerCategory? = TrackerCategory(title: "Домашний уют", trackers: [])
+    private let dataManager = DataManager.shared
+    private var schedule: [Weekday] = []
     
     private lazy var newHabitLabel: UILabel = {
         let label = UILabel()
@@ -98,18 +101,53 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         return tableView
     }()
     
+    // MARK: - Overrides Methods
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        habitOrEventLabel()
+        tableView.delegate = self
+        tableView.dataSource = self
+        trackerNameTF.delegate = self
+        print("\(selectedCategories)")
+    }
+    
+    // MARK: - Public Methods
+    
+    func didSelectCategory(_ category: String) {
+        if !selectedCategories.contains(category) {
+            selectedCategories.append(category)
+        }
+        if let indexPath = categoryCellIndexPath {
+            if let cell = tableView.cellForRow(at: indexPath) {
+                cell.detailTextLabel?.text = selectedCategories.joined(separator: ", ")
+            }
+        }
+        tableView.reloadData()
+    }
+    
+    // MARK: - Private Methods
+    
     @objc private func createButtonDidTap() {
         let name = trackerNameTF.text ?? ""
         let id = UUID()
         let emoji = "🤪"
         let color = UIColor.colorSelection6
-        let schedule = schedule
+        
+        let schedule = isHabit ? schedule : []
         
         let type = isHabit ? TrackerType.habit : TrackerType.irregularEvent
         
         let tracker = Tracker(id: id, name: name, emoji: emoji, color: color, schedule: schedule, type: type)
         
+        for category in selectedCategories {
+            dataManager.add(category: TrackerCategory(title: category, trackers: [tracker]))
+        }
+        
         delegate?.didCreateTrackerOrEvent(tracker: tracker)
+        NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
+        
         presentingViewController?.presentingViewController?.dismiss(animated: true)
     }
     
@@ -166,15 +204,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         ])
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        habitOrEventLabel()
-        tableView.delegate = self
-        tableView.dataSource = self
-        trackerNameTF.delegate = self
-    }
-    
     @objc private func cancelButtonDidTap(){
         dismiss(animated: true)
     }
@@ -208,17 +237,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         }
     }
     
-    func didSelectCategory(_ category: String) {
-        if !selectedCategories.contains(category) {
-            selectedCategories.append(category)
-        }
-        if let indexPath = categoryCellIndexPath {
-            if let cell = tableView.cellForRow(at: indexPath) {
-                cell.detailTextLabel?.text = selectedCategories.joined(separator: ", ")
-            }
-        }
-        tableView.reloadData()
-    }
 }
 
 extension NewHabitOrEventViewController: UITableViewDataSource {
@@ -312,10 +330,10 @@ extension NewHabitOrEventViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-            textField.resignFirstResponder()
-            createButtonIsAvailable()
-            return true
-        }
+        textField.resignFirstResponder()
+        createButtonIsAvailable()
+        return true
+    }
 }
 
 extension NewHabitOrEventViewController: ScheduleViewControllerDelegate {
@@ -323,6 +341,4 @@ extension NewHabitOrEventViewController: ScheduleViewControllerDelegate {
         schedule = days
         tableView.reloadData()
     }
-    
-    
 }
