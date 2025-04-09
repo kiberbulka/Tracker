@@ -9,6 +9,8 @@ import UIKit
 
 class TrackerViewController: UIViewController {
     
+    // MARK: - Private Properties
+    
     private var trackers: [Tracker] = []
     private var tracker: Tracker?
     private var categories: [TrackerCategory] = []
@@ -16,7 +18,6 @@ class TrackerViewController: UIViewController {
     private var completedTrackers: [TrackerRecord] = []
     private var currenDate: Date?
     private let dataManager = DataManager.shared
-    
     
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton()
@@ -94,20 +95,32 @@ class TrackerViewController: UIViewController {
         return placeholderLabel
     }()
     
+    // MARK: - Initializers
+    
+    // MARK: - Overrides Methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        trackers = [
-            Tracker(id: UUID(), name: "Трекер 1", emoji: "😊", color: .colorSection1, schedule: [.friday, .monday], type: .habit),
-            Tracker(id: UUID(), name: "Трекер 2", emoji: "😎", color: .colorSection8, schedule: [.sunday, .wednesday], type: .habit)
-        ]
         setupUI()
         showPlaceholder()
         view.backgroundColor = .white
-        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        reloadData()
+    }
+    
+    // MARK: - Private Methods
+    
+    @objc private func handleDidCreateTracker() {
+        reloadData()
+        collectionView.reloadData()
     }
     
     private func showPlaceholder(){
-        if trackers.isEmpty {
+        if visibleCategories.isEmpty {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
         } else {
@@ -119,6 +132,8 @@ class TrackerViewController: UIViewController {
     private func reloadData(){
         categories = dataManager.categories
         datePickerValueChanged()
+        collectionView.reloadData()
+        showPlaceholder()
     }
     
     private func setupUI() {
@@ -157,23 +172,27 @@ class TrackerViewController: UIViewController {
         ])
     }
     
-    @objc private func datePickerValueChanged(){
+    @objc private func datePickerValueChanged() {
         let calendar = Calendar.current
         let filteredWeekday = calendar.component(.weekday, from: datePicker.date)
+        
         visibleCategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 tracker.schedule.contains { weekDay in
                     weekDay.numberValue == filteredWeekday
                 } == true
             }
+            
             if trackers.isEmpty {
                 return nil
             }
-            return TrackerCategory(title: category.title,
-                            trackers: trackers
-
-            )
+            
+            return TrackerCategory(title: category.title, trackers: trackers)
         }
+        
+        // Проверка, есть ли данные в visibleCategories
+        print("Обновленные visibleCategories: \(visibleCategories)")
+        
         collectionView.reloadData()
     }
     
@@ -200,22 +219,30 @@ extension TrackerViewController: UICollectionViewDelegate {
 }
 
 extension TrackerViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return trackers.count
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return visibleCategories.count
     }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard section < visibleCategories.count else {
+            print("⚠️ Запрошен несуществующий section \(section), а у нас только \(visibleCategories.count)")
+            return 0
+        }
+        return visibleCategories[section].trackers.count
+    }
+    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCell.trackerCellIdentifier, for: indexPath) as? TrackerCell else {
             return UICollectionViewCell()
         }
-        let tracker = trackers[indexPath.row]
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         cell.delegate = self
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.trackerID == tracker.id}.count
         cell.configureCell(tracker: tracker, isCompletedToday: isCompletedToday, completedDays: completedDays, indexPath: indexPath)
         return cell
-        
-        
     }
     
     func collectionView(_ collectionView: UICollectionView,
@@ -226,6 +253,9 @@ extension TrackerViewController: UICollectionViewDataSource {
                 ofKind: kind,
                 withReuseIdentifier: "header",
                 for: indexPath) as! SupplementaryView
+            let category = visibleCategories[indexPath.section]
+            
+            header.configure(text: category.title)
             return header
         }
         return UICollectionReusableView()
@@ -236,14 +266,12 @@ extension TrackerViewController: UICollectionViewDataSource {
                         referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: view.frame.width, height: 50)
     }
-    
 }
 
 extension TrackerViewController: UITextFieldDelegate{
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         searchTextField.resignFirstResponder()
-        
     }
 }
 
@@ -262,18 +290,13 @@ extension TrackerViewController: TrackerCellDelegate {
         }
         collectionView.reloadItems(at: [indexPath])
     }
-    
-    
 }
 
 extension TrackerViewController: NewHabitOrEventViewControllerDelegate {
     func didCreateTrackerOrEvent(tracker: Tracker) {
         trackers.append(tracker)
-          collectionView.reloadData()
+        reloadData()
     }
-
-    
- 
 }
 
 extension TrackerViewController: UICollectionViewDelegateFlowLayout{

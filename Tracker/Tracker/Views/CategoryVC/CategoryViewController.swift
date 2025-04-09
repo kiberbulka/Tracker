@@ -14,10 +14,14 @@ protocol CategorySelectionDelegate: AnyObject {
 
 final class CategoryViewController: UIViewController {
     
+    // MARK: - Public Properties
+    
     var categories: [String] = ["Домашний уют"]
     var selectedCategory: String?
     
     weak var delegate: CategorySelectionDelegate?
+    
+    // MARK: - Private Properties
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -43,6 +47,8 @@ final class CategoryViewController: UIViewController {
         return tableView
     }()
     
+    // MARK: - Overrides Methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -51,7 +57,7 @@ final class CategoryViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    
+    // MARK: - Private Methods
     
     private func setupUI(){
         
@@ -130,8 +136,8 @@ extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCategory = categories[indexPath.row]
         print("\(selectedCategory)")
-         delegate?.didSelectCategory(selectedCategory)
-         navigationController?.popViewController(animated: true)
+        delegate?.didSelectCategory(selectedCategory)
+        navigationController?.popViewController(animated: true)
         if let cell = tableView.cellForRow(at: indexPath) {
             cell.accessoryType = .checkmark
         }
@@ -145,9 +151,6 @@ extension CategoryViewController: UITableViewDataSource {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
     }
-    
-    
-    
-    
+
 }
 
