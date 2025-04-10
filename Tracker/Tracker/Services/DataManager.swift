@@ -15,8 +15,15 @@ final class DataManager {
     
     private init(){}
     
-    func add(category: TrackerCategory){
-        categories.append(category)
-        
+    func add(tracker: Tracker, to categoryTitle: String) {
+        if let index = categories.firstIndex(where: { $0.title == categoryTitle }) {
+            let existingCategory = categories[index]
+            let updatedCategory = TrackerCategory(title: existingCategory.title, trackers: existingCategory.trackers + [tracker])
+            categories[index] = updatedCategory
+        } else {
+            let newCategory = TrackerCategory(title: categoryTitle, trackers: [tracker])
+            categories.append(newCategory)
+        }
     }
+
 }

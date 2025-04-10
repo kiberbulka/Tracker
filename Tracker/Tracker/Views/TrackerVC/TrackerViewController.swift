@@ -117,6 +117,7 @@ class TrackerViewController: UIViewController {
     @objc private func handleDidCreateTracker() {
         reloadData()
         collectionView.reloadData()
+        showPlaceholder()
     }
     
     private func showPlaceholder(){

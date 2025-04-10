@@ -134,22 +134,38 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let id = UUID()
         let emoji = "🤪"
         let color = UIColor.colorSelection6
-        
-        let schedule = isHabit ? schedule : []
-        
         let type = isHabit ? TrackerType.habit : TrackerType.irregularEvent
-        
-        let tracker = Tracker(id: id, name: name, emoji: emoji, color: color, schedule: schedule, type: type)
-        
-        for category in selectedCategories {
-            dataManager.add(category: TrackerCategory(title: category, trackers: [tracker]))
+
+        let trackerSchedule: [Weekday]
+        if isHabit {
+            trackerSchedule = schedule
+        } else {
+            if let today = currentWeekday() {
+                trackerSchedule = [today]
+            } else {
+                trackerSchedule = []
+            }
         }
-        
+
+        let tracker = Tracker(id: id, name: name, emoji: emoji, color: color, schedule: trackerSchedule, type: type)
+
+        for category in selectedCategories {
+            dataManager.add(tracker: tracker, to: category)
+        }
+
+
         delegate?.didCreateTrackerOrEvent(tracker: tracker)
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
         
         presentingViewController?.presentingViewController?.dismiss(animated: true)
     }
+
+    
+    private func currentWeekday() -> Weekday? {
+        let weekdayNumber = Calendar.current.component(.weekday, from: Date())
+        return Weekday.allCases.first(where: { $0.numberValue == weekdayNumber })
+    }
+
     
     private func createButtonIsAvailable(){
         let isText = trackerNameTF.hasText
