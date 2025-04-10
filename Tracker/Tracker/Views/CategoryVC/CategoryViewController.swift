@@ -16,7 +16,7 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    var categories: [String] = ["Домашний уют"]
+    var categories: [String] = ["Домашний уют", "Важное"]
     var selectedCategory: String?
     
     weak var delegate: CategorySelectionDelegate?

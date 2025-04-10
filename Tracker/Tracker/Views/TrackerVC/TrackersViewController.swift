@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TrackerViewController: UIViewController {
+class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
     
@@ -79,6 +79,7 @@ class TrackerViewController: UIViewController {
             string: "Поиск",
             attributes: attributes)
         searchTextField.attributedPlaceholder = attributedPlaceholder
+        searchTextField.delegate = self
         return searchTextField
     }()
     
@@ -120,15 +121,21 @@ class TrackerViewController: UIViewController {
         showPlaceholder()
     }
     
-    private func showPlaceholder(){
-        if visibleCategories.isEmpty {
+    private func showPlaceholder() {
+        if categories.isEmpty {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
+        } else if visibleCategories.isEmpty {
+            placeholderImage.isHidden = false
+            placeholderLabel.isHidden = false
+            placeholderImage.image = UIImage(named: "placeholder2")
+            placeholderLabel.text = "Ничего не найдено"
         } else {
-            placeholderLabel.isHidden = true
             placeholderImage.isHidden = true
+            placeholderLabel.isHidden = true
         }
     }
+
     
     private func reloadData(){
         categories = dataManager.categories
@@ -174,24 +181,8 @@ class TrackerViewController: UIViewController {
     }
     
     @objc private func datePickerValueChanged() {
-        let calendar = Calendar.current
-        let filteredWeekday = calendar.component(.weekday, from: datePicker.date)
         
-        visibleCategories = categories.compactMap { category in
-            let trackers = category.trackers.filter { tracker in
-                tracker.schedule.contains { weekDay in
-                    weekDay.numberValue == filteredWeekday
-                } == true
-            }
-            
-            if trackers.isEmpty {
-                return nil
-            }
-            
-            return TrackerCategory(title: category.title, trackers: trackers)
-        }
-        
-        collectionView.reloadData()
+       reloadVisibleCategories()
     }
     
     @objc private func createTrackerOrHabit(){
@@ -210,13 +201,38 @@ class TrackerViewController: UIViewController {
         }
     }
     
-}
-
-extension TrackerViewController: UICollectionViewDelegate {
+    private func reloadVisibleCategories(){
+        let calendar = Calendar.current
+        let filteredWeekday = calendar.component(.weekday, from: datePicker.date)
+        let filterText = (searchTextField.text ?? "").lowercased()
+        
+        visibleCategories = categories.compactMap { category in
+            let trackers = category.trackers.filter { tracker in
+                let textCondition = filterText.isEmpty ||
+                tracker.name.lowercased().contains(filterText)
+                let dateCondition = tracker.schedule.contains { weekDay in
+                    weekDay.numberValue == filteredWeekday
+                } == true
+                return textCondition && dateCondition
+            }
+            
+            if trackers.isEmpty {
+                return nil
+            }
+            
+            return TrackerCategory(title: category.title, trackers: trackers)
+        }
+         showPlaceholder()
+        collectionView.reloadData()
+    }
     
 }
 
-extension TrackerViewController: UICollectionViewDataSource {
+extension TrackersViewController: UICollectionViewDelegate {
+    
+}
+
+extension TrackersViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return visibleCategories.count
@@ -265,14 +281,16 @@ extension TrackerViewController: UICollectionViewDataSource {
     }
 }
 
-extension TrackerViewController: UITextFieldDelegate{
+extension TrackersViewController: UITextFieldDelegate{
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         searchTextField.resignFirstResponder()
+        reloadVisibleCategories()
+        return true
     }
 }
 
-extension TrackerViewController: TrackerCellDelegate {
+extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
         let trackerRecord = TrackerRecord(trackerID: id, date: datePicker.date)
         completedTrackers.append(trackerRecord)
@@ -289,14 +307,14 @@ extension TrackerViewController: TrackerCellDelegate {
     }
 }
 
-extension TrackerViewController: NewHabitOrEventViewControllerDelegate {
+extension TrackersViewController: NewHabitOrEventViewControllerDelegate {
     func didCreateTrackerOrEvent(tracker: Tracker) {
         trackers.append(tracker)
         reloadData()
     }
 }
 
-extension TrackerViewController: UICollectionViewDelegateFlowLayout{
+extension TrackersViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {

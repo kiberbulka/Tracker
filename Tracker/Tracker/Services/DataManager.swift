@@ -11,7 +11,8 @@ final class DataManager {
     
     static let shared = DataManager()
     
-    var categories: [TrackerCategory] = []
+    var categories: [TrackerCategory] = [
+    ]
     
     private init(){}
     

@@ -110,7 +110,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         tableView.delegate = self
         tableView.dataSource = self
         trackerNameTF.delegate = self
-        print("\(selectedCategories)")
     }
     
     // MARK: - Public Methods
