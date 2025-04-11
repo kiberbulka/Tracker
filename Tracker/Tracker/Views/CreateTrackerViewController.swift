@@ -15,11 +15,11 @@ final class CreateTrackerViewController: UIViewController {
     private lazy var createHabitButton: UIButton = {
         let button = UIButton()
         button.setTitle("Привычка", for: .normal)
-        button.backgroundColor = .black
+        button.backgroundColor = .ypBlack
         button.setTitleColor(.white, for: .normal)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(createHabitButtonDidTap), for: .touchUpInside)
         return button
     }()
@@ -27,10 +27,10 @@ final class CreateTrackerViewController: UIViewController {
     private lazy var createEventButton: UIButton = {
         let button = UIButton()
         button.setTitle("Нерегулярное событие", for: .normal)
-        button.backgroundColor = .black
+        button.backgroundColor = .ypBlack
         button.setTitleColor(.white, for: .normal)
         button.layer.masksToBounds = true
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(createEventButtonDidTap), for: .touchUpInside)
         return button
@@ -39,7 +39,7 @@ final class CreateTrackerViewController: UIViewController {
     private lazy var createLabel: UILabel = {
         let label = UILabel()
         label.text = "Создание трекера"
-        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .black
         return label
     }()

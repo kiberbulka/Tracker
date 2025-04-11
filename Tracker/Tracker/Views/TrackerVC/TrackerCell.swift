@@ -36,13 +36,13 @@ final class TrackerCell: UICollectionViewCell {
         label.layer.masksToBounds = true
         label.layer.cornerRadius = 12
         label.textAlignment = .center
-        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
     
     private lazy var trackerCardNameLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "YSDisplay-Medium", size: 12)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .white
         label.numberOfLines = 2
         return label
@@ -60,7 +60,7 @@ final class TrackerCell: UICollectionViewCell {
         let label = UILabel()
         label.text = "1 день"
         label.textColor = .black
-        label.font = UIFont(name: "YSDisplay-Medium", size: 12)
+        label.font = .systemFont(ofSize: 12, weight: .medium)
         return label
     }()
     

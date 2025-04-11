@@ -16,7 +16,7 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    var categories: [String] = ["Домашний уют", "Важное"]
+    private var categories: [String] = ["Домашний уют", "Важное"]
     var selectedCategory: String?
     
     weak var delegate: CategorySelectionDelegate?
@@ -27,7 +27,7 @@ final class CategoryViewController: UIViewController {
         let label = UILabel()
         label.text = "Категория"
         label.textColor = .black
-        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
     
@@ -35,7 +35,7 @@ final class CategoryViewController: UIViewController {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
         button.setTitle("Добавить категорию", for: .normal)
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
         button.backgroundColor = .black
         button.layer.cornerRadius = 16
@@ -97,7 +97,7 @@ extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         cell.backgroundColor = .ypGray
-        cell.textLabel?.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         let category = categories[indexPath.row]
@@ -135,7 +135,6 @@ extension CategoryViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCategory = categories[indexPath.row]
-        print("\(selectedCategory)")
         delegate?.didSelectCategory(selectedCategory)
         navigationController?.popViewController(animated: true)
         if let cell = tableView.cellForRow(at: indexPath) {

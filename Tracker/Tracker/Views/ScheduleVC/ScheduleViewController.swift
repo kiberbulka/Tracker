@@ -24,7 +24,7 @@ final class ScheduleViewController: UIViewController {
         let label = UILabel()
         label.text = "Расписание"
         label.textColor = .black
-        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
     
@@ -33,7 +33,7 @@ final class ScheduleViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.setTitle("Готово", for: .normal)
         button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .black
         button.layer.cornerRadius = 16
         return button

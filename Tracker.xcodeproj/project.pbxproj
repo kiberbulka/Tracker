@@ -22,8 +22,6 @@
 		CE96144D2D8C6F9800AC062C /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE96144C2D8C6F9800AC062C /* TrackersViewController.swift */; };
 		CE9614522D8C6F9A00AC062C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE9614512D8C6F9A00AC062C /* Assets.xcassets */; };
 		CE9614552D8C6F9A00AC062C /* Base in Resources */ = {isa = PBXBuildFile; fileRef = CE9614542D8C6F9A00AC062C /* Base */; };
-		CE96145F2D8D93BB00AC062C /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE96145C2D8D93BB00AC062C /* YS Display-Bold.ttf */; };
-		CE9614602D8D93BB00AC062C /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE96145D2D8D93BB00AC062C /* YS Display-Medium.ttf */; };
 		CE9614622D8D9B1A00AC062C /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9614612D8D9B1A00AC062C /* TabBarController.swift */; };
 		CE9614642D8D9BB300AC062C /* StatisticViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9614632D8D9BB300AC062C /* StatisticViewController.swift */; };
 		CE9614AE2D92F5D600AC062C /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9614AD2D92F5D600AC062C /* Tracker.swift */; };
@@ -49,8 +47,6 @@
 		CE9614512D8C6F9A00AC062C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CE9614542D8C6F9A00AC062C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE9614562D8C6F9A00AC062C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE96145C2D8D93BB00AC062C /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
-		CE96145D2D8D93BB00AC062C /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
 		CE9614612D8D9B1A00AC062C /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		CE9614632D8D9BB300AC062C /* StatisticViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticViewController.swift; sourceTree = "<group>"; };
 		CE9614AD2D92F5D600AC062C /* Tracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
@@ -137,19 +133,9 @@
 				CE9614512D8C6F9A00AC062C /* Assets.xcassets */,
 				CE9614532D8C6F9A00AC062C /* LaunchScreen.storyboard */,
 				CE9614562D8C6F9A00AC062C /* Info.plist */,
-				CE96145E2D8D93BB00AC062C /* Fonts */,
 				CE9614612D8D9B1A00AC062C /* TabBarController.swift */,
 			);
 			path = Tracker;
-			sourceTree = "<group>";
-		};
-		CE96145E2D8D93BB00AC062C /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				CE96145C2D8D93BB00AC062C /* YS Display-Bold.ttf */,
-				CE96145D2D8D93BB00AC062C /* YS Display-Medium.ttf */,
-			);
-			path = Fonts;
 			sourceTree = "<group>";
 		};
 		CE9614AB2D92F5B900AC062C /* Tracker */ = {
@@ -246,8 +232,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE9614522D8C6F9A00AC062C /* Assets.xcassets in Resources */,
-				CE9614602D8D93BB00AC062C /* YS Display-Medium.ttf in Resources */,
-				CE96145F2D8D93BB00AC062C /* YS Display-Bold.ttf in Resources */,
 				CE9614552D8C6F9A00AC062C /* Base in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -346,7 +330,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -403,7 +387,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.4;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;

@@ -16,7 +16,7 @@ class TrackersViewController: UIViewController {
     private var categories: [TrackerCategory] = []
     private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
-    private var currenDate: Date?
+    private var currentDate: Date?
     private let dataManager = DataManager.shared
     
     private lazy var addTrackerButton: UIButton = {
@@ -30,7 +30,7 @@ class TrackersViewController: UIViewController {
     private lazy var trackerLabel: UILabel = {
         let label = UILabel()
         label.text = "Трекеры"
-        label.font = UIFont(name: "YSDisplay-Bold", size: 34)
+        label.font = .boldSystemFont(ofSize: 34)
         label.textColor = .black
         
         return label
@@ -69,19 +69,21 @@ class TrackersViewController: UIViewController {
         let searchTextField = UISearchTextField()
         searchTextField.backgroundColor = .ypGray
         searchTextField.textColor = .black
-        searchTextField.delegate = self
+        searchTextField.tintColor = .black
+        searchTextField.layer.cornerRadius = 10
+        searchTextField.layer.masksToBounds = true
+        searchTextField.borderStyle = .none
+        let attributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: UIColor.ypLightGray,
+            .font: UIFont.systemFont(ofSize: 15, weight: .regular)
+        ]
+        searchTextField.attributedPlaceholder = NSAttributedString(string: "Поиск", attributes: attributes)
         searchTextField.clearButtonMode = .never
         searchTextField.heightAnchor.constraint(equalToConstant: 36).isActive = true
-        let attributes = [
-            NSAttributedString.Key.foregroundColor: UIColor.ypLightGray
-        ]
-        let attributedPlaceholder = NSAttributedString(
-            string: "Поиск",
-            attributes: attributes)
-        searchTextField.attributedPlaceholder = attributedPlaceholder
         searchTextField.delegate = self
         return searchTextField
     }()
+
     
     private lazy var placeholderImage: UIImageView = {
         let placeholderImageView = UIImageView()
@@ -92,7 +94,7 @@ class TrackersViewController: UIViewController {
     private lazy var placeholderLabel: UILabel = {
         let placeholderLabel = UILabel()
         placeholderLabel.text = "Что будем отслеживать?"
-        placeholderLabel.font = UIFont(name: "YSDisplay-Medium", size: 12)
+        placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
         return placeholderLabel
     }()
     
@@ -181,7 +183,7 @@ class TrackersViewController: UIViewController {
     }
     
     @objc private func datePickerValueChanged() {
-        
+        currentDate = datePicker.date
        reloadVisibleCategories()
     }
     
@@ -201,31 +203,26 @@ class TrackersViewController: UIViewController {
         }
     }
     
-    private func reloadVisibleCategories(){
+    private func reloadVisibleCategories() {
         let calendar = Calendar.current
-        let filteredWeekday = calendar.component(.weekday, from: datePicker.date)
+        let selectedDate = currentDate ?? datePicker.date
+        currentDate = selectedDate
+
+        let filteredWeekday = calendar.component(.weekday, from: selectedDate)
         let filterText = (searchTextField.text ?? "").lowercased()
-        
+
         visibleCategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
-                let textCondition = filterText.isEmpty ||
-                tracker.name.lowercased().contains(filterText)
-                let dateCondition = tracker.schedule.contains { weekDay in
-                    weekDay.numberValue == filteredWeekday
-                } == true
-                return textCondition && dateCondition
+                let matchesText = filterText.isEmpty || tracker.name.lowercased().contains(filterText)
+                let matchesDay = tracker.schedule.contains { $0.numberValue == filteredWeekday }
+                return matchesText && matchesDay
             }
-            
-            if trackers.isEmpty {
-                return nil
-            }
-            
-            return TrackerCategory(title: category.title, trackers: trackers)
+
+            return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
-         showPlaceholder()
+        showPlaceholder()
         collectionView.reloadData()
     }
-    
 }
 
 extension TrackersViewController: UICollectionViewDelegate {
@@ -292,11 +289,15 @@ extension TrackersViewController: UITextFieldDelegate{
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
+        guard datePicker.date <= Date() else {
+            return
+        }
+
         let trackerRecord = TrackerRecord(trackerID: id, date: datePicker.date)
         completedTrackers.append(trackerRecord)
-        
         collectionView.reloadItems(at: [indexPath])
     }
+
     
     func uncompletedTracker(id: UUID, at indexPath: IndexPath) {
         completedTrackers.removeAll() { trackerRecord in

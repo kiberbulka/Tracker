@@ -32,7 +32,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private lazy var newHabitLabel: UILabel = {
         let label = UILabel()
         label.text = "Новая привычка"
-        label.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .black
         return label
     }()
@@ -62,7 +62,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
         button.setTitle("Отменить", for: .normal)
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.ypRed, for: .normal)
         button.layer.borderColor = UIColor.ypRed.cgColor
         button.layer.borderWidth = 1
@@ -75,7 +75,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let label = UILabel()
         label.textColor = .ypRed
         label.text = "Ограничение 38 символов"
-        label.font = UIFont(name: "YSDisplay-Medium", size: 17)
+        label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textAlignment = .center
         label.isHidden = true
         return label
@@ -90,7 +90,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         button.addTarget(self, action: #selector(createButtonDidTap), for: .touchUpInside)
         button.titleLabel?.textColor = .white
         button.isEnabled = false
-        button.titleLabel?.font = UIFont(name: "YSDisplay-Medium", size: 16)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         
         return button
     }()
@@ -151,8 +151,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         for category in selectedCategories {
             dataManager.add(tracker: tracker, to: category)
         }
-
-
+        
         delegate?.didCreateTrackerOrEvent(tracker: tracker)
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
         

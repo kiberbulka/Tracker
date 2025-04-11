@@ -12,7 +12,7 @@ final class SupplementaryView: UICollectionReusableView {
     
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
-        titleLabel.font = UIFont(name: "YSDisplay-Bold", size: 19)
+        titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
         titleLabel.textColor = .black
         titleLabel.text = "Важное"
         return titleLabel
