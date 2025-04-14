@@ -31,6 +31,10 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
     
+    private var selectedEmojiIndexPath: IndexPath?
+    private var selectedColorIndexPath: IndexPath?
+
+    
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                           "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                           "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
@@ -113,7 +117,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(EmojiCell.self, forCellWithReuseIdentifier: EmojiCell.cellIdentifier)
-        collectionView.register(EmojiHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiHeader.identifier)
         collectionView.backgroundColor = .white
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -128,7 +131,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(ColorCell.self, forCellWithReuseIdentifier: ColorCell.cellIdentifier)
-        collectionView.register(ColorHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: ColorHeader.identifier)
         collectionView.backgroundColor = .white
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -137,6 +139,22 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         collectionView.isScrollEnabled = false
         collectionView.tag = 2
         return collectionView
+    }()
+    
+    private lazy var emojiLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 19, weight: .bold)
+        label.textColor = .ypBlack
+        label.text = "Emoji"
+        return label
+    }()
+    
+    private lazy var colorLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 19, weight: .bold)
+        label.textColor = .ypBlack
+        label.text = "Цвета"
+        return label
     }()
     
     private lazy var scrollView: UIScrollView = {
@@ -240,7 +258,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
 
-        [newHabitLabel, trackerNameTF, cancelButton, createButton, tableView, emojiCollection, colorCollection, characterLimitLabel].forEach {
+        [newHabitLabel, trackerNameTF, cancelButton, createButton, tableView, emojiCollection, colorCollection, characterLimitLabel, emojiLabel, colorLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
@@ -275,13 +293,21 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             tableView.heightAnchor.constraint(equalToConstant: 150),
+            
+            emojiLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32),
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 18),
 
-            emojiCollection.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32),
+            emojiCollection.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 24),
             emojiCollection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
             emojiCollection.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
             emojiCollection.heightAnchor.constraint(equalToConstant: 204),
+            
+            colorLabel.topAnchor.constraint(equalTo: emojiCollection.bottomAnchor, constant: 16),
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            colorLabel.heightAnchor.constraint(equalToConstant: 18),
 
-            colorCollection.topAnchor.constraint(equalTo: emojiCollection.bottomAnchor, constant: 16),
+            colorCollection.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant:24),
             colorCollection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
             colorCollection.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
             colorCollection.heightAnchor.constraint(equalToConstant: 204),
@@ -471,80 +497,42 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
         }
     }
     
-    func collectionView(_ collectionView: UICollectionView,
-                        viewForSupplementaryElementOfKind kind: String,
-                        at indexPath: IndexPath) -> UICollectionReusableView {
-        guard kind == UICollectionView.elementKindSectionHeader else {
-            return UICollectionReusableView()
-        }
-        
-        switch collectionView.tag {
-        case 1:
-            guard let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: EmojiHeader.identifier,
-                for: indexPath) as? EmojiHeader else {
-                    return UICollectionReusableView()
-            }
-            header.configure(text: "Emoji")
-            return header
-            
-        case 2:
-            guard let header = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: ColorHeader.identifier,
-                for: indexPath) as? ColorHeader else {
-                    return UICollectionReusableView()
-            }
-            header.configure(text: "Цвета")
-            return header
-            
-        default:
-            return UICollectionReusableView()
-        }
-    }
-
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        referenceSizeForHeaderInSection section: Int) -> CGSize {
-        let indexPath = IndexPath(row: 0, section: section)
-        let headerView = self.collectionView(collectionView, viewForSupplementaryElementOfKind: UICollectionView.elementKindSectionHeader, at: indexPath)
-        
-        return headerView.systemLayoutSizeFitting(
-            CGSize(width: collectionView.frame.width, height: collectionView.frame.height),
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-    }
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         5
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        switch collectionView.tag{
+        switch collectionView.tag {
         case 1:
             let selectedEmoji = emojis[indexPath.row]
+            if let previousIndexPath = selectedEmojiIndexPath,
+               let previousCell = emojiCollection.cellForItem(at: previousIndexPath) as? EmojiCell {
+                previousCell.updateBackgroundColor(color: .clear)
+            }
             if let cell = emojiCollection.cellForItem(at: indexPath) as? EmojiCell {
                 cell.updateBackgroundColor(color: .ypGray)
             }
+            selectedEmojiIndexPath = indexPath
             self.selectedEmoji = selectedEmoji
             createButtonIsAvailable()
+            
         case 2:
             let selectedColor = colors[indexPath.row]
+            if let previousIndexPath = selectedColorIndexPath,
+               let previousCell = colorCollection.cellForItem(at: previousIndexPath) as? ColorCell {
+                previousCell.updateFrameColor(color: .clear, isHidden: true)
+            }
             if let cell = colorCollection.cellForItem(at: indexPath) as? ColorCell {
                 cell.updateFrameColor(color: colors[indexPath.row], isHidden: false)
-                self.selectedColor = selectedColor
-                createButtonIsAvailable()
             }
+            selectedColorIndexPath = indexPath
+            self.selectedColor = selectedColor
+            createButtonIsAvailable()
+            
         default:
             break
         }
-    
     }
-  
-
 }
 
 #Preview {
