@@ -5,4 +5,20 @@
 //  Created by Olya on 19.04.2025.
 //
 
-import Foundation
+import CoreData
+
+final class TrackerStore {
+    private let context: NSManagedObjectContext
+    
+    init (context: NSManagedObjectContext) {
+        self.context = context
+    }
+    
+    convenience init(){
+        let context = CoreDataManager.shared.persistentContainer.viewContext
+        self.init(context: context)
+    }
+    
+}
+
+
