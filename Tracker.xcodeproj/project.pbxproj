@@ -34,8 +34,8 @@
 		CEA330712DB3D08000BAA309 /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA330702DB3D08000BAA309 /* TrackerStore.swift */; };
 		CEA330732DB3D08C00BAA309 /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA330722DB3D08C00BAA309 /* TrackerCategoryStore.swift */; };
 		CEA330752DB3D09D00BAA309 /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA330742DB3D09D00BAA309 /* TrackerRecordStore.swift */; };
-		CEA330822DB40BD100BAA309 /* UIColorMarshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA330812DB40BD100BAA309 /* UIColorMarshalling.swift */; };
-		CEA330842DB40CB900BAA309 /* WeekdayMarshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA330832DB40CB900BAA309 /* WeekdayMarshalling.swift */; };
+		CED60EF62DBA9122001ECA74 /* DaysValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED60EF52DBA9122001ECA74 /* DaysValueTransformer.swift */; };
+		CED60EF82DBA9A9F001ECA74 /* UIColorMarshalling.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED60EF72DBA9A9F001ECA74 /* UIColorMarshalling.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,8 +68,8 @@
 		CEA330702DB3D08000BAA309 /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		CEA330722DB3D08C00BAA309 /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		CEA330742DB3D09D00BAA309 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
-		CEA330812DB40BD100BAA309 /* UIColorMarshalling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorMarshalling.swift; sourceTree = "<group>"; };
-		CEA330832DB40CB900BAA309 /* WeekdayMarshalling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekdayMarshalling.swift; sourceTree = "<group>"; };
+		CED60EF52DBA9122001ECA74 /* DaysValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaysValueTransformer.swift; sourceTree = "<group>"; };
+		CED60EF72DBA9A9F001ECA74 /* UIColorMarshalling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorMarshalling.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,8 +218,8 @@
 		CEA330802DB40BA000BAA309 /* Transformers */ = {
 			isa = PBXGroup;
 			children = (
-				CEA330812DB40BD100BAA309 /* UIColorMarshalling.swift */,
-				CEA330832DB40CB900BAA309 /* WeekdayMarshalling.swift */,
+				CED60EF52DBA9122001ECA74 /* DaysValueTransformer.swift */,
+				CED60EF72DBA9A9F001ECA74 /* UIColorMarshalling.swift */,
 			);
 			path = Transformers;
 			sourceTree = "<group>";
@@ -298,7 +298,6 @@
 				CE9614AE2D92F5D600AC062C /* Tracker.swift in Sources */,
 				CEA330712DB3D08000BAA309 /* TrackerStore.swift in Sources */,
 				CE5D27CC2D9AEBF400257869 /* Weekday.swift in Sources */,
-				CEA330842DB40CB900BAA309 /* WeekdayMarshalling.swift in Sources */,
 				CE23478E2D9EBC1D00847108 /* TrackerType.swift in Sources */,
 				CE5D27BC2D997FAB00257869 /* TrackerCell.swift in Sources */,
 				CE5D27BE2D99891000257869 /* SupplementaryView.swift in Sources */,
@@ -315,11 +314,12 @@
 				CE9614642D8D9BB300AC062C /* StatisticViewController.swift in Sources */,
 				CE4A24F82DAB9CFE003BA0BA /* EmojiCell.swift in Sources */,
 				CEA3306B2DB3C29B00BAA309 /* Tracker.xcdatamodeld in Sources */,
-				CEA330822DB40BD100BAA309 /* UIColorMarshalling.swift in Sources */,
 				CEA330752DB3D09D00BAA309 /* TrackerRecordStore.swift in Sources */,
 				CEA330732DB3D08C00BAA309 /* TrackerCategoryStore.swift in Sources */,
 				CE96144B2D8C6F9800AC062C /* SceneDelegate.swift in Sources */,
 				CE5D27D22D9AF4BC00257869 /* CategoryViewController.swift in Sources */,
+				CED60EF62DBA9122001ECA74 /* DaysValueTransformer.swift in Sources */,
+				CED60EF82DBA9A9F001ECA74 /* UIColorMarshalling.swift in Sources */,
 				CE9614B02D92F5E100AC062C /* TrackerCategory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

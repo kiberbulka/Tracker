@@ -33,6 +33,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private var selectedEmojiIndexPath: IndexPath?
     private var selectedColorIndexPath: IndexPath?
+    
+    private let trackerStore = TrackerStore()
 
     
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
