@@ -216,7 +216,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             }
         }
         
-        let tracker = Tracker(id: id, name: name, emoji: emoji, color: color, schedule: trackerSchedule, type: type)
+        let tracker = Tracker(id: id, name: name, color: color, emoji: emoji, schedule: trackerSchedule, type: type)
         
         for category in selectedCategories {
             dataManager.add(tracker: tracker, to: category)
