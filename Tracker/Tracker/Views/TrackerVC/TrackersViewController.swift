@@ -17,7 +17,7 @@ class TrackersViewController: UIViewController {
     private var visibleCategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
     private var currentDate: Date?
-    private let dataManager = DataManager.shared
+    private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerStore = TrackerStore()
     
     private lazy var addTrackerButton: UIButton = {
@@ -52,7 +52,7 @@ class TrackersViewController: UIViewController {
         layout.minimumInteritemSpacing = 0
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(TrackerCell.self, forCellWithReuseIdentifier: TrackerCell.trackerCellIdentifier)
-        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+       
         collectionView.delegate = self
         collectionView.dataSource = self
         return collectionView
@@ -109,7 +109,6 @@ class TrackersViewController: UIViewController {
         showPlaceholder()
         view.backgroundColor = .white
         NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
-        trackerStore.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -121,6 +120,7 @@ class TrackersViewController: UIViewController {
     
     @objc private func handleDidCreateTracker() {
         reloadData()
+        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         collectionView.reloadData()
         showPlaceholder()
     }
@@ -142,7 +142,7 @@ class TrackersViewController: UIViewController {
 
     
     private func reloadData(){
-        categories = dataManager.categories
+        categories = trackerCategoryStore.fetchCategories()
         datePickerValueChanged()
         collectionView.reloadData()
         showPlaceholder()
@@ -258,6 +258,7 @@ extension TrackersViewController: UICollectionViewDataSource {
                         viewForSupplementaryElementOfKind kind: String,
                         at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
+            guard indexPath.section < visibleCategories.count else { return UICollectionReusableView()}
             let header = collectionView.dequeueReusableSupplementaryView(
                 ofKind: kind,
                 withReuseIdentifier: "header",
@@ -341,13 +342,6 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout{
     }
 }
 
-extension TrackersViewController: TrackerStoreDelegate{
-    func didUpdateTrackers() {
-        collectionView.reloadData()
-    }
-    
-    
-}
 
 
 

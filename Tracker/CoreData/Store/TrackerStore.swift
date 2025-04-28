@@ -9,12 +9,31 @@ import CoreData
 import UIKit
 
 protocol TrackerStoreDelegate: AnyObject {
-    func didUpdateTrackers()
+    func store(
+        _ store: TrackerStore,
+        didUpdate update: TrackerStoreUpdate
+    )
+
+}
+
+struct TrackerStoreUpdate {
+    struct Move: Hashable {
+        let oldIndex: Int
+        let newIndex: Int
+    }
+    let insertedIndexes: IndexSet
+    let deletedIndexes: IndexSet
+    let updatedIndexes: IndexSet
+    let movedIndexes: Set<Move>
 }
 
 final class TrackerStore: NSObject {
    
     weak var delegate: TrackerStoreDelegate?
+    private var insertedIndexes: IndexSet?
+    private var deletedIndexes: IndexSet?
+    private var updatedIndexes: IndexSet?
+    private var movedIndexes: Set<TrackerStoreUpdate.Move>?
     
     private let context = CoreDataManager.shared.viewContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
@@ -88,8 +107,55 @@ final class TrackerStore: NSObject {
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        insertedIndexes = IndexSet()
+        deletedIndexes = IndexSet()
+        updatedIndexes = IndexSet()
+        movedIndexes = Set<TrackerStoreUpdate.Move>()
+
+    }
+    
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        delegate?.didUpdateTrackers()
+        delegate?.store(
+            self,
+            didUpdate: TrackerStoreUpdate(
+                insertedIndexes: insertedIndexes!,
+                deletedIndexes: deletedIndexes!,
+                updatedIndexes: updatedIndexes!,
+                movedIndexes: movedIndexes!
+            )
+        )
+        
+        insertedIndexes = nil
+        deletedIndexes = nil
+        updatedIndexes = nil
+        movedIndexes = nil
+    }
+    
+    func controller(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?
+    ) {
+        switch type {
+        case .insert:
+            guard let indexPath = newIndexPath else { fatalError() }
+            insertedIndexes?.insert(indexPath.item)
+        case .delete:
+            guard let indexPath = indexPath else { fatalError() }
+            deletedIndexes?.insert(indexPath.item)
+        case .update:
+            guard let indexPath = indexPath else { fatalError() }
+            updatedIndexes?.insert(indexPath.item)
+        case .move:
+            guard let oldIndexPath = indexPath, let newIndexPath = newIndexPath else { fatalError() }
+            movedIndexes?.insert(.init(oldIndex: oldIndexPath.item, newIndex: newIndexPath.item))
+        @unknown default:
+            fatalError()
+        }
     }
 }
 

@@ -50,6 +50,8 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
 
     func category(at indexPath: IndexPath) -> TrackerCategory {
         let entity = fetchedResultsController.object(at: indexPath)
+        let categoryTitle = entity.title
+        let trackers =
         return TrackerCategory(
             title: entity.title ?? "",
             trackers: []
@@ -78,5 +80,7 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         delegate?.didUpdateCategories()
     }
 }
+
+
 
 
