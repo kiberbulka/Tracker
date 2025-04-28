@@ -64,38 +64,27 @@ final class TrackerStore: NSObject {
     }
     
     func addTracker(tracker: Tracker, category: TrackerCategory) {
-        let entity = TrackerCoreData(context: context)
-        entity.id = tracker.id
-        entity.name = tracker.name
-        entity.color = tracker.color.hexString
-        entity.emoji = tracker.emoji
-        entity.schedule = Tracker.encodeSchedule(tracker.schedule)
-        entity.isHabit = tracker.isHabit
-        
-        
-        do {
-            try context.save()
-        } catch {
-            print("❌ Failed to save new tracker: \(error)")
-        }
-    }
-    
-    private func fetchCategoryById() -> TrackerCategoryCoreData? {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-     //   fetchRequest.predicate = NSPredicate(format: "id == %@", id as! any CVarArg as CVarArg)
+        fetchRequest.predicate = NSPredicate(format: "title == %@", category.title)
         
         do {
-            let result = try context.fetch(fetchRequest)
-            return result.first
+            let categories = try context.fetch(fetchRequest)
+            if let categoryCoreData = categories.first {
+                let trackerEntity = TrackerCoreData(context: context)
+                trackerEntity.id = tracker.id
+                trackerEntity.name = tracker.name
+                trackerEntity.color = tracker.color.hexString
+                trackerEntity.emoji = tracker.emoji
+                trackerEntity.schedule = Tracker.encodeSchedule(tracker.schedule)
+                trackerEntity.isHabit = tracker.isHabit
+                trackerEntity.trackerCategory = categoryCoreData
+
+                try context.save()
+            }
         } catch {
-            print("❌ Failed to fetch category by id: \(error)")
-            return nil
+            print("❌ Ошибка при сохранении трекера: \(error)")
         }
     }
-    
-  
-  
-
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {

@@ -66,6 +66,13 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
             print("❌ Failed to save new category: \(error)")
         }
     }
+    
+    func fetchCategories() -> [TrackerCategory] {
+        return [
+            TrackerCategory(title: "Домашний уют", trackers: []),
+            TrackerCategory(title: "Важное", trackers: [])
+        ]
+    }
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         delegate?.didUpdateCategories()

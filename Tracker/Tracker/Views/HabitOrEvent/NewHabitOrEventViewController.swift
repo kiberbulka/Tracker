@@ -17,7 +17,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     // MARK: - Public Properties
     
     var isHabit: Bool = true
-    var selectedCategories :[String] = []
     var categoryCellIndexPath: IndexPath?
     var tracker: Tracker?
     
@@ -30,6 +29,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
     private let trackerStore = TrackerStore()
+    private var selectedCategory: TrackerCategory?
     
     private var selectedEmojiIndexPath: IndexPath?
     private var selectedColorIndexPath: IndexPath?
@@ -181,15 +181,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     // MARK: - Public Methods
     
-    func didSelectCategory(_ category: String) {
-        if !selectedCategories.contains(category) {
-            selectedCategories.append(category)
-        }
-        if let indexPath = categoryCellIndexPath {
-            if let cell = tableView.cellForRow(at: indexPath) {
-                cell.detailTextLabel?.text = selectedCategories.joined(separator: ", ")
-            }
-        }
+    func didSelectCategory(_ category: TrackerCategory) {
+        selectedCategory = category
         tableView.reloadData()
     }
     
@@ -200,7 +193,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let id = UUID()
         let emoji = selectedEmoji ?? ""
         let color = selectedColor ?? .white
-        let type = isHabit ? TrackerType.habit : TrackerType.irregularEvent
         
         let trackerSchedule: [Weekday]
         if isHabit {
@@ -213,11 +205,11 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             }
         }
         
+        guard let category = selectedCategory else {return}
         let tracker = Tracker(id: id, name: name, color: color, emoji: emoji, schedule: trackerSchedule, isHabit: isHabit)
+
         
-        for category in selectedCategories {
-         //   trackerStore.addTracker(tracker: tracker, category: category)
-        }
+        trackerStore.addTracker(tracker: tracker, category: category )
         
         delegate?.didCreateTrackerOrEvent(tracker: tracker)
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
@@ -236,13 +228,13 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let isText = trackerNameTF.hasText
         let selectedScedule = !schedule.isEmpty
         let buttonIsAvailable: Bool
-        let selectedCategories = !selectedCategories.isEmpty
+        let category = selectedCategory != nil
         let selectedEmoji = selectedEmoji != nil
         let selectedColor = selectedColor != nil
         if isHabit{
-            buttonIsAvailable = isText && selectedScedule && selectedCategories && selectedEmoji && selectedColor
+            buttonIsAvailable = isText && selectedScedule && category && selectedEmoji && selectedColor
         } else {
-            buttonIsAvailable = isText && selectedCategories && selectedColor && selectedEmoji
+            buttonIsAvailable = isText && category && selectedColor && selectedEmoji
         }
         createButton.isEnabled = buttonIsAvailable
         createButton.backgroundColor = buttonIsAvailable ? .black : .ypLightGray
@@ -376,7 +368,7 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         
         if indexPath.row == 0 {
             cell.textLabel?.text = "Категория"
-            cell.detailTextLabel?.text = selectedCategories.isEmpty ? "" : selectedCategories.joined(separator: ", ")
+            cell.detailTextLabel?.text = selectedCategory?.title
         } else {
             cell.textLabel?.text = "Расписание"
             cell.detailTextLabel?.text = scheduleSubtitle()
