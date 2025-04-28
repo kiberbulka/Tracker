@@ -15,34 +15,9 @@ struct Tracker {
     let schedule: [Weekday]
     let isHabit: Bool
     
-    init(id: UUID, name: String, color: UIColor, emoji: String, schedule: [Weekday], isHabit: Bool) {
-           self.id = id
-           self.name = name
-           self.color = color
-           self.emoji = emoji
-           self.schedule = schedule
-           self.isHabit = isHabit
-       }
+ 
     
-    init?(from coreData: TrackerCoreData) {
-          guard
-              let id = coreData.id,
-              let name = coreData.name,
-              let emoji = coreData.emoji,
-              let color = coreData.color,
-              let scheduleString = coreData.schedule,
-              let schedule = Tracker.decodeSchedule(from: scheduleString)
-          else {
-              return nil
-          }
-
-          self.id = id
-          self.name = name
-          self.emoji = emoji
-          self.color = UIColor(hex: color) ?? .systemBlue
-          self.schedule = schedule
-          self.isHabit = coreData.isHabit
-      }
+   
     
     static func encodeSchedule(_ schedule: [Weekday]) -> String? {
         let encoder = JSONEncoder()

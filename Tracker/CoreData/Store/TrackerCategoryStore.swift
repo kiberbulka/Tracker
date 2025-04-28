@@ -7,75 +7,69 @@
 
 import CoreData
 
-final class TrackerCategoryStore: NSObject {
-    
-    private let context: NSManagedObjectContext
-    private(set) var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>?
-    
-    weak var delegate: NSFetchedResultsControllerDelegate? {
-        didSet {
-            fetchedResultsController?.delegate = delegate
-        }
-    }
-    
-    init (context: NSManagedObjectContext = CoreDataManager.shared.viewContext) {
-        self.context = context
-        super.init()
-        
-    }
-    
-    private func setupFetchedResultController() {
+protocol TrackerCategoryStoreDelegate: AnyObject {
+    func didUpdateCategories()
+}
+
+final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
+    weak var delegate: TrackerCategoryStoreDelegate?
+
+    private let context = CoreDataManager.shared.viewContext
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>
+
+    override init() {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        let controller = NSFetchedResultsController(
+
+        fetchedResultsController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
-            managedObjectContext: context,
+            managedObjectContext: CoreDataManager.shared.viewContext,
             sectionNameKeyPath: nil,
             cacheName: nil
         )
-        
-        controller.delegate = delegate
-        try? controller.performFetch()
-        self.fetchedResultsController = controller
-    }
-    
-    func addCategory(title: String) {
-        let category = TrackerCategoryCoreData(context: context)
-        category.title = title
-        try? context.save()
-    }
-    
-    func fetchCategories() -> [TrackerCategory] {
-        try? fetchedResultsController?.performFetch()
-        
-        return fetchedResultsController?.fetchedObjects?.compactMap { coreData in
-            guard let title = coreData.title else {
-                return nil
-            }
-            
-            let trackerObjects = (coreData.trackers?.allObjects as? [TrackerCoreData]) ?? []
-            let trackers = trackerObjects.compactMap { Tracker(from: $0) }
-            
-            return TrackerCategory(title: title, trackers: trackers)
-        } ?? []
-    }
-    
-    func isCategoryExists() {
-        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", "Домашний уют")
-        
-        let count = (try? context.count(for: request)) ?? 0
-        guard count == 0 else { return }
-        
-        let category = TrackerCategoryCoreData(context: context)
-        category.title = "Домашний уют"
-        try? context.save()
-        try? fetchedResultsController?.performFetch()
+
+        super.init()
+
+        fetchedResultsController.delegate = self
+
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("❌ Failed to fetch categories: \(error)")
+        }
     }
 
 
- 
-    
-    
+    func numberOfSections() -> Int {
+        return fetchedResultsController.sections?.count ?? 0
+    }
+
+    func numberOfItems(in section: Int) -> Int {
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+    }
+
+    func category(at indexPath: IndexPath) -> TrackerCategory {
+        let entity = fetchedResultsController.object(at: indexPath)
+        return TrackerCategory(
+            title: entity.title ?? "",
+            trackers: []
+            )
+    }
+
+    func addCategory(_ category: TrackerCategory) {
+        let entity = TrackerCategoryCoreData(context: context)
+        entity.title = category.title
+
+        do {
+            try context.save()
+        } catch {
+            print("❌ Failed to save new category: \(error)")
+        }
+    }
+
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.didUpdateCategories()
+    }
 }
+
+

@@ -26,17 +26,14 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     // MARK: - Private Properties
     
     private var category: TrackerCategory? = TrackerCategory(title: "Домашний уют", trackers: [])
-    private let dataManager = DataManager.shared
     private var schedule: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
+    private let trackerStore = TrackerStore()
     
     private var selectedEmojiIndexPath: IndexPath?
     private var selectedColorIndexPath: IndexPath?
-    
-    private let trackerStore = TrackerStore()
 
-    
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                           "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                           "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
@@ -216,10 +213,10 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             }
         }
         
-        let tracker = Tracker(id: id, name: name, color: color, emoji: emoji, schedule: trackerSchedule, type: type)
+        let tracker = Tracker(id: id, name: name, color: color, emoji: emoji, schedule: trackerSchedule, isHabit: isHabit)
         
         for category in selectedCategories {
-            dataManager.add(tracker: tracker, to: category)
+         //   trackerStore.addTracker(tracker: tracker, category: category)
         }
         
         delegate?.didCreateTrackerOrEvent(tracker: tracker)

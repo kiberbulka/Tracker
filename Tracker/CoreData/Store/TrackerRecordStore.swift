@@ -7,60 +7,68 @@
 
 import CoreData
 
-final class TrackerRecordStore: NSObject {
-    
-    private(set) var context: NSManagedObjectContext
-    private(set) var fetchedResultController: NSFetchedResultsController<TrackerRecordCoreData>?
-    
-    weak var delegate: NSFetchedResultsControllerDelegate? {
-        didSet {
-            fetchedResultController?.delegate = delegate
-        }
-    }
-    
-    init (context: NSManagedObjectContext = CoreDataManager.shared.viewContext) {
-        self.context = context
-        super.init()
-        setupFetchedResultsController()
-    }
-    
-    func addRecord(trackerId: UUID, date: Date) {
-        let record = TrackerRecordCoreData(context: context)
-        record.trackerID = trackerId
-        record.date = date
-    }
-    
-    func fetchRecords(for trackerId: UUID) -> [TrackerRecord] {
-        guard let recordsCoreData = fetchedResultController?.fetchedObjects else {
-            return []
-        }
-        
-        return recordsCoreData.compactMap { coreData in
-            guard let coreDataTrackerId = coreData.trackerID,
-                  let date = coreData.date,
-                  coreDataTrackerId == trackerId else {
-                return nil
-            }
-            
-            return TrackerRecord(trackerID: coreDataTrackerId, date: date)
-        }
-    }
-    
-    private func setupFetchedResultsController() {
-        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
-        
-        let controller = NSFetchedResultsController(
-            fetchRequest: request,
-            managedObjectContext: context,
+protocol TrackerRecordStoreDelegate: AnyObject {
+    func didUpdateRecords()
+}
+
+final class TrackerRecordStore: NSObject, NSFetchedResultsControllerDelegate {
+    weak var delegate: TrackerRecordStoreDelegate?
+
+    private let context = CoreDataManager.shared.viewContext
+    private var fetchedResultsController: NSFetchedResultsController<TrackerRecordCoreData>
+
+    override init() {
+        let fetchRequest: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+
+        fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: CoreDataManager.shared.viewContext,
             sectionNameKeyPath: nil,
             cacheName: nil
         )
-        
-        controller.delegate = delegate
-        try? controller.performFetch()
-        self.fetchedResultController = controller
+
+        super.init()
+
+        fetchedResultsController.delegate = self
+
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("❌ Failed to fetch tracker records: \(error)")
+        }
     }
-    
-    
+
+    func numberOfSections() -> Int {
+        return fetchedResultsController.sections?.count ?? 0
+    }
+
+    func numberOfItems(in section: Int) -> Int {
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+    }
+
+    func record(at indexPath: IndexPath) -> TrackerRecord {
+        let entity = fetchedResultsController.object(at: indexPath)
+        return TrackerRecord(
+            trackerID: entity.trackerID ?? UUID(),
+            date: entity.date ?? Date()
+        )
+    }
+
+    func addRecord(for trackerID: UUID, at date: Date) {
+        let entity = TrackerRecordCoreData(context: context)
+        entity.trackerID = trackerID
+        entity.date = date
+
+        do {
+            try context.save()
+        } catch {
+            print("❌ Failed to save new record: \(error)")
+        }
+    }
+
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.didUpdateRecords()
+    }
 }
+

@@ -18,6 +18,7 @@ class TrackersViewController: UIViewController {
     private var completedTrackers: [TrackerRecord] = []
     private var currentDate: Date?
     private let dataManager = DataManager.shared
+    private let trackerStore = TrackerStore()
     
     private lazy var addTrackerButton: UIButton = {
         let button = UIButton()
@@ -108,6 +109,7 @@ class TrackersViewController: UIViewController {
         showPlaceholder()
         view.backgroundColor = .white
         NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
+        trackerStore.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -232,14 +234,11 @@ extension TrackersViewController: UICollectionViewDelegate {
 extension TrackersViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return visibleCategories.count
+        return trackerStore.numbersOfSection()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard section < visibleCategories.count else {
-            return 0
-        }
-        return visibleCategories[section].trackers.count
+        return trackerStore.numberOfItems(in: section)
     }
     
     
@@ -247,7 +246,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCell.trackerCellIdentifier, for: indexPath) as? TrackerCell else {
             return UICollectionViewCell()
         }
-        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+        let tracker = trackerStore.tracker(at: indexPath)
         cell.delegate = self
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.trackerID == tracker.id}.count
@@ -340,6 +339,14 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 16)
     }
+}
+
+extension TrackersViewController: TrackerStoreDelegate{
+    func didUpdateTrackers() {
+        collectionView.reloadData()
+    }
+    
+    
 }
 
 

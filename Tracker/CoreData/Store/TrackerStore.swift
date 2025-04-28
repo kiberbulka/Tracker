@@ -8,88 +8,100 @@
 import CoreData
 import UIKit
 
+protocol TrackerStoreDelegate: AnyObject {
+    func didUpdateTrackers()
+}
+
 final class TrackerStore: NSObject {
-    private let context: NSManagedObjectContext
-    var trackers: [TrackerCoreData] = []
+   
+    weak var delegate: TrackerStoreDelegate?
     
-    init(context: NSManagedObjectContext = CoreDataManager.shared.viewContext) {
-        self.context = context
-        super.init()
-    }
+    private let context = CoreDataManager.shared.viewContext
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
     
-    func addTracker(tracker: Tracker, categoryTitle: String) throws {
-        let categoryStore = TrackerCategoryStore(context: context)
-        categoryStore.isCategoryExists()
-        
-        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", "Домашний уют")
-        
-        guard let category = try? context.fetch(request).first else {
-            throw NSError(domain: "", code: 0)
-        }
-        
-        let trackerCD = TrackerCoreData(context: context)
-        trackerCD.id = tracker.id
-        trackerCD.name = tracker.name
-        trackerCD.emoji = tracker.emoji
-        trackerCD.color = tracker.color.hexString
-        trackerCD.schedule = Tracker.encodeSchedule(tracker.schedule)
-        trackerCD.isHabit = tracker.isHabit
-        trackerCD.trackerCategory = category
-        
-        try? context.save()
-    }
-    
-    func fetchTrackers() -> [Tracker] {
-        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        guard let trackersCD = try? context.fetch(request) else {
-            return []
-        }
-        
-        return trackersCD.compactMap { coreData in
-            guard let id = coreData.id,
-                  let name = coreData.name,
-                  let emoji = coreData.emoji,
-                  let colorString = coreData.color,
-                  let category = coreData.trackerCategory else {
-                return nil
-            }
-            let isHabit = coreData.isHabit
-            
+    override init(){
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+               fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
 
-            guard let schedule = Tracker.decodeSchedule(from: coreData.schedule ?? "") else {
-                return nil
-            }
-            
-            guard let color = UIColor(hex: colorString) else {
+        
+        fetchedResultsController = NSFetchedResultsController(
+                   fetchRequest: fetchRequest,
+                   managedObjectContext: CoreDataManager.shared.viewContext,
+                   sectionNameKeyPath: nil,
+                   cacheName: nil
+               )
 
-                return nil
-            }
-            return Tracker(
-                id: id,
-                name: name,
-                color: color,
-                emoji: emoji,
-                schedule: schedule,
-                isHabit: isHabit
-            )
+               super.init()
+
+
+               fetchedResultsController.delegate = self
+
+               do {
+                   try fetchedResultsController.performFetch()
+               } catch {
+                   print("❌ Failed to fetch trackers: \(error)")
+               }
+    }
+    
+    func numbersOfSection() -> Int {
+        return fetchedResultsController.sections?.count ?? 0
+    }
+    
+    func numberOfItems(in section: Int) -> Int {
+        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+    }
+    
+    func tracker(at indexPath: IndexPath) -> Tracker {
+        let entity = fetchedResultsController.object(at: indexPath)
+        return Tracker(
+            id: entity.id ?? UUID(),
+            name: entity.name ?? "",
+            color: UIColor(hex: entity.color ?? "#FFFFFF") ?? .black,
+            emoji: entity.emoji ?? "",
+            schedule: Tracker.decodeSchedule(from: entity.schedule ?? "") ?? [],
+            isHabit: entity.isHabit
+        )
+    }
+    
+    func addTracker(tracker: Tracker, category: TrackerCategory) {
+        let entity = TrackerCoreData(context: context)
+        entity.id = tracker.id
+        entity.name = tracker.name
+        entity.color = tracker.color.hexString
+        entity.emoji = tracker.emoji
+        entity.schedule = Tracker.encodeSchedule(tracker.schedule)
+        entity.isHabit = tracker.isHabit
+        
+        
+        do {
+            try context.save()
+        } catch {
+            print("❌ Failed to save new tracker: \(error)")
         }
     }
     
-    func fetchOrCreateCategory(with title: String) throws -> TrackerCategoryCoreData {
-        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", title)
+    private func fetchCategoryById() -> TrackerCategoryCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+     //   fetchRequest.predicate = NSPredicate(format: "id == %@", id as! any CVarArg as CVarArg)
         
-        if let existingCategory = try? context.fetch(request).first {
-            return existingCategory
+        do {
+            let result = try context.fetch(fetchRequest)
+            return result.first
+        } catch {
+            print("❌ Failed to fetch category by id: \(error)")
+            return nil
         }
-        
-        let newCategory = TrackerCategoryCoreData(context: context)
-        newCategory.title = title
-        try? context.save()
-        return newCategory
     }
+    
+  
+  
 
+}
+
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        delegate?.didUpdateTrackers()
+    }
 }
 
 
