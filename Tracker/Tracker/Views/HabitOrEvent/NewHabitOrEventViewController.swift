@@ -30,6 +30,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private var selectedColor: UIColor?
     private let trackerStore = TrackerStore()
     private var selectedCategory: TrackerCategory?
+    private var tableViewHeightConstraint: NSLayoutConstraint!
+
     
     private var selectedEmojiIndexPath: IndexPath?
     private var selectedColorIndexPath: IndexPath?
@@ -170,10 +172,18 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     // MARK: - Overrides Methods
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateTableViewHeight()
+    }
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         habitOrEventLabel()
+        tableView.invalidateIntrinsicContentSize()
+        updateTableViewHeight()
         tableView.delegate = self
         tableView.dataSource = self
         trackerNameTF.delegate = self
@@ -184,6 +194,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     func didSelectCategory(_ category: TrackerCategory) {
         selectedCategory = category
         tableView.reloadData()
+        updateTableViewHeight()
     }
     
     // MARK: - Private Methods
@@ -260,7 +271,10 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        [newHabitLabel, trackerNameTF, cancelButton, createButton, tableView, emojiCollection, colorCollection, characterLimitLabel, emojiLabel, colorLabel].forEach {
+        tableViewHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: 150)
+        tableViewHeightConstraint.isActive = true
+
+        [newHabitLabel, trackerNameTF, cancelButton, createButton, tableView, characterLimitLabel, emojiLabel, emojiCollection, colorLabel, colorCollection].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
@@ -291,14 +305,12 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             characterLimitLabel.topAnchor.constraint(equalTo: trackerNameTF.bottomAnchor, constant: 8),
             characterLimitLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            tableView.topAnchor.constraint(equalTo: characterLimitLabel.bottomAnchor, constant: 24),
+            tableView.topAnchor.constraint(equalTo: trackerNameTF.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            tableView.heightAnchor.constraint(equalToConstant: 150),
             
             emojiLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32),
             emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
-            emojiLabel.heightAnchor.constraint(equalToConstant: 18),
             
             emojiCollection.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 24),
             emojiCollection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
@@ -307,7 +319,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             
             colorLabel.topAnchor.constraint(equalTo: emojiCollection.bottomAnchor, constant: 16),
             colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
-            colorLabel.heightAnchor.constraint(equalToConstant: 18),
             
             colorCollection.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant:24),
             colorCollection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
@@ -327,6 +338,12 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         ])
     }
     
+    private func updateTableViewHeight() {
+        tableView.layoutIfNeeded()
+          let height = tableView.contentSize.height
+          tableViewHeightConstraint.constant = height
+    }
+    
     
     @objc private func cancelButtonDidTap(){
         dismiss(animated: true)
@@ -344,6 +361,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             newHabitLabel.text = "Новое нерегулярное событие"
         }
         tableView.reloadData()
+        updateTableViewHeight()
     }
     
     private func scheduleSubtitle()->String{
@@ -464,6 +482,7 @@ extension NewHabitOrEventViewController: ScheduleViewControllerDelegate {
     func didSelectDays(days: [Weekday]) {
         selectedDays = days
         tableView.reloadData()
+        updateTableViewHeight()
     }
 }
 
