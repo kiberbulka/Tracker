@@ -49,7 +49,7 @@ final class TrackerCategoryStore: NSObject {
         do {
             try fetchedResultsController.performFetch()
         } catch {
-            print("❌ Failed to fetch categories: \(error)")
+            print("Failed to fetch categories: \(error)")
         }
     }
     
@@ -72,11 +72,8 @@ final class TrackerCategoryStore: NSObject {
                 let trackerObjects = trackers.compactMap { trackerCoreData in
                     
                     let scheduleString = trackerCoreData.schedule ?? ""
-                    print("Decoding schedule from Core Data: \(scheduleString)") // Для отладки
-
-                    // Если строка пустая, используем пустой массив
                     let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []
-
+                    
                     return Tracker(
                         id: trackerCoreData.id ?? UUID(),
                         name: trackerCoreData.name ?? "",
@@ -106,11 +103,8 @@ final class TrackerCategoryStore: NSObject {
         }
         let trackers = trackerCoreData.map { trackerCD in
             let scheduleString = trackerCD.schedule ?? ""
-            print("Decoding schedule from Core Data: \(scheduleString)") // Для отладки
-
-            // Если строка пустая, используем пустой массив
             let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []
-
+            
             return Tracker(
                 id: trackerCD.id ?? UUID(),
                 name: trackerCD.name ?? "",
@@ -120,7 +114,7 @@ final class TrackerCategoryStore: NSObject {
                 isHabit: trackerCD.isHabit
             )
         }
-
+        
         return TrackerCategory(title: title, trackers: trackers)
     }
     
@@ -133,32 +127,32 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func updateCategory(_ category: TrackerCategory, with newTitle: String) throws {
-                let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TrackerCategoryCoreData")
-                request.predicate = NSPredicate(format: "title == %@", category.title)
-                do {
-                    let results = try context.fetch(request)
-                    if let existingCategory = results.first as? TrackerCategoryCoreData {
-                        existingCategory.title = newTitle
-                        try context.save()
-                    }
-                } catch {
-                    fatalError("Failed to update categories")
-                }
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TrackerCategoryCoreData")
+        request.predicate = NSPredicate(format: "title == %@", category.title)
+        do {
+            let results = try context.fetch(request)
+            if let existingCategory = results.first as? TrackerCategoryCoreData {
+                existingCategory.title = newTitle
+                try context.save()
             }
+        } catch {
+            fatalError("Failed to update categories")
+        }
+    }
 }
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
         insertedIndexes = IndexSet()
-              deletedIndexes = IndexSet()
-              updatedIndexes = IndexSet()
+        deletedIndexes = IndexSet()
+        updatedIndexes = IndexSet()
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-            guard
-                let insertedIndexes = insertedIndexes,
-                let deletedIndexes = deletedIndexes,
-                let updatedIndexes = updatedIndexes else { return }
+        guard
+            let insertedIndexes = insertedIndexes,
+            let deletedIndexes = deletedIndexes,
+            let updatedIndexes = updatedIndexes else { return }
         delegate?.didUpdateCategories(
             .init(
                 insertedIndexes: insertedIndexes,
@@ -166,34 +160,34 @@ extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
                 updatedIndexes: updatedIndexes
             )
         )
-            self.insertedIndexes = nil
-            self.deletedIndexes = nil
-            self.updatedIndexes = nil
-        }
+        self.insertedIndexes = nil
+        self.deletedIndexes = nil
+        self.updatedIndexes = nil
+    }
     
     func controller(
-           _ controller: NSFetchedResultsController<NSFetchRequestResult>,
-           didChange anObject: Any,
-           at indexPath: IndexPath?,
-           for type: NSFetchedResultsChangeType,
-           newIndexPath: IndexPath?) {
-           switch type {
-           case .delete:
-               if let indexPath = indexPath {
-                   deletedIndexes?.insert(indexPath.row)
-               }
-           case .insert:
-               if let newIndexPath = newIndexPath {
-                   insertedIndexes?.insert(newIndexPath.row)
-               }
-           case .update:
-               if let indexPath = indexPath {
-                   updatedIndexes?.insert(indexPath.row)
-               }
-           default:
-               break
-           }
-       }
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?) {
+            switch type {
+            case .delete:
+                if let indexPath = indexPath {
+                    deletedIndexes?.insert(indexPath.row)
+                }
+            case .insert:
+                if let newIndexPath = newIndexPath {
+                    insertedIndexes?.insert(newIndexPath.row)
+                }
+            case .update:
+                if let indexPath = indexPath {
+                    updatedIndexes?.insert(indexPath.row)
+                }
+            default:
+                break
+            }
+        }
 }
 
 

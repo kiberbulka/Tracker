@@ -45,7 +45,7 @@ final class TrackerStore: NSObject {
         do {
             try fetchedResultsController.performFetch()
         } catch {
-            print("❌ Failed to fetch trackers: \(error)")
+            print("Failed to fetch trackers: \(error)")
         }
     }
     
@@ -70,58 +70,49 @@ final class TrackerStore: NSObject {
     }
     
     func addTracker(tracker: Tracker, category: TrackerCategory) {
-            let trackerCoreData = TrackerCoreData(context: context)
-            
-            // Проверим, существует ли категория, иначе создадим новую
-            let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
-            request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
-            
-            var trackerCategoryCoreData: TrackerCategoryCoreData?
-            
-            do {
-                let results = try context.fetch(request)
-                if let existingCategory = results.first {
-                    // Если категория существует, присваиваем её
-                    trackerCategoryCoreData = existingCategory
-                } else {
-                    // Если категории нет, создаём новую
-                    trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
-                    trackerCategoryCoreData?.title = category.title
-                    CoreDataManager.shared.saveContext()
-                }
-            } catch {
-                print("❌ Error fetching or creating category: \(error)")
-            }
-
-            // Присваиваем трекеру найденную или созданную категорию
-            trackerCoreData.trackerCategory = trackerCategoryCoreData
-
-            // Заполняем остальные поля трекера
-            trackerCoreData.name = tracker.name
-            trackerCoreData.id = tracker.id
-            trackerCoreData.emoji = tracker.emoji
-            
-            // Преобразуем цвет
-            if let colorString = tracker.color.toHexString() {
-                trackerCoreData.color = colorString
+        let trackerCoreData = TrackerCoreData(context: context)
+        
+        let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
+        
+        var trackerCategoryCoreData: TrackerCategoryCoreData?
+        
+        do {
+            let results = try context.fetch(request)
+            if let existingCategory = results.first {
+                trackerCategoryCoreData = existingCategory
             } else {
-                print("Ошибка преобразования цвета в строку")
-                trackerCoreData.color = ""
+                trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
+                trackerCategoryCoreData?.title = category.title
+                CoreDataManager.shared.saveContext()
             }
-
-            trackerCoreData.isHabit = tracker.isHabit
-
-            // Кодируем расписание
-            if let scheduleString = Weekday.encodeSchedule(tracker.schedule) {
-                trackerCoreData.schedule = scheduleString
-            } else {
-                print("Ошибка кодирования расписания")
-                trackerCoreData.schedule = ""
-            }
-            
-            CoreDataManager.shared.saveContext()
+        } catch {
+            print("Error fetching or creating category: \(error)")
         }
-
+        trackerCoreData.trackerCategory = trackerCategoryCoreData
+        trackerCoreData.name = tracker.name
+        trackerCoreData.id = tracker.id
+        trackerCoreData.emoji = tracker.emoji
+        
+        if let colorString = tracker.color.toHexString() {
+            trackerCoreData.color = colorString
+        } else {
+            print("Ошибка преобразования цвета в строку")
+            trackerCoreData.color = ""
+        }
+        
+        trackerCoreData.isHabit = tracker.isHabit
+        
+        if let scheduleString = Weekday.encodeSchedule(tracker.schedule) {
+            trackerCoreData.schedule = scheduleString
+        } else {
+            print("Ошибка кодирования расписания")
+            trackerCoreData.schedule = ""
+        }
+        
+        CoreDataManager.shared.saveContext()
+    }
+    
     
     func fetchAllTrackers() -> [Tracker] {
         do {
@@ -137,28 +128,27 @@ final class TrackerStore: NSObject {
                 )
             }
         } catch {
-            print("❌ Failed to fetch trackers: \(error)")
+            print("Failed to fetch trackers: \(error)")
             return []
         }
     }
     
     func fetchTrackers() -> [Tracker] {
-          guard let objects = fetchedResultsController.fetchedObjects else { return [] }
-          return objects.map { coreDataTracker in
-              // Декодируем расписание из строки
-              let scheduleString = coreDataTracker.schedule ?? ""
-              let schedule: [Weekday] = Weekday.decodeSchedule(from: scheduleString) ?? []
-              
-              return Tracker(
-                  id: coreDataTracker.id ?? UUID(),
-                  name: coreDataTracker.name ?? "",
-                  color: UIColor(named: coreDataTracker.color ?? "") ?? .black,
-                  emoji: coreDataTracker.emoji ?? "",
-                  schedule: schedule,  // Теперь schedule — это массив Weekday
-                  isHabit: coreDataTracker.isHabit
-              )
-          }
-      }}
+        guard let objects = fetchedResultsController.fetchedObjects else { return [] }
+        return objects.map { coreDataTracker in
+            let scheduleString = coreDataTracker.schedule ?? ""
+            let schedule: [Weekday] = Weekday.decodeSchedule(from: scheduleString) ?? []
+            
+            return Tracker(
+                id: coreDataTracker.id ?? UUID(),
+                name: coreDataTracker.name ?? "",
+                color: UIColor(named: coreDataTracker.color ?? "") ?? .black,
+                emoji: coreDataTracker.emoji ?? "",
+                schedule: schedule,
+                isHabit: coreDataTracker.isHabit
+            )
+        }
+    }}
 
 // MARK: - NSFetchedResultsControllerDelegate
 extension TrackerStore: NSFetchedResultsControllerDelegate {

@@ -30,23 +30,21 @@ enum Weekday: String, CaseIterable, Codable {
     
     var numberValue: Int {
         switch self {
-        case .sunday: return 1
-        case .monday: return 2
-        case .tuesday: return 3
-        case .wednesday: return 4
-        case .thursday: return 5
-        case .friday: return 6
-        case .saturday: return 7
+        case .monday: return 1
+        case .tuesday: return 2
+        case .wednesday: return 3
+        case .thursday: return 4
+        case .friday: return 5
+        case .saturday: return 6
+        case .sunday: return 7
         }
     }
     
-    // Custom encoding for `Weekday`
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
     
-    // Custom decoding for `Weekday`
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)
@@ -59,7 +57,6 @@ enum Weekday: String, CaseIterable, Codable {
         self = weekday
     }
     
-    // Encode schedule
     static func encodeSchedule(_ schedule: [Weekday]) -> String? {
         let encoder = JSONEncoder()
         do {
@@ -72,9 +69,8 @@ enum Weekday: String, CaseIterable, Codable {
             return nil
         }
     }
-
     
-    // Decode schedule
+    
     static func decodeSchedule(from string: String) -> [Weekday]? {
         let decoder = JSONDecoder()
         print("Декодирование расписания: \(string)") // Для отладки

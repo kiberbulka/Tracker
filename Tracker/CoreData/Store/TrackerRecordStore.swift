@@ -46,7 +46,7 @@ final class TrackerRecordStore: NSObject {
         do {
             try fetchedResultsController.performFetch()
         } catch {
-            print("❌ Failed to fetch tracker records: \(error)")
+            print("Failed to fetch tracker records: \(error)")
         }
     }
     
@@ -77,14 +77,19 @@ final class TrackerRecordStore: NSObject {
     }
     
     func delete(trackerRecord: TrackerRecord) throws {
-            let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
-        request.predicate = NSPredicate(format: "id == %@ AND date == %lld", trackerRecord.trackerID as CVarArg, trackerRecord.date as CVarArg)
-            if let trackerRecordCoreData = try context.fetch(request).first {
-                context.delete(trackerRecordCoreData)
-            }
-            
-            CoreDataManager.shared.saveContext()
+        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        request.predicate = NSPredicate(
+            format: "id == %@ AND date == %@",
+            trackerRecord.trackerID as CVarArg,
+            trackerRecord.date as CVarArg
+        )
+        
+        if let trackerRecordCoreData = try context.fetch(request).first {
+            context.delete(trackerRecordCoreData)
         }
+        
+        CoreDataManager.shared.saveContext()
+    }
 }
 
 extension TrackerRecordStore : NSFetchedResultsControllerDelegate {
@@ -96,7 +101,7 @@ extension TrackerRecordStore : NSFetchedResultsControllerDelegate {
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         guard let insertedIndexes = insertedIndexes,
-                let deletedIndexes = deletedIndexes,
+              let deletedIndexes = deletedIndexes,
               let updatedIndexes = updatedIndexes
         else {
             return

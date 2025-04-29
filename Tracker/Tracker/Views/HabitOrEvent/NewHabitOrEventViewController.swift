@@ -33,7 +33,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private var selectedEmojiIndexPath: IndexPath?
     private var selectedColorIndexPath: IndexPath?
-
+    
     private let emojis = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                           "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                           "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
@@ -192,7 +192,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         
         if let category = selectedCategory {
             trackerStore.addTracker(tracker: makeTracker(), category: category)
-       
         }
         
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
@@ -201,11 +200,11 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     }
     
     private func makeTracker() -> Tracker {
-           let name = trackerNameTF.text ?? ""
-           let id = UUID()
-           let today = Date()
-           var schedule: [Weekday] = []
-           
+        let name = trackerNameTF.text ?? ""
+        let id = UUID()
+        let today = Date()
+        var schedule: [Weekday] = []
+        
         if isHabit {
             schedule = selectedDays
         } else {
@@ -219,18 +218,17 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
                 schedule.append(selectedDayOfWeek)
             }
         }
-
-           
-           let isHabit = isHabit ? true : false
-            print("\(id), \(name), \(isHabit), \(schedule), \(selectedColor), \(selectedEmoji)")
-           
-           return Tracker(id: id,
-                          name: name,
-                          color: selectedColor ?? UIColor(white: 1, alpha: 1),
-                          emoji: selectedEmoji ?? "",
-                          schedule: schedule,
-                          isHabit: isHabit)
-       }
+        
+        
+        let isHabit = isHabit ? true : false
+        
+        return Tracker(id: id,
+                       name: name,
+                       color: selectedColor ?? UIColor(white: 1, alpha: 1),
+                       emoji: selectedEmoji ?? "",
+                       schedule: schedule,
+                       isHabit: isHabit)
+    }
     
     private func currentWeekday() -> Weekday? {
         let weekdayNumber = Calendar.current.component(.weekday, from: Date())
@@ -257,43 +255,43 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private func setupUI() {
         view.backgroundColor = .white
-
+        
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-
+        
         [newHabitLabel, trackerNameTF, cancelButton, createButton, tableView, emojiCollection, colorCollection, characterLimitLabel, emojiLabel, colorLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
-
+        
         NSLayoutConstraint.activate([
-
+            
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
+            
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-
+            
             newHabitLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             newHabitLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 27),
-
+            
             trackerNameTF.leadingAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             trackerNameTF.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             trackerNameTF.topAnchor.constraint(equalTo: newHabitLabel.bottomAnchor, constant: 38),
             trackerNameTF.heightAnchor.constraint(equalToConstant: 75),
-
+            
             characterLimitLabel.heightAnchor.constraint(equalToConstant: 32),
             characterLimitLabel.widthAnchor.constraint(equalToConstant: 286),
             characterLimitLabel.topAnchor.constraint(equalTo: trackerNameTF.bottomAnchor, constant: 8),
             characterLimitLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-
+            
             tableView.topAnchor.constraint(equalTo: characterLimitLabel.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -302,7 +300,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             emojiLabel.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 32),
             emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
             emojiLabel.heightAnchor.constraint(equalToConstant: 18),
-
+            
             emojiCollection.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 24),
             emojiCollection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
             emojiCollection.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
@@ -311,17 +309,17 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             colorLabel.topAnchor.constraint(equalTo: emojiCollection.bottomAnchor, constant: 16),
             colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
             colorLabel.heightAnchor.constraint(equalToConstant: 18),
-
+            
             colorCollection.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant:24),
             colorCollection.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
             colorCollection.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18),
             colorCollection.heightAnchor.constraint(equalToConstant: 204),
-
+            
             createButton.heightAnchor.constraint(equalToConstant: 60),
             createButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 24),
             createButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             createButton.topAnchor.constraint(equalTo: colorCollection.bottomAnchor, constant: 16),
-
+            
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             cancelButton.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width / 2 - 24),
             cancelButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
@@ -329,7 +327,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             createButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
-
+    
     
     @objc private func cancelButtonDidTap(){
         dismiss(animated: true)
@@ -491,7 +489,7 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
         switch collectionView.tag {
         case 1:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as? EmojiCell else {return UICollectionViewCell()}
-            cell.configureEmoji(emoji: emojis[indexPath.item]) 
+            cell.configureEmoji(emoji: emojis[indexPath.item])
             return cell
         case 2:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {return UICollectionViewCell()}
