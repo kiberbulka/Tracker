@@ -70,12 +70,19 @@ final class TrackerCategoryStore: NSObject {
                 let title = categoryCoreData.title ?? ""
                 let trackers = categoryCoreData.trackers?.allObjects as? [TrackerCoreData] ?? []
                 let trackerObjects = trackers.compactMap { trackerCoreData in
+                    
+                    let scheduleString = trackerCoreData.schedule ?? ""
+                    print("Decoding schedule from Core Data: \(scheduleString)") // Для отладки
+
+                    // Если строка пустая, используем пустой массив
+                    let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []
+
                     return Tracker(
                         id: trackerCoreData.id ?? UUID(),
                         name: trackerCoreData.name ?? "",
                         color: UIColor(hex: trackerCoreData.color ?? "") ?? .colorSection1,
                         emoji: trackerCoreData.emoji ?? "",
-                        schedule: Tracker.decodeSchedule(from: trackerCoreData.schedule ?? "") ?? [],
+                        schedule: schedule,
                         isHabit: trackerCoreData.isHabit
                     )
                 }
@@ -97,16 +104,23 @@ final class TrackerCategoryStore: NSObject {
               let trackerCoreData = entity.trackers?.allObjects as? [TrackerCoreData] else {
             return nil
         }
-        let trackers = trackerCoreData.map { trackerCD in 
-            Tracker(
+        let trackers = trackerCoreData.map { trackerCD in
+            let scheduleString = trackerCD.schedule ?? ""
+            print("Decoding schedule from Core Data: \(scheduleString)") // Для отладки
+
+            // Если строка пустая, используем пустой массив
+            let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []
+
+            return Tracker(
                 id: trackerCD.id ?? UUID(),
                 name: trackerCD.name ?? "",
                 color: UIColor(hex: trackerCD.color ?? "") ?? .colorSection1,
                 emoji: trackerCD.emoji ?? "",
-                schedule: Tracker.decodeSchedule(from: trackerCD.schedule ?? "") ?? [],
+                schedule: schedule,
                 isHabit: trackerCD.isHabit
             )
         }
+
         return TrackerCategory(title: title, trackers: trackers)
     }
     

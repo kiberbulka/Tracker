@@ -14,32 +14,6 @@ struct Tracker {
     let emoji: String
     let schedule: [Weekday]
     let isHabit: Bool
-
-    
-   
-    
-    static func encodeSchedule(_ schedule: [Weekday]) -> String? {
-        let encoder = JSONEncoder()
-        do {
-            let data = try encoder.encode(schedule)
-            return String(data: data, encoding: .utf8)
-        } catch {
-            print("Error encoding schedule: \(error)")
-            return nil
-        }
-    }
-    
-    static func decodeSchedule(from string: String) -> [Weekday]? {
-        let decoder = JSONDecoder()
-        guard let data = string.data(using: .utf8) else {return nil}
-        do {
-            let schedule = try decoder.decode([Weekday].self, from: data)
-            return schedule
-        } catch {
-            print("Error decoding schedule: \(error)")
-            return nil
-        }
-    }
 }
 
 extension UIColor {

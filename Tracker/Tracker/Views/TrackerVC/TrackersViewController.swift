@@ -144,6 +144,7 @@ class TrackersViewController: UIViewController {
     
     
     private func reloadData(){
+        //trackers = trackerStore.fetchTrackers()
         categories = trackerCategoryStore.fetchCategories()
         filteredCategories = categories
         completedTrackers = trackerRecordStore.fetch()

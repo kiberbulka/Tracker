@@ -211,6 +211,9 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         
         trackerStore.addTracker(tracker: tracker, category: category )
         
+        let savedTrackers = trackerStore.fetchTrackers() 
+          print("Saved Trackers: \(savedTrackers)")
+        
         delegate?.didCreateTrackerOrEvent(tracker: tracker)
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
         

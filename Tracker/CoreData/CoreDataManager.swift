@@ -18,12 +18,14 @@ final class CoreDataManager {
         let container = NSPersistentContainer(name: "Tracker")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-               
                 fatalError("Unresolved error \(error), \(error.userInfo)")
+            } else {
+                print("✅ Core Data store location: \(storeDescription.url?.absoluteString ?? "No URL")")
             }
         })
         return container
     }()
+
     
     func saveContext() {
         let context = persistentContainer.viewContext
