@@ -22,14 +22,6 @@ class TrackersViewController: UIViewController {
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
     
-    private lazy var addTrackerButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "addTracker"), for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.addTarget(self, action: #selector(createTrackerOrHabit), for: .touchUpInside)
-        return button
-    }()
-    
     private lazy var trackerLabel: UILabel = {
         let label = UILabel()
         label.text = "Трекеры"
@@ -169,7 +161,7 @@ class TrackersViewController: UIViewController {
     
     private func setupUI() {
         
-        [datePicker, collectionView, trackerLabel, searchStackView, placeholderImage, placeholderLabel, addTrackerButton].forEach{
+        [datePicker, collectionView, trackerLabel, searchStackView, placeholderImage, placeholderLabel].forEach{
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
