@@ -144,8 +144,10 @@ class TrackersViewController: UIViewController {
     
     
     private func reloadData(){
-        //trackers = trackerStore.fetchTrackers()
+        trackers = trackerStore.fetchTrackers()
+        print("\(trackers) - coredata")
         categories = trackerCategoryStore.fetchCategories()
+        print("\(categories) - core data")
         filteredCategories = categories
         completedTrackers = trackerRecordStore.fetch()
         datePickerValueChanged()

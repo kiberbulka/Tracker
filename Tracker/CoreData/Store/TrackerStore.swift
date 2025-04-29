@@ -5,12 +5,11 @@
 //  Created by Olya on 19.04.2025.
 //
 
-import CoreData
 import UIKit
+import CoreData
 
 protocol TrackerStoreDelegate: AnyObject {
     func didUpdate(_ update: TrackerStoreUpdate)
-
 }
 
 struct TrackerStoreUpdate {
@@ -19,44 +18,43 @@ struct TrackerStoreUpdate {
 }
 
 final class TrackerStore: NSObject {
-   
+    
     weak var delegate: TrackerStoreDelegate?
-    private var insertedIndexes: IndexSet?
-    private var deletedIndexes: IndexSet?
+    
+    private var insertedIndexes: IndexSet = []
+    private var deletedIndexes: IndexSet = []
     
     private let context = CoreDataManager.shared.viewContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
     
-    override init(){
+    override init() {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-               fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
         fetchedResultsController = NSFetchedResultsController(
-                   fetchRequest: fetchRequest,
-                   managedObjectContext: CoreDataManager.shared.viewContext,
-                   sectionNameKeyPath: nil,
-                   cacheName: nil
-               )
-
-               super.init()
-
-
-               fetchedResultsController.delegate = self
-
-               do {
-                   try fetchedResultsController.performFetch()
-               } catch {
-                   print("❌ Failed to fetch trackers: \(error)")
-               }
+            fetchRequest: fetchRequest,
+            managedObjectContext: CoreDataManager.shared.viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        
+        super.init()
+        
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("❌ Failed to fetch trackers: \(error)")
+        }
     }
     
-    func numbersOfSection() -> Int {
-        return fetchedResultsController.sections?.count ?? 0
+    func numberOfSections() -> Int {
+        fetchedResultsController.sections?.count ?? 0
     }
     
     func numberOfItems(in section: Int) -> Int {
-        return fetchedResultsController.sections?[section].numberOfObjects ?? 0
+        fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
     func tracker(at indexPath: IndexPath) -> Tracker {
@@ -81,7 +79,15 @@ final class TrackerStore: NSObject {
         trackerCoreData.name = tracker.name
         trackerCoreData.id = tracker.id
         trackerCoreData.emoji = tracker.emoji
-        trackerCoreData.color = tracker.color.hexString
+
+        // Преобразование UIColor в строку
+        if let colorString = tracker.color.toHexString() {
+            trackerCoreData.color = colorString
+        } else {
+            print("Ошибка преобразования цвета в строку")
+            trackerCoreData.color = "" // Или другое значение по умолчанию
+        }
+
         trackerCoreData.isHabit = tracker.isHabit
 
         // Кодирование расписания
@@ -99,83 +105,78 @@ final class TrackerStore: NSObject {
     }
 
     
-    func fetchTrackers() -> [Tracker] {
-        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-        
+    func fetchAllTrackers() -> [Tracker] {
         do {
-            let results = try context.fetch(fetchRequest)
-            // Преобразуем Core Data объекты в обычные объекты
-            let trackers = results.map { trackerCoreData in
-                
-                let scheduleString = trackerCoreData.schedule ?? ""
-                print("Decoding schedule from Core Data: \(scheduleString)") // Для отладки
-
-                // Если строка пустая, используем пустой массив
-                let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []
-
-                return Tracker(
-                    id: trackerCoreData.id ?? UUID(),
-                    name: trackerCoreData.name ?? "",
-                    color: UIColor(hex: trackerCoreData.color ?? "") ?? .colorSection1,
-                    emoji: trackerCoreData.emoji ?? "",
-                    schedule: schedule,
-                    isHabit: trackerCoreData.isHabit
+            let results = try context.fetch(TrackerCoreData.fetchRequest())
+            return results.map { entity in
+                Tracker(
+                    id: entity.id ?? UUID(),
+                    name: entity.name ?? "",
+                    color: UIColor(hex: entity.color ?? "#FFFFFF") ?? .black,
+                    emoji: entity.emoji ?? "",
+                    schedule: Weekday.decodeSchedule(from: entity.schedule ?? "") ?? [],
+                    isHabit: entity.isHabit
                 )
             }
-            return trackers
         } catch {
-            print("Error fetching trackers: \(error)")
+            print("❌ Failed to fetch trackers: \(error)")
             return []
         }
     }
-
-
-}
-
-extension TrackerStore: NSFetchedResultsControllerDelegate {
     
+    func fetchTrackers() -> [Tracker] {
+          guard let objects = fetchedResultsController.fetchedObjects else { return [] }
+          return objects.map { coreDataTracker in
+              // Декодируем расписание из строки
+              let scheduleString = coreDataTracker.schedule ?? ""
+              let schedule: [Weekday] = Weekday.decodeSchedule(from: scheduleString) ?? []
+              
+              return Tracker(
+                  id: coreDataTracker.id ?? UUID(),
+                  name: coreDataTracker.name ?? "",
+                  color: UIColor(named: coreDataTracker.color ?? "") ?? .black,
+                  emoji: coreDataTracker.emoji ?? "",
+                  schedule: schedule,  // Теперь schedule — это массив Weekday
+                  isHabit: coreDataTracker.isHabit
+              )
+          }
+      }}
+
+// MARK: - NSFetchedResultsControllerDelegate
+extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        insertedIndexes = IndexSet()
-        deletedIndexes = IndexSet()
+        insertedIndexes.removeAll()
+        deletedIndexes.removeAll()
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        guard let insertedIndexes = insertedIndexes,
-              let deletedIndexes = deletedIndexes else {
-            return
-        }
         delegate?.didUpdate(
-            .init(
+            TrackerStoreUpdate(
                 insertedIndexes: insertedIndexes,
                 deletedIndexes: deletedIndexes
             )
         )
-        self.insertedIndexes = nil
-        self.deletedIndexes = deletedIndexes
     }
-
+    
     func controller(
         _ controller: NSFetchedResultsController<any NSFetchRequestResult>,
         didChange anObject: Any,
         at indexPath: IndexPath?,
         for type: NSFetchedResultsChangeType,
-        newIndexPath: IndexPath?) {
+        newIndexPath: IndexPath?
+    ) {
         switch type {
+        case .insert:
+            if let newIndexPath = newIndexPath {
+                insertedIndexes.insert(newIndexPath.item)
+            }
         case .delete:
             if let indexPath = indexPath {
-                deletedIndexes?.insert(indexPath.item)
-            }
-        case .insert:
-            if let indexPath = indexPath {
-                insertedIndexes?.insert(indexPath.item)
+                deletedIndexes.insert(indexPath.item)
             }
         default:
             break
         }
     }
-
 }
-
-
-
 

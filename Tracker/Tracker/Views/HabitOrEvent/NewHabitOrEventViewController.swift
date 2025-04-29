@@ -25,7 +25,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     // MARK: - Private Properties
     
     private var category: TrackerCategory? = TrackerCategory(title: "Домашний уют", trackers: [])
-    private var schedule: [Weekday] = []
+    private var selectedDays: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
     private let trackerStore = TrackerStore()
@@ -189,37 +189,47 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     // MARK: - Private Methods
     
     @objc private func createButtonDidTap() {
-        let name = trackerNameTF.text ?? ""
-        let id = UUID()
-        let emoji = selectedEmoji ?? ""
-        let color = selectedColor ?? .white
         
-        let trackerSchedule: [Weekday]
-        if isHabit {
-            trackerSchedule = schedule
-        } else {
-            if let today = currentWeekday() {
-                trackerSchedule = [today]
-            } else {
-                trackerSchedule = []
-            }
+        if let category = selectedCategory {
+            trackerStore.addTracker(tracker: makeTracker(), category: category)
         }
         
-        guard let category = selectedCategory else {return}
-        let tracker = Tracker(id: id, name: name, color: color, emoji: emoji, schedule: trackerSchedule, isHabit: isHabit)
-
-        
-        trackerStore.addTracker(tracker: tracker, category: category )
-        
-        let savedTrackers = trackerStore.fetchTrackers() 
-          print("Saved Trackers: \(savedTrackers)")
-        
-        delegate?.didCreateTrackerOrEvent(tracker: tracker)
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
         
         presentingViewController?.presentingViewController?.dismiss(animated: true)
     }
     
+    private func makeTracker() -> Tracker {
+           let name = trackerNameTF.text ?? ""
+           let id = UUID()
+           let today = Date()
+           var schedule: [Weekday] = []
+           
+        if isHabit {
+            schedule = selectedDays
+        } else {
+            var filterWeekDay = Calendar.current.component(.weekday, from: today)
+            if filterWeekDay == 1 {
+                filterWeekDay = 7
+            } else {
+                filterWeekDay -= 1
+            }
+            if let selectedDayOfWeek = Weekday.allCases.first(where: { $0.numberValue == filterWeekDay }) {
+                schedule.append(selectedDayOfWeek)
+            }
+        }
+
+           
+           let isHabit = isHabit ? true : false
+            print("\(id), \(name), \(isHabit), \(schedule), \(selectedColor), \(selectedEmoji)")
+           
+           return Tracker(id: id,
+                          name: name,
+                          color: selectedColor ?? UIColor(white: 1, alpha: 1),
+                          emoji: selectedEmoji ?? "",
+                          schedule: schedule,
+                          isHabit: isHabit)
+       }
     
     private func currentWeekday() -> Weekday? {
         let weekdayNumber = Calendar.current.component(.weekday, from: Date())
@@ -229,7 +239,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private func createButtonIsAvailable(){
         let isText = trackerNameTF.hasText
-        let selectedScedule = !schedule.isEmpty
+        let selectedScedule = !selectedDays.isEmpty
         let buttonIsAvailable: Bool
         let category = selectedCategory != nil
         let selectedEmoji = selectedEmoji != nil
@@ -339,10 +349,10 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     }
     
     private func scheduleSubtitle()->String{
-        if schedule.count == 7 {
+        if selectedDays.count == 7 {
             return "Каждый день"
         } else {
-            let shortNames = schedule
+            let shortNames = selectedDays
                 .sorted {
                     guard let firstIndex = Weekday.allCases.firstIndex(of: $0),
                           let secondIndex = Weekday.allCases.firstIndex(of: $1) else { return false }
@@ -454,7 +464,7 @@ extension NewHabitOrEventViewController: UITextFieldDelegate {
 
 extension NewHabitOrEventViewController: ScheduleViewControllerDelegate {
     func didSelectDays(days: [Weekday]) {
-        schedule = days
+        selectedDays = days
         tableView.reloadData()
     }
 }
