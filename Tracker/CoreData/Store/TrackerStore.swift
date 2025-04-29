@@ -9,22 +9,13 @@ import CoreData
 import UIKit
 
 protocol TrackerStoreDelegate: AnyObject {
-    func store(
-        _ store: TrackerStore,
-        didUpdate update: TrackerStoreUpdate
-    )
+    func didUpdate(_ update: TrackerStoreUpdate)
 
 }
 
 struct TrackerStoreUpdate {
-    struct Move: Hashable {
-        let oldIndex: Int
-        let newIndex: Int
-    }
     let insertedIndexes: IndexSet
     let deletedIndexes: IndexSet
-    let updatedIndexes: IndexSet
-    let movedIndexes: Set<Move>
 }
 
 final class TrackerStore: NSObject {
@@ -32,8 +23,6 @@ final class TrackerStore: NSObject {
     weak var delegate: TrackerStoreDelegate?
     private var insertedIndexes: IndexSet?
     private var deletedIndexes: IndexSet?
-    private var updatedIndexes: IndexSet?
-    private var movedIndexes: Set<TrackerStoreUpdate.Move>?
     
     private let context = CoreDataManager.shared.viewContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
@@ -83,27 +72,24 @@ final class TrackerStore: NSObject {
     }
     
     func addTracker(tracker: Tracker, category: TrackerCategory) {
-        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "title == %@", category.title)
-        
-        do {
-            let categories = try context.fetch(fetchRequest)
-            if let categoryCoreData = categories.first {
-                let trackerEntity = TrackerCoreData(context: context)
-                trackerEntity.id = tracker.id
-                trackerEntity.name = tracker.name
-                trackerEntity.color = tracker.color.hexString
-                trackerEntity.emoji = tracker.emoji
-                trackerEntity.schedule = Tracker.encodeSchedule(tracker.schedule)
-                trackerEntity.isHabit = tracker.isHabit
-                trackerEntity.trackerCategory = categoryCoreData
-
-                try context.save()
-            }
-        } catch {
-            print("❌ Ошибка при сохранении трекера: \(error)")
-        }
-    }
+        let trackerCoreData = TrackerCoreData(context: context)
+              
+              let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
+              request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
+              guard let trackerCategoryCoreData = try? context.fetch(request).first else { return }
+              
+              trackerCoreData.name = tracker.name
+              trackerCoreData.id = tracker.id
+              trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.color = tracker.color.hexString
+        trackerCoreData.schedule = Tracker.encodeSchedule(tracker
+            .schedule)
+              trackerCoreData.isHabit = tracker.isHabit
+              trackerCoreData.trackerCategory = trackerCategoryCoreData
+              trackerCategoryCoreData.addToTrackers(trackerCoreData)
+              
+              CoreDataManager.shared.saveContext()
+          }
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
@@ -111,52 +97,45 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
         insertedIndexes = IndexSet()
         deletedIndexes = IndexSet()
-        updatedIndexes = IndexSet()
-        movedIndexes = Set<TrackerStoreUpdate.Move>()
-
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        delegate?.store(
-            self,
-            didUpdate: TrackerStoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!,
-                updatedIndexes: updatedIndexes!,
-                movedIndexes: movedIndexes!
+        guard let insertedIndexes = insertedIndexes,
+              let deletedIndexes = deletedIndexes else {
+            return
+        }
+        delegate?.didUpdate(
+            .init(
+                insertedIndexes: insertedIndexes,
+                deletedIndexes: deletedIndexes
             )
         )
-        
-        insertedIndexes = nil
-        deletedIndexes = nil
-        updatedIndexes = nil
-        movedIndexes = nil
+        self.insertedIndexes = nil
+        self.deletedIndexes = deletedIndexes
     }
-    
+
     func controller(
-        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        _ controller: NSFetchedResultsController<any NSFetchRequestResult>,
         didChange anObject: Any,
         at indexPath: IndexPath?,
         for type: NSFetchedResultsChangeType,
-        newIndexPath: IndexPath?
-    ) {
+        newIndexPath: IndexPath?) {
         switch type {
-        case .insert:
-            guard let indexPath = newIndexPath else { fatalError() }
-            insertedIndexes?.insert(indexPath.item)
         case .delete:
-            guard let indexPath = indexPath else { fatalError() }
-            deletedIndexes?.insert(indexPath.item)
-        case .update:
-            guard let indexPath = indexPath else { fatalError() }
-            updatedIndexes?.insert(indexPath.item)
-        case .move:
-            guard let oldIndexPath = indexPath, let newIndexPath = newIndexPath else { fatalError() }
-            movedIndexes?.insert(.init(oldIndex: oldIndexPath.item, newIndex: newIndexPath.item))
-        @unknown default:
-            fatalError()
+            if let indexPath = indexPath {
+                deletedIndexes?.insert(indexPath.item)
+            }
+        case .insert:
+            if let indexPath = indexPath {
+                insertedIndexes?.insert(indexPath.item)
+            }
+        default:
+            break
         }
     }
+
 }
+
+
 
 

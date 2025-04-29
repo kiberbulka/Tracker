@@ -526,6 +526,3 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
     }
 }
 
-#Preview {
-    NewHabitOrEventViewController()
-}

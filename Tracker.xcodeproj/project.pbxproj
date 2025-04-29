@@ -194,7 +194,6 @@
 			isa = PBXGroup;
 			children = (
 				CEA330692DB3C29B00BAA309 /* Tracker.xcdatamodeld */,
-				CEA330802DB40BA000BAA309 /* Transformers */,
 				CEA3306F2DB3D07100BAA309 /* Store */,
 				CEA3306D2DB3C5B100BAA309 /* CoreDataManager.swift */,
 			);
@@ -209,13 +208,6 @@
 				CEA330742DB3D09D00BAA309 /* TrackerRecordStore.swift */,
 			);
 			path = Store;
-			sourceTree = "<group>";
-		};
-		CEA330802DB40BA000BAA309 /* Transformers */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Transformers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

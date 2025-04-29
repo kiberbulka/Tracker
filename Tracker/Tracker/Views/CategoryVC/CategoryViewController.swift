@@ -16,7 +16,17 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    private var categories: [TrackerCategory] = []
+    private var categories: [TrackerCategory] = [
+        TrackerCategory(
+            title: "Важное",
+            trackers: []
+        ),
+        TrackerCategory(
+            title: "Домашний уют",
+            trackers: []
+        )
+    ]
+
     var selectedCategory: TrackerCategory?
     private let trackerCategoryStore = TrackerCategoryStore()
     
@@ -53,7 +63,7 @@ final class CategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        categories = trackerCategoryStore.fetchCategories()
+    //    categories = trackerCategoryStore.fetchCategories()
         setupUI()
         tableView.delegate = self
         tableView.dataSource = self
