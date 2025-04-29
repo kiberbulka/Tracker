@@ -95,50 +95,6 @@ final class TrackerCategoryStore: NSObject {
         fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
-    func category(at indexPath: IndexPath) -> TrackerCategory? {
-        let entity = fetchedResultsController.object(at: indexPath)
-        guard let title = entity.title,
-              let trackerCoreData = entity.trackers?.allObjects as? [TrackerCoreData] else {
-            return nil
-        }
-        let trackers = trackerCoreData.map { trackerCD in
-            let scheduleString = trackerCD.schedule ?? ""
-            let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []
-            
-            return Tracker(
-                id: trackerCD.id ?? UUID(),
-                name: trackerCD.name ?? "",
-                color: UIColor(hex: trackerCD.color ?? "") ?? .colorSection1,
-                emoji: trackerCD.emoji ?? "",
-                schedule: schedule,
-                isHabit: trackerCD.isHabit
-            )
-        }
-        
-        return TrackerCategory(title: title, trackers: trackers)
-    }
-    
-    func createCategory(_ category: TrackerCategory) throws {
-        do {
-            try create(category)
-        } catch {
-            fatalError("Failed to create category")
-        }
-    }
-    
-    func updateCategory(_ category: TrackerCategory, with newTitle: String) throws {
-        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TrackerCategoryCoreData")
-        request.predicate = NSPredicate(format: "title == %@", category.title)
-        do {
-            let results = try context.fetch(request)
-            if let existingCategory = results.first as? TrackerCategoryCoreData {
-                existingCategory.title = newTitle
-                try context.save()
-            }
-        } catch {
-            fatalError("Failed to update categories")
-        }
-    }
 }
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
     

@@ -41,7 +41,6 @@ extension UIColor {
             var b: CGFloat = 0
             var a: CGFloat = 0
 
-            // Получаем компоненты цвета
             if self.getRed(&r, green: &g, blue: &b, alpha: &a) {
                 let red = Int(r * 255)
                 let green = Int(g * 255)

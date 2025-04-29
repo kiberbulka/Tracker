@@ -62,7 +62,6 @@ enum Weekday: String, CaseIterable, Codable {
         do {
             let data = try encoder.encode(schedule)
             let jsonString = String(data: data, encoding: .utf8)
-            print("Закодированное расписание: \(jsonString ?? "Ошибка кодирования")") // Для отладки
             return jsonString
         } catch {
             print("Ошибка кодирования расписания: \(error)")
@@ -73,14 +72,12 @@ enum Weekday: String, CaseIterable, Codable {
     
     static func decodeSchedule(from string: String) -> [Weekday]? {
         let decoder = JSONDecoder()
-        print("Декодирование расписания: \(string)") // Для отладки
         guard let data = string.data(using: .utf8) else {
             print("Ошибка преобразования строки в данные")
             return nil
         }
         do {
             let schedule = try decoder.decode([Weekday].self, from: data)
-            print("Декодированное расписание: \(schedule)") // Для отладки
             return schedule
         } catch {
             print("Ошибка декодирования расписания: \(error)")

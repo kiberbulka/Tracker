@@ -219,15 +219,14 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             }
         }
         
-        
-        let isHabit = isHabit ? true : false
-        
-        return Tracker(id: id,
-                       name: name,
-                       color: selectedColor ?? UIColor(white: 1, alpha: 1),
-                       emoji: selectedEmoji ?? "",
-                       schedule: schedule,
-                       isHabit: isHabit)
+        return Tracker(
+            id: id,
+            name: name,
+            color: selectedColor ?? UIColor(white: 1, alpha: 1),
+            emoji: selectedEmoji ?? "",
+            schedule: schedule,
+            isHabit: isHabit
+        )
     }
     
     private func currentWeekday() -> Weekday? {

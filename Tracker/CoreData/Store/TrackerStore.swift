@@ -57,18 +57,6 @@ final class TrackerStore: NSObject {
         fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
     
-    func tracker(at indexPath: IndexPath) -> Tracker {
-        let entity = fetchedResultsController.object(at: indexPath)
-        return Tracker(
-            id: entity.id ?? UUID(),
-            name: entity.name ?? "",
-            color: UIColor(hex: entity.color ?? "#FFFFFF") ?? .black,
-            emoji: entity.emoji ?? "",
-            schedule: Weekday.decodeSchedule(from: entity.schedule ?? "") ?? [],
-            isHabit: entity.isHabit
-        )
-    }
-    
     func addTracker(tracker: Tracker, category: TrackerCategory) {
         let trackerCoreData = TrackerCoreData(context: context)
         
@@ -112,27 +100,7 @@ final class TrackerStore: NSObject {
         
         CoreDataManager.shared.saveContext()
     }
-    
-    
-    func fetchAllTrackers() -> [Tracker] {
-        do {
-            let results = try context.fetch(TrackerCoreData.fetchRequest())
-            return results.map { entity in
-                Tracker(
-                    id: entity.id ?? UUID(),
-                    name: entity.name ?? "",
-                    color: UIColor(hex: entity.color ?? "#FFFFFF") ?? .black,
-                    emoji: entity.emoji ?? "",
-                    schedule: Weekday.decodeSchedule(from: entity.schedule ?? "") ?? [],
-                    isHabit: entity.isHabit
-                )
-            }
-        } catch {
-            print("Failed to fetch trackers: \(error)")
-            return []
-        }
-    }
-    
+        
     func fetchTrackers() -> [Tracker] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         return objects.map { coreDataTracker in
