@@ -70,39 +70,57 @@ final class TrackerStore: NSObject {
     }
     
     func addTracker(tracker: Tracker, category: TrackerCategory) {
-        let trackerCoreData = TrackerCoreData(context: context)
+            let trackerCoreData = TrackerCoreData(context: context)
+            
+            // Проверим, существует ли категория, иначе создадим новую
+            let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
+            request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
+            
+            var trackerCategoryCoreData: TrackerCategoryCoreData?
+            
+            do {
+                let results = try context.fetch(request)
+                if let existingCategory = results.first {
+                    // Если категория существует, присваиваем её
+                    trackerCategoryCoreData = existingCategory
+                } else {
+                    // Если категории нет, создаём новую
+                    trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
+                    trackerCategoryCoreData?.title = category.title
+                    CoreDataManager.shared.saveContext()
+                }
+            } catch {
+                print("❌ Error fetching or creating category: \(error)")
+            }
 
-        let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
-        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
-        guard let trackerCategoryCoreData = try? context.fetch(request).first else { return }
+            // Присваиваем трекеру найденную или созданную категорию
+            trackerCoreData.trackerCategory = trackerCategoryCoreData
 
-        trackerCoreData.name = tracker.name
-        trackerCoreData.id = tracker.id
-        trackerCoreData.emoji = tracker.emoji
+            // Заполняем остальные поля трекера
+            trackerCoreData.name = tracker.name
+            trackerCoreData.id = tracker.id
+            trackerCoreData.emoji = tracker.emoji
+            
+            // Преобразуем цвет
+            if let colorString = tracker.color.toHexString() {
+                trackerCoreData.color = colorString
+            } else {
+                print("Ошибка преобразования цвета в строку")
+                trackerCoreData.color = ""
+            }
 
-        // Преобразование UIColor в строку
-        if let colorString = tracker.color.toHexString() {
-            trackerCoreData.color = colorString
-        } else {
-            print("Ошибка преобразования цвета в строку")
-            trackerCoreData.color = "" // Или другое значение по умолчанию
+            trackerCoreData.isHabit = tracker.isHabit
+
+            // Кодируем расписание
+            if let scheduleString = Weekday.encodeSchedule(tracker.schedule) {
+                trackerCoreData.schedule = scheduleString
+            } else {
+                print("Ошибка кодирования расписания")
+                trackerCoreData.schedule = ""
+            }
+            
+            CoreDataManager.shared.saveContext()
         }
-
-        trackerCoreData.isHabit = tracker.isHabit
-
-        // Кодирование расписания
-        if let scheduleString = Weekday.encodeSchedule(tracker.schedule) {
-            trackerCoreData.schedule = scheduleString
-        } else {
-            print("Ошибка кодирования расписания")
-            trackerCoreData.schedule = "" // Или другое значение по умолчанию
-        }
-
-        trackerCoreData.trackerCategory = trackerCategoryCoreData
-        trackerCategoryCoreData.addToTrackers(trackerCoreData)
-
-        CoreDataManager.shared.saveContext()
-    }
 
     
     func fetchAllTrackers() -> [Tracker] {

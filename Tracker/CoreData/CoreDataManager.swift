@@ -32,12 +32,16 @@ final class CoreDataManager {
         if context.hasChanges {
             do {
                 try context.save()
+                print("✅ Context saved successfully")
             } catch {
-                let error = error as NSError
-                fatalError("Unresolved error \(error)")
+                let nsError = error as NSError
+                print("❌ Failed to save context: \(nsError), \(nsError.userInfo)")
             }
+        } else {
+            print("⚠️ No changes in context to save")
         }
     }
+
     
 }
 

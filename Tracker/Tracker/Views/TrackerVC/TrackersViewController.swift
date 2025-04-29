@@ -107,6 +107,8 @@ class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+        collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         setupUI()
         showPlaceholder()
         view.backgroundColor = .white
@@ -147,7 +149,7 @@ class TrackersViewController: UIViewController {
         trackers = trackerStore.fetchTrackers()
         print("\(trackers) - coredata")
         categories = trackerCategoryStore.fetchCategories()
-        print("\(categories) - core data")
+        print("\(categories)")
         filteredCategories = categories
         completedTrackers = trackerRecordStore.fetch()
         datePickerValueChanged()
@@ -194,6 +196,7 @@ class TrackersViewController: UIViewController {
     @objc private func datePickerValueChanged() {
         currentDate = datePicker.date
         reloadVisibleCategories()
+        collectionView.reloadData()
     }
     
     @objc private func createTrackerOrHabit(){
@@ -259,7 +262,7 @@ extension TrackersViewController: UICollectionViewDelegate {
 extension TrackersViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return visibleCategories.count
+        return visibleCategories.isEmpty ? 0: visibleCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -271,7 +274,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCell.trackerCellIdentifier, for: indexPath) as? TrackerCell else {
             return UICollectionViewCell()
         }
-        let tracker = trackerStore.tracker(at: indexPath)
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         cell.delegate = self
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.trackerID == tracker.id}.count

@@ -192,6 +192,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         
         if let category = selectedCategory {
             trackerStore.addTracker(tracker: makeTracker(), category: category)
+       
         }
         
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
