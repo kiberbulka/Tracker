@@ -109,7 +109,7 @@ extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         cell.backgroundColor = .ypGray
-        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        cell.textLabel?.font = .systemFont(ofSize: 17)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         let category = categories[indexPath.row]

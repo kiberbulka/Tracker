@@ -31,7 +31,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private let trackerStore = TrackerStore()
     private var selectedCategory: TrackerCategory?
     private var tableViewHeightConstraint: NSLayoutConstraint!
-
+    
     
     private var selectedEmojiIndexPath: IndexPath?
     private var selectedColorIndexPath: IndexPath?
@@ -176,7 +176,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         super.viewDidLayoutSubviews()
         updateTableViewHeight()
     }
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -273,7 +273,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         
         tableViewHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: 150)
         tableViewHeightConstraint.isActive = true
-
+        
         [newHabitLabel, trackerNameTF, cancelButton, createButton, tableView, characterLimitLabel, emojiLabel, emojiCollection, colorLabel, colorCollection].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
@@ -340,8 +340,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private func updateTableViewHeight() {
         tableView.layoutIfNeeded()
-          let height = tableView.contentSize.height
-          tableViewHeightConstraint.constant = height
+        let height = tableView.contentSize.height
+        tableViewHeightConstraint.constant = height
     }
     
     
@@ -390,8 +390,8 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         cell.backgroundColor = .ypGray
-        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .medium)
-        cell.detailTextLabel?.font = .systemFont(ofSize: 17, weight: .medium)
+        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        cell.detailTextLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         cell.detailTextLabel?.textColor = .ypLightGray
         cell.selectionStyle = .none
         
@@ -499,7 +499,7 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
+        1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -525,7 +525,9 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         switch collectionView.tag {
         case 1:
+            guard emojis.indices.contains(indexPath.row) else { return }
             let selectedEmoji = emojis[indexPath.row]
+            
             if let previousIndexPath = selectedEmojiIndexPath,
                let previousCell = emojiCollection.cellForItem(at: previousIndexPath) as? EmojiCell {
                 previousCell.updateBackgroundColor(color: .clear)
@@ -538,7 +540,9 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
             createButtonIsAvailable()
             
         case 2:
+            guard colors.indices.contains(indexPath.row) else { return }
             let selectedColor = colors[indexPath.row]
+            
             if let previousIndexPath = selectedColorIndexPath,
                let previousCell = colorCollection.cellForItem(at: previousIndexPath) as? ColorCell {
                 previousCell.updateFrameColor(color: .clear, isHidden: true)
