@@ -9,15 +9,26 @@ import Foundation
 import UIKit
 
 protocol CategorySelectionDelegate: AnyObject {
-    func didSelectCategory(_ category: String)
+    func didSelectCategory(_ category: TrackerCategory)
 }
 
 final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    private var categories: [String] = ["Домашний уют", "Важное"]
-    var selectedCategory: String?
+    private var categories: [TrackerCategory] = [
+        TrackerCategory(
+            title: "Важное",
+            trackers: []
+        ),
+        TrackerCategory(
+            title: "Домашний уют",
+            trackers: []
+        )
+    ]
+
+    var selectedCategory: TrackerCategory?
+    private let trackerCategoryStore = TrackerCategoryStore()
     
     weak var delegate: CategorySelectionDelegate?
     
@@ -52,6 +63,7 @@ final class CategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
+    //    categories = trackerCategoryStore.fetchCategories()
         setupUI()
         tableView.delegate = self
         tableView.dataSource = self
@@ -97,11 +109,11 @@ extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
         cell.backgroundColor = .ypGray
-        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        cell.textLabel?.font = .systemFont(ofSize: 17)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         let category = categories[indexPath.row]
-        cell.textLabel?.text = category
+        cell.textLabel?.text = category.title
         return cell
     }
     
