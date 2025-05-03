@@ -99,6 +99,7 @@ class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationAppearance()
         setupNavigationItem()
         setupUI()
         showPlaceholder()
@@ -125,6 +126,17 @@ class TrackersViewController: UIViewController {
         let datePickerItem = UIBarButtonItem(customView: datePicker)
         navigationItem.rightBarButtonItem = datePickerItem
     }
+    
+    private func setupNavigationAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white // Или любой твой цвет
+        appearance.shadowColor = .clear // Если не хочешь нижнюю тень
+
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+    }
+
     
     @objc private func handleDidCreateTracker() {
         reloadData()
@@ -215,34 +227,40 @@ class TrackersViewController: UIViewController {
         let calendar = Calendar.current
         guard let currentDate = currentDate else { return }
         let filterText = (searchTextField.text ?? "").lowercased()
-        
+        let today = Date()
+
         visibleCategories = filteredCategories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty || tracker.name.lowercased().contains(filterText)
                 var dateCondition = false
-                
-                if tracker.isHabit == true {
+
+                if tracker.isHabit {
+                    // Показываем привычки по расписанию
                     let filterWeekDay = calendar.component(.weekday, from: currentDate)
-                    dateCondition = tracker.schedule.contains { dayOfWeek in
-                        let dayOfWeekIndex = dayOfWeek.numberValue
-                        let filterWeekDayAdjusted = filterWeekDay == 1 ? 7 : filterWeekDay - 1
-                        return dayOfWeekIndex == filterWeekDayAdjusted
-                    }
+                    let adjustedWeekDay = filterWeekDay == 1 ? 7 : filterWeekDay - 1
+
+                    dateCondition = tracker.schedule.contains { $0.numberValue == adjustedWeekDay }
                 } else {
-                    if isCurrentDate(currentDate) {
-                        let creationDate = Date()
-                        dateCondition = calendar.isDate(creationDate, inSameDayAs: currentDate)
+                    // Для нерегулярных: показываем, если
+                    // 1. выполнен — только в день выполнения
+                    // 2. не выполнен — с сегодняшнего дня и далее
+                    if let record = completedTrackers.first(where: { $0.trackerID == tracker.id }) {
+                        dateCondition = calendar.isDate(record.date, inSameDayAs: currentDate)
+                    } else {
+                        dateCondition = calendar.isDate(currentDate, inSameDayAs: today) || currentDate > today
                     }
                 }
+
                 return textCondition && dateCondition
             }
-            
+
             return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
-        
+
         collectionView.reloadData()
         showPlaceholder()
     }
+
     
     
     private func isCurrentDate(_ date: Date) -> Bool {
