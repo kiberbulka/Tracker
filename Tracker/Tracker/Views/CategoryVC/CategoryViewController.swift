@@ -16,16 +16,9 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    private var categories: [TrackerCategory] = [
-        TrackerCategory(
-            title: "Важное",
-            trackers: []
-        ),
-        TrackerCategory(
-            title: "Домашний уют",
-            trackers: []
-        )
-    ]
+    private let viewModel = CategoryViewModel()
+    
+    private var categories: [TrackerCategory] = []
 
     var selectedCategory: TrackerCategory?
     private let trackerCategoryStore = TrackerCategoryStore()
@@ -63,13 +56,24 @@ final class CategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-    //    categories = trackerCategoryStore.fetchCategories()
         setupUI()
+        bindViewModel()
+        viewModel.loadCategories()
+   
         tableView.delegate = self
         tableView.dataSource = self
     }
     
     // MARK: - Private Methods
+    
+    private func bindViewModel() {
+        viewModel.onCategoriesUpdated = { [weak self] updatedCategories in
+            self?.categories = updatedCategories
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
+            }
+        }
+    }
     
     private func setupUI(){
         
@@ -103,7 +107,7 @@ extension CategoryViewController: UITableViewDelegate {
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categories.count
+        return viewModel.numberOfCategories()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -112,7 +116,7 @@ extension CategoryViewController: UITableViewDataSource {
         cell.textLabel?.font = .systemFont(ofSize: 17)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
-        let category = categories[indexPath.row]
+        let category = viewModel.category(at: indexPath.row)
         cell.textLabel?.text = category.title
         return cell
     }
@@ -146,7 +150,7 @@ extension CategoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCategory = categories[indexPath.row]
+        let selectedCategory = viewModel.category(at: indexPath.row)
         delegate?.didSelectCategory(selectedCategory)
         navigationController?.popViewController(animated: true)
         if let cell = tableView.cellForRow(at: indexPath) {

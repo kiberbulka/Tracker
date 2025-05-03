@@ -36,6 +36,7 @@
 		CEA330752DB3D09D00BAA309 /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA330742DB3D09D00BAA309 /* TrackerRecordStore.swift */; };
 		CEBFFC142DC5E0F2000185E5 /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC132DC5E0F2000185E5 /* OnboardingPageViewController.swift */; };
 		CEBFFC162DC5E34A000185E5 /* OnboardingContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC152DC5E34A000185E5 /* OnboardingContentViewController.swift */; };
+		CEBFFC182DC616BE000185E5 /* CategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC172DC616BE000185E5 /* CategoryViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +71,7 @@
 		CEA330742DB3D09D00BAA309 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
 		CEBFFC132DC5E0F2000185E5 /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
 		CEBFFC152DC5E34A000185E5 /* OnboardingContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentViewController.swift; sourceTree = "<group>"; };
+		CEBFFC172DC616BE000185E5 /* CategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				CE5D27D12D9AF4BC00257869 /* CategoryViewController.swift */,
+				CEBFFC172DC616BE000185E5 /* CategoryViewModel.swift */,
 			);
 			path = CategoryVC;
 			sourceTree = "<group>";
@@ -294,6 +297,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CEBFFC182DC616BE000185E5 /* CategoryViewModel.swift in Sources */,
 				CE5D27C82D9AE17C00257869 /* ScheduleViewController.swift in Sources */,
 				CE9614AE2D92F5D600AC062C /* Tracker.swift in Sources */,
 				CEA330712DB3D08000BAA309 /* TrackerStore.swift in Sources */,

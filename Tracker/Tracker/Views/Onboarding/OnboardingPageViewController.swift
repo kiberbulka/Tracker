@@ -13,7 +13,7 @@ final class OnboardingPageViewController: UIPageViewController {
         let pageBlue = OnboardingContentViewController(imageName: "onboardingBlue", descriptionLabel: "Отслеживайте только то, что вы хотите")
         let pageRed = OnboardingContentViewController(imageName: "onboardingRed", descriptionLabel: "Даже если это не литры воды и йога")
         
-        pageBlue.button.addTarget(self, action: #selector(goToNextPage), for: .touchUpInside)
+        pageBlue.button.addTarget(self, action: #selector(finishOnboarding), for: .touchUpInside)
         pageRed.button.addTarget(self, action: #selector(finishOnboarding), for: .touchUpInside)
         return [pageBlue, pageRed]
     }()
@@ -31,6 +31,14 @@ final class OnboardingPageViewController: UIPageViewController {
     
     private var currentIndex = 0
     
+    init() {
+        super.init(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         dataSource = self
@@ -40,19 +48,18 @@ final class OnboardingPageViewController: UIPageViewController {
 
         NSLayoutConstraint.activate([
             pageControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -134),
-            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
         ])
 
     }
     
-    @objc private func goToNextPage(){
-        currentIndex += 1
-        setViewControllers([pages[currentIndex]], direction: .forward, animated: true)
-    }
-    
-    @objc private func finishOnboarding(){
-        if let sceneDelegate = UIApplication.shared.connectedScenes
-            .first?.delegate as? SceneDelegate {
+    @objc private func finishOnboarding() {
+        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+            sceneDelegate.completeOnboarding()
+        }
+
+        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
             let mainVC = TabBarController()
             sceneDelegate.changeRootViewController(mainVC)
         }

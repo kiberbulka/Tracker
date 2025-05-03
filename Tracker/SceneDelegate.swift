@@ -8,50 +8,63 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    
+
     var window: UIWindow?
-    
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-            guard let windowScene = (scene as? UIWindowScene) else { return }
-            
-            // Создаем окно
-            window = UIWindow(windowScene: windowScene)
-            window?.rootViewController = OnboardingPageViewController() // Устанавливаем TabBarController как главный контроллер
-            window?.makeKeyAndVisible()
+        
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        
+        window = UIWindow(windowScene: windowScene)
+
+        if isFirstLaunch() {
+            showOnboardingScreen()
+        } else {
+            showMainAppScreen()
         }
 
+        window?.makeKeyAndVisible()
+    }
 
+    private func isFirstLaunch() -> Bool {
+        return !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    }
+
+    private func showOnboardingScreen() {
+        let onboardingVC = OnboardingPageViewController()
+        window?.rootViewController = onboardingVC
+    }
+
+    private func showMainAppScreen() {
+        let tabBarController = TabBarController()
+        window?.rootViewController = tabBarController
+    }
+
+    func completeOnboarding() {
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+    }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
-        // This occurs shortly after the scene enters the background, or when its session is discarded.
-        // Release any resources associated with this scene that can be re-created the next time the scene connects.
-        // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
+        // Called when the scene becomes active
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
+        // Called when the scene moves to an inactive state
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
+        // Called as the scene moves to the foreground
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
-        // Called as the scene transitions from the foreground to the background.
-        // Use this method to save data, release shared resources, and store enough scene-specific state information
-        // to restore the scene back to its current state.
+        // Called as the scene moves to the background
     }
-    
-    // SceneDelegate.swift
 
+    // Метод для анимации смены корневого контроллера
     func changeRootViewController(_ vc: UIViewController, animated: Bool = true) {
         guard let window = self.window else { return }
         
@@ -67,8 +80,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = vc
         }
     }
-
-
-
 }
+
 
