@@ -16,16 +16,7 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    private var categories: [TrackerCategory] = [
-        TrackerCategory(
-            title: "Важное",
-            trackers: []
-        ),
-        TrackerCategory(
-            title: "Домашний уют",
-            trackers: []
-        )
-    ]
+    private var categories: [TrackerCategory] = []
 
     var selectedCategory: TrackerCategory?
     private let trackerCategoryStore = TrackerCategoryStore()
@@ -47,7 +38,7 @@ final class CategoryViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.setTitle("Добавить категорию", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addCategoryButtonTap), for: .touchUpInside)
         button.backgroundColor = .black
         button.layer.cornerRadius = 16
         return button
@@ -58,22 +49,57 @@ final class CategoryViewController: UIViewController {
         return tableView
     }()
     
+    private lazy var placeholderImage: UIImageView = {
+        let placeholderImageView = UIImageView()
+        placeholderImageView.image = UIImage(named: "placeholder")
+        return placeholderImageView
+    }()
+    
+    private lazy var placeholderLabel: UILabel = {
+        let placeholderLabel = UILabel()
+        placeholderLabel.textAlignment = .center
+        placeholderLabel.numberOfLines = 0
+        placeholderLabel.text = "Привычки и события можно \n объединить по смыслу"
+        placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        return placeholderLabel
+    }()
+    
     // MARK: - Overrides Methods
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        showPlaceholder()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-    //    categories = trackerCategoryStore.fetchCategories()
         setupUI()
+        showPlaceholder()
+        let store = TrackerCategoryStore()
+        store.delegate = self
+        categories = store.fetchCategories()
+        tableView.reloadData()
         tableView.delegate = self
         tableView.dataSource = self
     }
     
     // MARK: - Private Methods
     
+    private func showPlaceholder(){
+        if categories.isEmpty {
+            placeholderImage.isHidden = false
+            placeholderLabel.isHidden = false
+        } else {
+            placeholderImage.isHidden = true
+            placeholderLabel.isHidden = true
+        }
+    }
+
+    
     private func setupUI(){
         
-        [titleLabel, doneButton, tableView].forEach{
+        [titleLabel, doneButton, tableView, placeholderImage, placeholderLabel].forEach{
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -88,13 +114,21 @@ final class CategoryViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.bottomAnchor.constraint(equalTo: doneButton.topAnchor, constant: -10)
+            tableView.bottomAnchor.constraint(equalTo: doneButton.topAnchor, constant: -10),
+            placeholderImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 358),
+            placeholderImage.heightAnchor.constraint(equalToConstant: 80),
+            placeholderImage.widthAnchor.constraint(equalToConstant: 80),
+            placeholderImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
     
-    @objc private func doneButtonDidTap(){
-        dismiss(animated: true)
-    }
+    @objc private func addCategoryButtonTap(){
+            let newVc = AddCategoryViewController()
+            newVc.delegate = self
+            present(newVc, animated: true)
+            }
 }
 
 extension CategoryViewController: UITableViewDelegate {
@@ -148,7 +182,7 @@ extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCategory = categories[indexPath.row]
         delegate?.didSelectCategory(selectedCategory)
-        navigationController?.popViewController(animated: true)
+        dismiss(animated: true)
         if let cell = tableView.cellForRow(at: indexPath) {
             cell.accessoryType = .checkmark
         }
@@ -163,5 +197,44 @@ extension CategoryViewController: UITableViewDataSource {
         }
     }
 
+}
+
+extension CategoryViewController: AddCategoryViewControllerDelegate{
+    func didAddCategory(_ category: TrackerCategory) {
+        let store = TrackerCategoryStore()
+        store.addCategory(category)
+        categories = store.fetchCategories()
+        tableView.reloadData()
+        showPlaceholder()
+    }
+}
+
+extension CategoryViewController: TrackerCategoryStoreDelegate {
+    func didUpdateCategories(_ update: TrackerCategoryStoreUpdate) {
+        // Перезагружаем данные в таблице
+                tableView.beginUpdates()
+                
+                if !update.insertedIndexes.isEmpty {
+                    tableView.insertRows(at: update.insertedIndexes.map {
+                        IndexPath(row: $0, section: 0)
+                    }, with: .automatic)
+                }
+                
+                if !update.deletedIndexes.isEmpty {
+                    tableView.deleteRows(at: update.deletedIndexes.map {
+                        IndexPath(row: $0, section: 0)
+                    }, with: .automatic)
+                }
+                
+                if !update.updatedIndexes.isEmpty {
+                    tableView.reloadRows(at: update.updatedIndexes.map {
+                        IndexPath(row: $0, section: 0)
+                    }, with: .automatic)
+                }
+                
+                tableView.endUpdates()
+    }
+    
+    
 }
 

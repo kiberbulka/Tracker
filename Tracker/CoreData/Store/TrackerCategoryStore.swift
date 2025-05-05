@@ -60,6 +60,38 @@ final class TrackerCategoryStore: NSObject {
         CoreDataManager.shared.saveContext()
     }
     
+    func addCategory(_ category: TrackerCategory) {
+        do {
+            try create(category)
+            delegate?.didUpdateCategories(
+                .init(insertedIndexes: IndexSet([fetchedResultsController.fetchedObjects?.count ?? 0]),
+                      deletedIndexes: IndexSet(),
+                      updatedIndexes: IndexSet())
+            )
+        } catch {
+            print("Error adding category: \(error)")
+        }
+    }
+    
+    func loadCategories() -> [TrackerCategory] {
+        return fetchCategories()
+    }
+    
+    func deleteCategory(at indexPath: IndexPath) {
+        let category = fetchedResultsController.object(at: indexPath)  // без guard let
+        context.delete(category)  // Удаляем объект
+        CoreDataManager.shared.saveContext()  // Сохраняем изменения
+    }
+    
+    func updateCategory(at indexPath: IndexPath, with title: String) {
+        let category = fetchedResultsController.object(at: indexPath)  // без guard let
+        category.title = title  // Обновляем данные
+        CoreDataManager.shared.saveContext()  // Сохраняем изменения
+    }
+
+
+
+    
     func fetchCategories() -> [TrackerCategory] {
         let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
         
