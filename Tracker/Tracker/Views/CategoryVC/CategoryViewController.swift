@@ -16,11 +16,8 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    private var categories: [TrackerCategory] = []
-
+    private var viewModel = CategoryViewModel()
     var selectedCategory: TrackerCategory?
-    private let trackerCategoryStore = TrackerCategoryStore()
-    
     weak var delegate: CategorySelectionDelegate?
     
     // MARK: - Private Properties
@@ -75,11 +72,11 @@ final class CategoryViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
-        showPlaceholder()
-        let store = TrackerCategoryStore()
-        store.delegate = self
-        categories = store.fetchCategories()
-        tableView.reloadData()
+        
+        viewModel.reloadData = { [weak self] in
+            self?.tableView.reloadData()
+            self?.showPlaceholder()
+        }
         tableView.delegate = self
         tableView.dataSource = self
     }
@@ -87,7 +84,7 @@ final class CategoryViewController: UIViewController {
     // MARK: - Private Methods
     
     private func showPlaceholder(){
-        if categories.isEmpty {
+        if viewModel.categories.isEmpty {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
         } else {
@@ -137,7 +134,7 @@ extension CategoryViewController: UITableViewDelegate {
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categories.count
+        return viewModel.categories.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -146,7 +143,7 @@ extension CategoryViewController: UITableViewDataSource {
         cell.textLabel?.font = .systemFont(ofSize: 17)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
-        let category = categories[indexPath.row]
+        let category = viewModel.categories[indexPath.row]
         cell.textLabel?.text = category.title
         return cell
     }
@@ -180,7 +177,7 @@ extension CategoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCategory = categories[indexPath.row]
+        let selectedCategory = viewModel.categories[indexPath.row]
         delegate?.didSelectCategory(selectedCategory)
         dismiss(animated: true)
         if let cell = tableView.cellForRow(at: indexPath) {
@@ -201,40 +198,9 @@ extension CategoryViewController: UITableViewDataSource {
 
 extension CategoryViewController: AddCategoryViewControllerDelegate{
     func didAddCategory(_ category: TrackerCategory) {
-        let store = TrackerCategoryStore()
-        store.addCategory(category)
-        categories = store.fetchCategories()
-        tableView.reloadData()
-        showPlaceholder()
+        viewModel.addCategory(category)
     }
 }
 
-extension CategoryViewController: TrackerCategoryStoreDelegate {
-    func didUpdateCategories(_ update: TrackerCategoryStoreUpdate) {
-        // Перезагружаем данные в таблице
-                tableView.beginUpdates()
-                
-                if !update.insertedIndexes.isEmpty {
-                    tableView.insertRows(at: update.insertedIndexes.map {
-                        IndexPath(row: $0, section: 0)
-                    }, with: .automatic)
-                }
-                
-                if !update.deletedIndexes.isEmpty {
-                    tableView.deleteRows(at: update.deletedIndexes.map {
-                        IndexPath(row: $0, section: 0)
-                    }, with: .automatic)
-                }
-                
-                if !update.updatedIndexes.isEmpty {
-                    tableView.reloadRows(at: update.updatedIndexes.map {
-                        IndexPath(row: $0, section: 0)
-                    }, with: .automatic)
-                }
-                
-                tableView.endUpdates()
-    }
-    
-    
-}
+
 

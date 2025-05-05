@@ -37,6 +37,7 @@
 		CEBFFC142DC5E0F2000185E5 /* OnboardingPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC132DC5E0F2000185E5 /* OnboardingPageViewController.swift */; };
 		CEBFFC162DC5E34A000185E5 /* OnboardingContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC152DC5E34A000185E5 /* OnboardingContentViewController.swift */; };
 		CEBFFC1C2DC8EC56000185E5 /* AddCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC1B2DC8EC56000185E5 /* AddCategoryViewController.swift */; };
+		CEBFFC1E2DC9027B000185E5 /* CategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,7 @@
 		CEBFFC132DC5E0F2000185E5 /* OnboardingPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPageViewController.swift; sourceTree = "<group>"; };
 		CEBFFC152DC5E34A000185E5 /* OnboardingContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentViewController.swift; sourceTree = "<group>"; };
 		CEBFFC1B2DC8EC56000185E5 /* AddCategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryViewController.swift; sourceTree = "<group>"; };
+		CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,6 +129,7 @@
 			children = (
 				CE5D27D12D9AF4BC00257869 /* CategoryViewController.swift */,
 				CEBFFC1B2DC8EC56000185E5 /* AddCategoryViewController.swift */,
+				CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */,
 			);
 			path = CategoryVC;
 			sourceTree = "<group>";
@@ -315,6 +318,7 @@
 				CE9614492D8C6F9800AC062C /* AppDelegate.swift in Sources */,
 				CE5D27C22D9A841C00257869 /* NewHabitOrEventViewController.swift in Sources */,
 				CE4A24FA2DAB9F6B003BA0BA /* ColorCell.swift in Sources */,
+				CEBFFC1E2DC9027B000185E5 /* CategoryViewModel.swift in Sources */,
 				CE5D27CA2D9AE60200257869 /* ScheduleCell.swift in Sources */,
 				CE9614642D8D9BB300AC062C /* StatisticViewController.swift in Sources */,
 				CE4A24F82DAB9CFE003BA0BA /* EmojiCell.swift in Sources */,

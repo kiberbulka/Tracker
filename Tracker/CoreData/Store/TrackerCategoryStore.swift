@@ -78,15 +78,15 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func deleteCategory(at indexPath: IndexPath) {
-        let category = fetchedResultsController.object(at: indexPath)  // без guard let
-        context.delete(category)  // Удаляем объект
-        CoreDataManager.shared.saveContext()  // Сохраняем изменения
+        let category = fetchedResultsController.object(at: indexPath)
+        context.delete(category)
+        CoreDataManager.shared.saveContext()
     }
     
     func updateCategory(at indexPath: IndexPath, with title: String) {
-        let category = fetchedResultsController.object(at: indexPath)  // без guard let
-        category.title = title  // Обновляем данные
-        CoreDataManager.shared.saveContext()  // Сохраняем изменения
+        let category = fetchedResultsController.object(at: indexPath)
+        category.title = title
+        CoreDataManager.shared.saveContext() 
     }
 
 
