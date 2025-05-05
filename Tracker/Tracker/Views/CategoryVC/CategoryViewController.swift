@@ -140,15 +140,19 @@ final class CategoryViewController: UIViewController {
         }
         present(editVC, animated: true)
     }
-
-
-       
-       private func deleteCategory(_ category: TrackerCategory) {
-           // Здесь добавляем логику для удаления категории.
-           // Удаляем категорию из модели и обновляем таблицу.
-         //  viewModel.deleteCategory(at: <#T##IndexPath#>)
-           tableView.reloadData()
-       }
+    
+    private func deleteCategory(_ category: TrackerCategory) {
+        
+        let alert = UIAlertController(title: "Эта категория точно не нужна?", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title:"Удалить", style: .destructive, handler: { _ in
+            
+            self.viewModel.deleteCategory(category)
+        }))
+        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        self.present(alert, animated: true)
+        
+        tableView.reloadData()
+    }
 }
 
 extension CategoryViewController: UITableViewDelegate {
@@ -224,11 +228,9 @@ extension CategoryViewController: UITableViewDataSource {
 
 extension CategoryViewController: UIContextMenuInteractionDelegate {
     
-    // Этот метод возвращает контекстное меню, которое отображается при долгом нажатии
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         
-        // Получаем ячейку, на которой было нажато
         guard let indexPath = tableView.indexPathForRow(at: location),
               indexPath.row < viewModel.categories.count else {
             return nil
@@ -236,13 +238,12 @@ extension CategoryViewController: UIContextMenuInteractionDelegate {
         
         let category = viewModel.categories[indexPath.row]
         
-        // Создаем меню с действиями
         let editAction = UIAction(title: "Редактировать") { _ in
             self.editCategory(category)
         }
         
         let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
-            //  self.deleteCategory(category)
+            self.deleteCategory(category)
         }
         
         let menu = UIMenu(title: "", children: [editAction, deleteAction])

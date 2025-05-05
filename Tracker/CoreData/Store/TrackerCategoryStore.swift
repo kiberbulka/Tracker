@@ -77,11 +77,21 @@ final class TrackerCategoryStore: NSObject {
         return fetchCategories()
     }
     
-    func deleteCategory(at indexPath: IndexPath) {
-        let category = fetchedResultsController.object(at: indexPath)
-        context.delete(category)
-        CoreDataManager.shared.saveContext()
+    func deleteCategory(_ category: TrackerCategory) {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", category.title)  // Здесь можно фильтровать по любому атрибуту.
+
+        do {
+            let categories = try context.fetch(request)
+            if let categoryToDelete = categories.first {
+                context.delete(categoryToDelete)
+                CoreDataManager.shared.saveContext()  // Сохраняем изменения в контексте.
+            }
+        } catch {
+            print("Ошибка при удалении категории: \(error)")
+        }
     }
+
     
     func updateCategory(at indexPath: IndexPath, with title: String) {
         let category = fetchedResultsController.object(at: indexPath)

@@ -33,8 +33,8 @@ class CategoryViewModel{
         fetchCategories()
     }
     
-    func deleteCategory(at indexPath: IndexPath) {
-        trackerCategoryStore.deleteCategory(at: indexPath)
+    func deleteCategory(_ category: TrackerCategory) {
+        trackerCategoryStore.deleteCategory(category)
         fetchCategories()
         
     }
