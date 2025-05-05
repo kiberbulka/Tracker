@@ -126,6 +126,29 @@ final class CategoryViewController: UIViewController {
             newVc.delegate = self
             present(newVc, animated: true)
             }
+    
+    private func editCategory(_ category: TrackerCategory) {
+        let editVC = AddCategoryViewController()
+        editVC.categoryToEdit = category
+        editVC.categoryUpdated = { [weak self] updatedCategory in
+            guard let self = self else { return }
+
+            if let index = self.viewModel.categories.firstIndex(where: { $0.title == category.title }) {
+                self.viewModel.editCategory(at: IndexPath(row: index, section: 0), newTitle: updatedCategory.title)
+                self.tableView.reloadData()
+            }
+        }
+        present(editVC, animated: true)
+    }
+
+
+       
+       private func deleteCategory(_ category: TrackerCategory) {
+           // Здесь добавляем логику для удаления категории.
+           // Удаляем категорию из модели и обновляем таблицу.
+         //  viewModel.deleteCategory(at: <#T##IndexPath#>)
+           tableView.reloadData()
+       }
 }
 
 extension CategoryViewController: UITableViewDelegate {
@@ -192,15 +215,47 @@ extension CategoryViewController: UITableViewDataSource {
         if isLastCell {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
+        
+        let interaction = UIContextMenuInteraction(delegate: self)
+        cell.addInteraction(interaction)
     }
 
 }
 
+extension CategoryViewController: UIContextMenuInteractionDelegate {
+    
+    // Этот метод возвращает контекстное меню, которое отображается при долгом нажатии
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        
+        // Получаем ячейку, на которой было нажато
+        guard let indexPath = tableView.indexPathForRow(at: location),
+              indexPath.row < viewModel.categories.count else {
+            return nil
+        }
+        
+        let category = viewModel.categories[indexPath.row]
+        
+        // Создаем меню с действиями
+        let editAction = UIAction(title: "Редактировать") { _ in
+            self.editCategory(category)
+        }
+        
+        let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            //  self.deleteCategory(category)
+        }
+        
+        let menu = UIMenu(title: "", children: [editAction, deleteAction])
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in menu })
+    }
+}
 extension CategoryViewController: AddCategoryViewControllerDelegate{
     func didAddCategory(_ category: TrackerCategory) {
         viewModel.addCategory(category)
     }
 }
+
 
 
 

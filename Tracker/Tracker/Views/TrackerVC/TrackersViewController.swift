@@ -105,6 +105,7 @@ class TrackersViewController: UIViewController {
         showPlaceholder()
         view.backgroundColor = .white
         NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
+        trackerCategoryStore.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -415,12 +416,10 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
     }
     
     func didUpdateCategories(_ update: TrackerCategoryStoreUpdate) {
-        collectionView.performBatchUpdates {
-            let insertedIndexPath = update.insertedIndexes.map { IndexPath(item: $0, section: $0) }
-            let deletedIndexPath = update.deletedIndexes.map { IndexPath(item: $0, section: $0) }
-            collectionView.insertItems(at: insertedIndexPath)
-            collectionView.deleteItems(at: deletedIndexPath)
-        }
+        categories = trackerCategoryStore.fetchCategories()
+           filteredCategories = categories
+           reloadVisibleCategories() // Пересчёт трекеров по дате, фильтру, расписанию
+           collectionView.reloadData()
     }
 }
 

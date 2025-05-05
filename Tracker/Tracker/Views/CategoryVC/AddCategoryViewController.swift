@@ -14,7 +14,8 @@ protocol AddCategoryViewControllerDelegate: AnyObject {
 class AddCategoryViewController: UIViewController {
     
     weak var delegate: AddCategoryViewControllerDelegate?
-    private var category: TrackerCategory?
+    var categoryToEdit: TrackerCategory?
+    var categoryUpdated: ((TrackerCategory) -> Void)?
     
     private lazy var categoryNameTF: UITextField = {
         let textField = UITextField()
@@ -61,18 +62,30 @@ class AddCategoryViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = .white
         setupUI()
+        
+        if let category = categoryToEdit {
+            categoryNameTF.text = category.title
+        }
         doneButtonIsAvailable()
     }
     
     @objc private func doneButtonTap() {
-            guard let title = categoryNameTF.text, !title.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        guard let title = categoryNameTF.text?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { return }
 
-            let newCategory = TrackerCategory(title: title, trackers: [])
-            delegate?.didAddCategory(newCategory)
+        let updatedCategory = TrackerCategory(
+            title: title,
+            trackers: categoryToEdit?.trackers ?? []
+        )
 
-            dismiss(animated: true)
+        if categoryToEdit != nil {
+            categoryUpdated?(updatedCategory)
+        } else {
+            delegate?.didAddCategory(updatedCategory)
         }
-    
+
+        dismiss(animated: true)
+    }
+
     @objc private func clearButtonDidTap(){
         categoryNameTF.text = ""
         

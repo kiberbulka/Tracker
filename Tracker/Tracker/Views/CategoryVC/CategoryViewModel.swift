@@ -20,6 +20,7 @@ class CategoryViewModel{
     private let trackerCategoryStore = TrackerCategoryStore()
     
     init() {
+        trackerCategoryStore.delegate = self
         fetchCategories()
     }
     
@@ -42,4 +43,11 @@ class CategoryViewModel{
         trackerCategoryStore.updateCategory(at: indexPath, with: newTitle)
         fetchCategories()
     }
+}
+
+extension CategoryViewModel: TrackerCategoryStoreDelegate {
+    func didUpdateCategories(_ update: TrackerCategoryStoreUpdate) {
+        fetchCategories()
+    }
+    
 }
