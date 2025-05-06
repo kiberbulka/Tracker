@@ -8,43 +8,42 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    
     var window: UIWindow?
-
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-
+        
         if isFirstLaunch() {
             showOnboardingScreen()
         } else {
             showMainAppScreen()
         }
-
+        
         window?.makeKeyAndVisible()
     }
-
+    
     private func isFirstLaunch() -> Bool {
         return !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     }
-
+    
     private func showOnboardingScreen() {
         let onboardingVC = OnboardingPageViewController()
         window?.rootViewController = onboardingVC
     }
-
+    
     private func showMainAppScreen() {
         let tabBarController = TabBarController()
         window?.rootViewController = tabBarController
     }
-
+    
     func completeOnboarding() {
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
     }
-
-    // Метод для анимации смены корневого контроллера
+    
     func changeRootViewController(_ vc: UIViewController, animated: Bool = true) {
         guard let window = self.window else { return }
         
@@ -53,8 +52,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                               duration: 0.5,
                               options: .transitionFlipFromRight,
                               animations: {
-                                  window.rootViewController = vc
-                              },
+                window.rootViewController = vc
+            },
                               completion: nil)
         } else {
             window.rootViewController = vc

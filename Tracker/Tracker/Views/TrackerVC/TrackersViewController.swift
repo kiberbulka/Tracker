@@ -133,11 +133,11 @@ class TrackersViewController: UIViewController {
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .white // Или любой твой цвет
         appearance.shadowColor = .clear // Если не хочешь нижнюю тень
-
+        
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
-
+    
     
     @objc private func handleDidCreateTracker() {
         reloadData()
@@ -229,39 +229,35 @@ class TrackersViewController: UIViewController {
         guard let currentDate = currentDate else { return }
         let filterText = (searchTextField.text ?? "").lowercased()
         let today = Date()
-
+        
         visibleCategories = filteredCategories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty || tracker.name.lowercased().contains(filterText)
                 var dateCondition = false
-
+                
                 if tracker.isHabit {
-                    // Показываем привычки по расписанию
                     let filterWeekDay = calendar.component(.weekday, from: currentDate)
                     let adjustedWeekDay = filterWeekDay == 1 ? 7 : filterWeekDay - 1
-
+                    
                     dateCondition = tracker.schedule.contains { $0.numberValue == adjustedWeekDay }
                 } else {
-                    // Для нерегулярных: показываем, если
-                    // 1. выполнен — только в день выполнения
-                    // 2. не выполнен — с сегодняшнего дня и далее
                     if let record = completedTrackers.first(where: { $0.trackerID == tracker.id }) {
                         dateCondition = calendar.isDate(record.date, inSameDayAs: currentDate)
                     } else {
                         dateCondition = calendar.isDate(currentDate, inSameDayAs: today) || currentDate > today
                     }
                 }
-
+                
                 return textCondition && dateCondition
             }
-
+            
             return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
-
+        
         collectionView.reloadData()
         showPlaceholder()
     }
-
+    
     
     
     private func isCurrentDate(_ date: Date) -> Bool {
@@ -417,9 +413,9 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
     
     func didUpdateCategories(_ update: TrackerCategoryStoreUpdate) {
         categories = trackerCategoryStore.fetchCategories()
-           filteredCategories = categories
-           reloadVisibleCategories() // Пересчёт трекеров по дате, фильтру, расписанию
-           collectionView.reloadData()
+        filteredCategories = categories
+        reloadVisibleCategories()
+        collectionView.reloadData()
     }
 }
 

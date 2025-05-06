@@ -71,21 +71,21 @@ class AddCategoryViewController: UIViewController {
     
     @objc private func doneButtonTap() {
         guard let title = categoryNameTF.text?.trimmingCharacters(in: .whitespacesAndNewlines), !title.isEmpty else { return }
-
+        
         let updatedCategory = TrackerCategory(
             title: title,
             trackers: categoryToEdit?.trackers ?? []
         )
-
+        
         if categoryToEdit != nil {
             categoryUpdated?(updatedCategory)
         } else {
             delegate?.didAddCategory(updatedCategory)
         }
-
+        
         dismiss(animated: true)
     }
-
+    
     @objc private func clearButtonDidTap(){
         categoryNameTF.text = ""
         
@@ -97,31 +97,31 @@ class AddCategoryViewController: UIViewController {
         doneButton.isEnabled = isNotEmpty
         doneButton.backgroundColor = isNotEmpty ? .black : .ypLightGray
     }
-
-
+    
+    
     
     private func setupUI(){
         [categoryNameTF, categoryLabel, doneButton].forEach{
             $0.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview($0)
         }
+        
+        NSLayoutConstraint.activate([
             
-            NSLayoutConstraint.activate([
-                
-                categoryLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                categoryLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
-                
-                categoryNameTF.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-                categoryNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-                categoryNameTF.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 38),
-                categoryNameTF.heightAnchor.constraint(equalToConstant: 75),
-                
-                doneButton.heightAnchor.constraint(equalToConstant: 60),
-                doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-                doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            ])
-        }
+            categoryLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            categoryLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
+            
+            categoryNameTF.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            categoryNameTF.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            categoryNameTF.topAnchor.constraint(equalTo: categoryLabel.bottomAnchor, constant: 38),
+            categoryNameTF.heightAnchor.constraint(equalToConstant: 75),
+            
+            doneButton.heightAnchor.constraint(equalToConstant: 60),
+            doneButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+        ])
+    }
     
     
     

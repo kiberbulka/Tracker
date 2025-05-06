@@ -84,7 +84,7 @@ final class CategoryViewController: UIViewController {
     // MARK: - Private Methods
     
     private func showPlaceholder(){
-        if viewModel.categories.isEmpty {
+        if viewModel.isEmpty() {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
         } else {
@@ -92,7 +92,7 @@ final class CategoryViewController: UIViewController {
             placeholderLabel.isHidden = true
         }
     }
-
+    
     
     private func setupUI(){
         
@@ -122,24 +122,25 @@ final class CategoryViewController: UIViewController {
     }
     
     @objc private func addCategoryButtonTap(){
-            let newVc = AddCategoryViewController()
-            newVc.delegate = self
-            present(newVc, animated: true)
-            }
+        let newVc = AddCategoryViewController()
+        newVc.delegate = self
+        present(newVc, animated: true)
+    }
     
-    private func editCategory(_ category: TrackerCategory) {
+    private func editCategory(at index: Int) {
+        guard let category = viewModel.category(at: index) else { return }
+        
         let editVC = AddCategoryViewController()
         editVC.categoryToEdit = category
         editVC.categoryUpdated = { [weak self] updatedCategory in
             guard let self = self else { return }
-
-            if let index = self.viewModel.categories.firstIndex(where: { $0.title == category.title }) {
-                self.viewModel.editCategory(at: IndexPath(row: index, section: 0), newTitle: updatedCategory.title)
-                self.tableView.reloadData()
-            }
+            
+            self.viewModel.editCategory(at: IndexPath(row: index, section: 0), newTitle: updatedCategory.title)
+            self.tableView.reloadData()
         }
         present(editVC, animated: true)
     }
+    
     
     private func deleteCategory(_ category: TrackerCategory) {
         
@@ -156,12 +157,29 @@ final class CategoryViewController: UIViewController {
 }
 
 extension CategoryViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard viewModel.category(at: indexPath.row) != nil else { return nil }
+        
+        
+        let editAction = UIAction(title: "Редактировать") { _ in
+            self.editCategory(at: indexPath.row)
+        }
+        
+        let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            self.viewModel.deleteCategory(at: indexPath.row)
+        }
+        
+        let menu = UIMenu(title: "", children: [editAction, deleteAction])
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in menu }
+    }
     
 }
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.categories.count
+        return viewModel.numberOfCategories()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -170,8 +188,8 @@ extension CategoryViewController: UITableViewDataSource {
         cell.textLabel?.font = .systemFont(ofSize: 17)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
-        let category = viewModel.categories[indexPath.row]
-        cell.textLabel?.text = category.title
+        let category = viewModel.category(at: indexPath.row)
+        cell.textLabel?.text = category?.title
         return cell
     }
     
@@ -204,14 +222,12 @@ extension CategoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCategory = viewModel.categories[indexPath.row]
-        delegate?.didSelectCategory(selectedCategory)
-        dismiss(animated: true)
-        if let cell = tableView.cellForRow(at: indexPath) {
-            cell.accessoryType = .checkmark
+        if let selectedCategory = viewModel.selectCategory(at: indexPath.row) {
+            delegate?.didSelectCategory(selectedCategory)
+            dismiss(animated: true)
         }
-        
     }
+    
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let isLastCell = indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1
@@ -219,38 +235,10 @@ extension CategoryViewController: UITableViewDataSource {
         if isLastCell {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
-        
-        let interaction = UIContextMenuInteraction(delegate: self)
-        cell.addInteraction(interaction)
     }
-
-}
-
-extension CategoryViewController: UIContextMenuInteractionDelegate {
     
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
-                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        
-        guard let indexPath = tableView.indexPathForRow(at: location),
-              indexPath.row < viewModel.categories.count else {
-            return nil
-        }
-        
-        let category = viewModel.categories[indexPath.row]
-        
-        let editAction = UIAction(title: "Редактировать") { _ in
-            self.editCategory(category)
-        }
-        
-        let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
-            self.deleteCategory(category)
-        }
-        
-        let menu = UIMenu(title: "", children: [editAction, deleteAction])
-        
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { _ in menu })
-    }
 }
+
 extension CategoryViewController: AddCategoryViewControllerDelegate{
     func didAddCategory(_ category: TrackerCategory) {
         viewModel.addCategory(category)
