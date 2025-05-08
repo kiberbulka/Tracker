@@ -66,7 +66,7 @@ final class CreateTrackerViewController: UIViewController {
             createEventButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             createEventButton.heightAnchor.constraint(equalToConstant: 60),
             createEventButton.topAnchor.constraint(equalTo: createHabitButton.bottomAnchor, constant: 16),
-            createLabel.bottomAnchor.constraint(equalTo: createHabitButton.topAnchor, constant: -295),
+            createLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27),
             createLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }

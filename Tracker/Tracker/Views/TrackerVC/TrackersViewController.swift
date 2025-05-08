@@ -99,11 +99,13 @@ class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationAppearance()
         setupNavigationItem()
         setupUI()
         showPlaceholder()
         view.backgroundColor = .white
         NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
+        trackerCategoryStore.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -125,6 +127,17 @@ class TrackersViewController: UIViewController {
         let datePickerItem = UIBarButtonItem(customView: datePicker)
         navigationItem.rightBarButtonItem = datePickerItem
     }
+    
+    private func setupNavigationAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .white // Или любой твой цвет
+        appearance.shadowColor = .clear // Если не хочешь нижнюю тень
+        
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+    }
+    
     
     @objc private func handleDidCreateTracker() {
         reloadData()
@@ -215,25 +228,26 @@ class TrackersViewController: UIViewController {
         let calendar = Calendar.current
         guard let currentDate = currentDate else { return }
         let filterText = (searchTextField.text ?? "").lowercased()
+        let today = Date()
         
         visibleCategories = filteredCategories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
                 let textCondition = filterText.isEmpty || tracker.name.lowercased().contains(filterText)
                 var dateCondition = false
                 
-                if tracker.isHabit == true {
+                if tracker.isHabit {
                     let filterWeekDay = calendar.component(.weekday, from: currentDate)
-                    dateCondition = tracker.schedule.contains { dayOfWeek in
-                        let dayOfWeekIndex = dayOfWeek.numberValue
-                        let filterWeekDayAdjusted = filterWeekDay == 1 ? 7 : filterWeekDay - 1
-                        return dayOfWeekIndex == filterWeekDayAdjusted
-                    }
+                    let adjustedWeekDay = filterWeekDay == 1 ? 7 : filterWeekDay - 1
+                    
+                    dateCondition = tracker.schedule.contains { $0.numberValue == adjustedWeekDay }
                 } else {
-                    if isCurrentDate(currentDate) {
-                        let creationDate = Date()
-                        dateCondition = calendar.isDate(creationDate, inSameDayAs: currentDate)
+                    if let record = completedTrackers.first(where: { $0.trackerID == tracker.id }) {
+                        dateCondition = calendar.isDate(record.date, inSameDayAs: currentDate)
+                    } else {
+                        dateCondition = calendar.isDate(currentDate, inSameDayAs: today) || currentDate > today
                     }
                 }
+                
                 return textCondition && dateCondition
             }
             
@@ -243,6 +257,7 @@ class TrackersViewController: UIViewController {
         collectionView.reloadData()
         showPlaceholder()
     }
+    
     
     
     private func isCurrentDate(_ date: Date) -> Bool {
@@ -397,12 +412,10 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
     }
     
     func didUpdateCategories(_ update: TrackerCategoryStoreUpdate) {
-        collectionView.performBatchUpdates {
-            let insertedIndexPath = update.insertedIndexes.map { IndexPath(item: $0, section: $0) }
-            let deletedIndexPath = update.deletedIndexes.map { IndexPath(item: $0, section: $0) }
-            collectionView.insertItems(at: insertedIndexPath)
-            collectionView.deleteItems(at: deletedIndexPath)
-        }
+        categories = trackerCategoryStore.fetchCategories()
+        filteredCategories = categories
+        reloadVisibleCategories()
+        collectionView.reloadData()
     }
 }
 

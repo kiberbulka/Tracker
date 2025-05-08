@@ -16,20 +16,8 @@ final class CategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     
-    private var categories: [TrackerCategory] = [
-        TrackerCategory(
-            title: "Важное",
-            trackers: []
-        ),
-        TrackerCategory(
-            title: "Домашний уют",
-            trackers: []
-        )
-    ]
-
+    private var viewModel = CategoryViewModel()
     var selectedCategory: TrackerCategory?
-    private let trackerCategoryStore = TrackerCategoryStore()
-    
     weak var delegate: CategorySelectionDelegate?
     
     // MARK: - Private Properties
@@ -47,7 +35,7 @@ final class CategoryViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.setTitle("Добавить категорию", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addCategoryButtonTap), for: .touchUpInside)
         button.backgroundColor = .black
         button.layer.cornerRadius = 16
         return button
@@ -58,22 +46,57 @@ final class CategoryViewController: UIViewController {
         return tableView
     }()
     
+    private lazy var placeholderImage: UIImageView = {
+        let placeholderImageView = UIImageView()
+        placeholderImageView.image = UIImage(named: "placeholder")
+        return placeholderImageView
+    }()
+    
+    private lazy var placeholderLabel: UILabel = {
+        let placeholderLabel = UILabel()
+        placeholderLabel.textAlignment = .center
+        placeholderLabel.numberOfLines = 0
+        placeholderLabel.text = "Привычки и события можно \n объединить по смыслу"
+        placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        return placeholderLabel
+    }()
+    
     // MARK: - Overrides Methods
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        showPlaceholder()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-    //    categories = trackerCategoryStore.fetchCategories()
         setupUI()
+        
+        viewModel.reloadData = { [weak self] in
+            self?.tableView.reloadData()
+            self?.showPlaceholder()
+        }
         tableView.delegate = self
         tableView.dataSource = self
     }
     
     // MARK: - Private Methods
     
+    private func showPlaceholder(){
+        if viewModel.isEmpty() {
+            placeholderImage.isHidden = false
+            placeholderLabel.isHidden = false
+        } else {
+            placeholderImage.isHidden = true
+            placeholderLabel.isHidden = true
+        }
+    }
+    
+    
     private func setupUI(){
         
-        [titleLabel, doneButton, tableView].forEach{
+        [titleLabel, doneButton, tableView, placeholderImage, placeholderLabel].forEach{
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -88,22 +111,75 @@ final class CategoryViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 30),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.bottomAnchor.constraint(equalTo: doneButton.topAnchor, constant: -10)
+            tableView.bottomAnchor.constraint(equalTo: doneButton.topAnchor, constant: -10),
+            placeholderImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 358),
+            placeholderImage.heightAnchor.constraint(equalToConstant: 80),
+            placeholderImage.widthAnchor.constraint(equalToConstant: 80),
+            placeholderImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
     
-    @objc private func doneButtonDidTap(){
-        dismiss(animated: true)
+    @objc private func addCategoryButtonTap(){
+        let newVc = AddCategoryViewController()
+        newVc.delegate = self
+        present(newVc, animated: true)
+    }
+    
+    private func editCategory(at index: Int) {
+        guard let category = viewModel.category(at: index) else { return }
+        
+        let editVC = AddCategoryViewController()
+        editVC.categoryToEdit = category
+        editVC.categoryUpdated = { [weak self] updatedCategory in
+            guard let self = self else { return }
+            
+            self.viewModel.editCategory(at: IndexPath(row: index, section: 0), newTitle: updatedCategory.title)
+            self.tableView.reloadData()
+        }
+        present(editVC, animated: true)
+    }
+    
+    
+    private func deleteCategory(_ category: TrackerCategory) {
+        
+        let alert = UIAlertController(title: "Эта категория точно не нужна?", message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title:"Удалить", style: .destructive, handler: { _ in
+            
+            self.viewModel.deleteCategory(category)
+        }))
+        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        self.present(alert, animated: true)
+        
+        tableView.reloadData()
     }
 }
 
 extension CategoryViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        guard viewModel.category(at: indexPath.row) != nil else { return nil }
+        
+        
+        let editAction = UIAction(title: "Редактировать") { _ in
+            self.editCategory(at: indexPath.row)
+        }
+        
+        let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+            self.viewModel.deleteCategory(at: indexPath.row)
+        }
+        
+        let menu = UIMenu(title: "", children: [editAction, deleteAction])
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in menu }
+    }
     
 }
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categories.count
+        return viewModel.numberOfCategories()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -112,8 +188,8 @@ extension CategoryViewController: UITableViewDataSource {
         cell.textLabel?.font = .systemFont(ofSize: 17)
         cell.selectionStyle = .none
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
-        let category = categories[indexPath.row]
-        cell.textLabel?.text = category.title
+        let category = viewModel.category(at: indexPath.row)
+        cell.textLabel?.text = category?.title
         return cell
     }
     
@@ -146,14 +222,12 @@ extension CategoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCategory = categories[indexPath.row]
-        delegate?.didSelectCategory(selectedCategory)
-        navigationController?.popViewController(animated: true)
-        if let cell = tableView.cellForRow(at: indexPath) {
-            cell.accessoryType = .checkmark
+        if let selectedCategory = viewModel.selectCategory(at: indexPath.row) {
+            delegate?.didSelectCategory(selectedCategory)
+            dismiss(animated: true)
         }
-        
     }
+    
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let isLastCell = indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1
@@ -162,6 +236,15 @@ extension CategoryViewController: UITableViewDataSource {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
     }
-
+    
 }
+
+extension CategoryViewController: AddCategoryViewControllerDelegate{
+    func didAddCategory(_ category: TrackerCategory) {
+        viewModel.addCategory(category)
+    }
+}
+
+
+
 
