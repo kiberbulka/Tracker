@@ -22,7 +22,8 @@ class AddCategoryViewController: UIViewController {
         textField.backgroundColor = .ypGray
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
-        textField.placeholder = "Введите название категории"
+        let textFieldText = NSLocalizedString("textFieldCategories", comment: "строка в текст филде")
+        textField.placeholder = textFieldText
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = leftPaddingView
         let clearButton = UIButton(type: .custom)
@@ -41,7 +42,8 @@ class AddCategoryViewController: UIViewController {
     
     private lazy var categoryLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        let labelText = NSLocalizedString("newCategory", comment: "")
+        label.text =  labelText
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .black
         return label
@@ -50,7 +52,8 @@ class AddCategoryViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
-        button.setTitle("Готово", for: .normal)
+        let buttonText = NSLocalizedString("done", comment: "")
+        button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(doneButtonTap), for: .touchUpInside)
         button.backgroundColor = .black

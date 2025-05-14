@@ -24,7 +24,8 @@ final class CategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        let labelText = NSLocalizedString("categoryTable.title", comment: "ячейка таблицы")
+        label.text = labelText
         label.textColor = .black
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
@@ -33,7 +34,8 @@ final class CategoryViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
-        button.setTitle("Добавить категорию", for: .normal)
+        let buttonText = NSLocalizedString("addCategoryButton", comment: "Кнопка добавления категории")
+        button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(addCategoryButtonTap), for: .touchUpInside)
         button.backgroundColor = .black
@@ -56,7 +58,8 @@ final class CategoryViewController: UIViewController {
         let placeholderLabel = UILabel()
         placeholderLabel.textAlignment = .center
         placeholderLabel.numberOfLines = 0
-        placeholderLabel.text = "Привычки и события можно \n объединить по смыслу"
+        let placeholderText = NSLocalizedString("categoryCreateVC.title", comment: "Заглушка если нет категорий созданных")
+        placeholderLabel.text = placeholderText
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
         return placeholderLabel
     }()
@@ -143,13 +146,16 @@ final class CategoryViewController: UIViewController {
     
     
     private func deleteCategory(_ category: TrackerCategory) {
+        let alertText = NSLocalizedString("alert", comment: "текст алерта при удалении категории")
+        let deleteText = NSLocalizedString("delete", comment: "кнопка удалить")
         
-        let alert = UIAlertController(title: "Эта категория точно не нужна?", message: nil, preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title:"Удалить", style: .destructive, handler: { _ in
+        let alert = UIAlertController(title: alertText, message: nil, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title:deleteText, style: .destructive, handler: { _ in
             
             self.viewModel.deleteCategory(category)
         }))
-        alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+        let cancelText = NSLocalizedString("cancel", comment: "кнопка отмены")
+        alert.addAction(UIAlertAction(title: cancelText, style: .cancel))
         self.present(alert, animated: true)
         
         tableView.reloadData()
@@ -161,12 +167,13 @@ extension CategoryViewController: UITableViewDelegate {
         
         guard viewModel.category(at: indexPath.row) != nil else { return nil }
         
-        
-        let editAction = UIAction(title: "Редактировать") { _ in
+        let editText = NSLocalizedString("edit", comment: "кнопка редактирования")
+        let editAction = UIAction(title: editText) { _ in
             self.editCategory(at: indexPath.row)
         }
         
-        let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+        let deleteText = NSLocalizedString("delete", comment: "кнопка удалить")
+        let deleteAction = UIAction(title: deleteText, attributes: .destructive) { _ in
             self.viewModel.deleteCategory(at: indexPath.row)
         }
         

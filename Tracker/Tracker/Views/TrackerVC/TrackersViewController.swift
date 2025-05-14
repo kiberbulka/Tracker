@@ -24,7 +24,8 @@ class TrackersViewController: UIViewController {
     
     private lazy var trackerLabel: UILabel = {
         let label = UILabel()
-        label.text = "Трекеры"
+        let labelText = NSLocalizedString("trackers.title", comment: "Заголовок на главном экране трекеров")
+        label.text = labelText
         label.font = .boldSystemFont(ofSize: 34)
         label.textColor = .black
         
@@ -33,7 +34,7 @@ class TrackersViewController: UIViewController {
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
-        datePicker.locale = Locale(identifier: "ru_RU")
+       // datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.calendar.firstWeekday = 2
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
@@ -72,7 +73,8 @@ class TrackersViewController: UIViewController {
             .foregroundColor: UIColor.ypLightGray,
             .font: UIFont.systemFont(ofSize: 15, weight: .regular)
         ]
-        searchTextField.attributedPlaceholder = NSAttributedString(string: "Поиск", attributes: attributes)
+        let searchTextFieldText = NSLocalizedString("searchBar", comment: "Строка поиска")
+        searchTextField.attributedPlaceholder = NSAttributedString(string: searchTextFieldText, attributes: attributes)
         searchTextField.clearButtonMode = .never
         searchTextField.heightAnchor.constraint(equalToConstant: 36).isActive = true
         searchTextField.delegate = self
@@ -88,7 +90,8 @@ class TrackersViewController: UIViewController {
     
     private lazy var placeholderLabel: UILabel = {
         let placeholderLabel = UILabel()
-        placeholderLabel.text = "Что будем отслеживать?"
+        let placeholderText = NSLocalizedString("emptyState.title", comment: "Заглушка если трекеров нет")
+        placeholderLabel.text = placeholderText
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
         return placeholderLabel
     }()
@@ -154,7 +157,8 @@ class TrackersViewController: UIViewController {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
             placeholderImage.image = UIImage(named: "placeholder2")
-            placeholderLabel.text = "Ничего не найдено"
+            let placeholderText = NSLocalizedString("emptySearchResult", comment: "Заглушка если выдача нулевая")
+            placeholderLabel.text = placeholderText
         } else {
             placeholderImage.isHidden = true
             placeholderLabel.isHidden = true

@@ -38,6 +38,7 @@
 		CEBFFC162DC5E34A000185E5 /* OnboardingContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC152DC5E34A000185E5 /* OnboardingContentViewController.swift */; };
 		CEBFFC1C2DC8EC56000185E5 /* AddCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC1B2DC8EC56000185E5 /* AddCategoryViewController.swift */; };
 		CEBFFC1E2DC9027B000185E5 /* CategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */; };
+		CEE54E782DD4C95A008D8780 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CEE54E762DD4C95A008D8780 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -74,6 +75,8 @@
 		CEBFFC152DC5E34A000185E5 /* OnboardingContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContentViewController.swift; sourceTree = "<group>"; };
 		CEBFFC1B2DC8EC56000185E5 /* AddCategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryViewController.swift; sourceTree = "<group>"; };
 		CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewModel.swift; sourceTree = "<group>"; };
+		CEE54E772DD4C95A008D8780 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CEE54E7A2DD4D87A008D8780 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +156,7 @@
 		CE9614472D8C6F9800AC062C /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
+				CEE54E752DD4C93A008D8780 /* Resources */,
 				CEA3306C2DB3C59B00BAA309 /* CoreData */,
 				CE9614AB2D92F5B900AC062C /* Tracker */,
 				CE9614482D8C6F9800AC062C /* AppDelegate.swift */,
@@ -230,6 +234,14 @@
 			path = Onboarding;
 			sourceTree = "<group>";
 		};
+		CEE54E752DD4C93A008D8780 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CEE54E762DD4C95A008D8780 /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -272,6 +284,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = CE96143C2D8C6F9800AC062C;
 			productRefGroup = CE9614462D8C6F9800AC062C /* Products */;
@@ -289,6 +302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE9614522D8C6F9A00AC062C /* Assets.xcassets in Resources */,
+				CEE54E782DD4C95A008D8780 /* Localizable.strings in Resources */,
 				CE9614552D8C6F9A00AC062C /* Base in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -343,6 +357,15 @@
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
+		CEE54E762DD4C95A008D8780 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CEE54E772DD4C95A008D8780 /* en */,
+				CEE54E7A2DD4D87A008D8780 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -351,6 +374,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -414,6 +438,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

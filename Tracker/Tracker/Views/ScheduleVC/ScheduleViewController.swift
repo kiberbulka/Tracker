@@ -16,13 +16,14 @@ final class ScheduleViewController: UIViewController {
     
     private let weekdays = Weekday.allCases
     private var selectedDays: [Weekday] = []
-    private let tableViewItems = Weekday.allCases.map(\.rawValue)
+    private let tableViewItems = Weekday.allCases
     
     weak var delegate: ScheduleViewControllerDelegate?
     
     private lazy var scheduleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        let labelText = NSLocalizedString("scheduleTable.title", comment: "ячейка таблицы")
+        label.text = labelText
         label.textColor = .black
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
@@ -31,7 +32,8 @@ final class ScheduleViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton()
         button.setTitleColor(.white, for: .normal)
-        button.setTitle("Готово", for: .normal)
+        let buttonText = NSLocalizedString("done", comment: "Кнопка готово")
+        button.setTitle(buttonText, for: .normal)
         button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .black
@@ -101,11 +103,20 @@ extension ScheduleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.scheduleCellIdentifier, for: indexPath) as! ScheduleCell
         cell.delegate = self
-        let isOn = selectedDays.contains(where: { $0.rawValue == tableViewItems[indexPath.row] })
-        cell.configureCell(with: tableViewItems[indexPath.row], isOn: isOn)
+        
+        // Получаем день недели из tableViewItems
+        let weekday = tableViewItems[indexPath.row]
+        
+        // Проверяем, включен ли этот день в selectedDays
+        let isOn = selectedDays.contains(weekday)
+        
+        // Передаём в ячейку сам день (Weekday) и его состояние
+        cell.configureCell(with: weekday, isOn: isOn)
+        
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         return cell
     }
+
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         75
@@ -139,19 +150,21 @@ extension ScheduleViewController: UITableViewDataSource {
 }
 
 extension ScheduleViewController: ScheduleCellDelegate {
-    func switchStateChanged(isOn: Bool, for day: String?) {
-        guard let day = Weekday(rawValue: day ?? "") else {return}
+   
+    func switchStateChanged(isOn: Bool, for day: Weekday) {
         if isOn {
-             if !selectedDays.contains(day) {
-                 selectedDays.append(day)
-             }
-         } else {
-             if let index = selectedDays.firstIndex(of: day) {
-                 selectedDays.remove(at: index)
-             }
-         }
+            if !selectedDays.contains(day) {
+                selectedDays.append(day)
+            }
+        } else {
+            if let index = selectedDays.firstIndex(of: day) {
+                selectedDays.remove(at: index)
+            }
+        }
+
         print("\(selectedDays)")
     }
+
     
     
 }

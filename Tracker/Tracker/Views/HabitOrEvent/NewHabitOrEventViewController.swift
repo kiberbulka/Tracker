@@ -44,7 +44,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private lazy var newHabitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая привычка"
+        let labelText = NSLocalizedString("newHabit", comment: "Заголовок экрана создания привычки или события")
+        label.text = labelText
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .black
         return label
@@ -55,7 +56,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         textField.backgroundColor = .ypGray
         textField.layer.masksToBounds = true
         textField.layer.cornerRadius = 16
-        textField.placeholder = "Введите название трекера"
+        let textFieldText = NSLocalizedString("textFieldTracker", comment: "Текст в текст филде")
+        textField.placeholder = textFieldText
         let leftPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = leftPaddingView
         let clearButton = UIButton(type: .custom)
@@ -74,7 +76,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private lazy var cancelButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Отменить", for: .normal)
+        let buttonText = NSLocalizedString("cancel", comment: "Кнопка отмены")
+        button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.setTitleColor(.ypRed, for: .normal)
         button.layer.borderColor = UIColor.ypRed.cgColor
@@ -87,7 +90,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     private lazy var characterLimitLabel: UILabel = {
         let label = UILabel()
         label.textColor = .ypRed
-        label.text = "Ограничение 38 символов"
+        let labelText = NSLocalizedString("limit.title", comment: "Предупреждение об ограничении по символам")
+        label.text = labelText
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textAlignment = .center
         label.isHidden = true
@@ -99,7 +103,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         button.backgroundColor = .ypLightGray
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
-        button.setTitle("Создать", for: .normal)
+        let buttonText = NSLocalizedString("createButton", comment: "Кнопка создания")
+        button.setTitle(buttonText, for: .normal)
         button.addTarget(self, action: #selector(createButtonDidTap), for: .touchUpInside)
         button.titleLabel?.textColor = .white
         button.isEnabled = false
@@ -154,7 +159,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let label = UILabel()
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlack
-        label.text = "Цвета"
+        let labelText = NSLocalizedString("colorCollectionView.title", comment: "Заголовок выбора цвета")
+        label.text = labelText
         return label
     }()
     
@@ -356,9 +362,11 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private func habitOrEventLabel(){
         if isHabit {
-            newHabitLabel.text = "Новая привычка"
+            let text = NSLocalizedString("newHabit", comment: "Заголовок экрана создания трекера")
+            newHabitLabel.text = text
         } else {
-            newHabitLabel.text = "Новое нерегулярное событие"
+            let text = NSLocalizedString("newIrregularEvent", comment: "Заголовок экрана создания события")
+            newHabitLabel.text = text
         }
         tableView.reloadData()
         updateTableViewHeight()
@@ -366,7 +374,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private func scheduleSubtitle()->String{
         if selectedDays.count == 7 {
-            return "Каждый день"
+            let text = NSLocalizedString("everyDay", comment: "Каждый день")
+            return text
         } else {
             let shortNames = selectedDays
                 .sorted {
@@ -396,10 +405,12 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
         cell.selectionStyle = .none
         
         if indexPath.row == 0 {
-            cell.textLabel?.text = "Категория"
+            let cellText = NSLocalizedString("categoryTable.title", comment: "название ячейки")
+            cell.textLabel?.text = cellText
             cell.detailTextLabel?.text = selectedCategory?.title
         } else {
-            cell.textLabel?.text = "Расписание"
+            let cellText = NSLocalizedString("scheduleTable.title", comment: "название ячейки")
+            cell.textLabel?.text = cellText
             cell.detailTextLabel?.text = scheduleSubtitle()
         }
         

@@ -1,0 +1,58 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Olya on 14.05.2025.
+  
+*/
+
+"emptyState.title" = "What are we going to track?";
+"emptySearchResult" = "Nothing found";
+"delete" = "Delete";
+"delete.confirmation" = "Are you sure you want to delete the tracker?";
+"cancel" = "Cancel";
+"onboardingBlue.title" = "Track only what you want";
+"onboardingRed.title" = "Even if it's not liters of water and yoga";
+"onboarding.button" = "That's some technology!";
+"trackers.title" = "Trackers";
+"statistic.title" = "Statistics";
+"searchBar" = "Search";
+"habit" = "Habit";
+"irregularEvent" = "Irregular event";
+"createTracker.title" = "Create Tracker";
+"newHabit" = "New habit";
+"newIrregularEvent" = "New irregular event";
+"textFieldTracker" = "Enter tracker name";
+"categoryTable.title" = "Category";
+"scheduleTable.title" = "Schedule";
+"colorCollectionView.title" = "Color";
+"createButton" = "Create";
+"limit.title" = "Limit of 38 characters";
+"categoryCreateVC.title" = "Habits and events can be grouped by meaning";
+"addCategoryButton" = "Add category";
+"newCategory" = "New category";
+"done" = "Done";
+"textFieldCategories" = "Enter category name";
+
+"monday" = "Monday";
+"tuesday" = "Tuesday";
+"wednesday" = "Wednesday";
+"thursday" = "Thursday";
+"friday" = "Friday";
+"saturday" = "Saturday";
+"sunday" = "Sunday";
+
+"Monday_short" = "Mon";
+"Tuesday_short" = "Tue";
+"Wednesday_short" = "Wed";
+"Thursday_short" = "Thu";
+"Friday_short" = "Fri";
+"Saturday_short" = "Sat";
+"Sunday_short" = "Sun";
+
+"tracker.day" = "day";
+"tracker.2,3,4day" = "days";
+"tracker.days" = "days";
+"everyDay" = "Everyday";
+"alert" = "Are you sure you don't need this category?";
+"edit" = "Edit";

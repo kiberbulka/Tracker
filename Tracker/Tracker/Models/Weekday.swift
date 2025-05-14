@@ -8,35 +8,30 @@
 import Foundation
 
 enum Weekday: String, CaseIterable, Codable {
-    case monday = "Понедельник"
-    case tuesday = "Вторник"
-    case wednesday = "Среда"
-    case thursday = "Четверг"
-    case friday = "Пятница"
-    case saturday = "Суббота"
-    case sunday = "Воскресенье"
+    case Monday
+    case Tuesday
+    case Wednesday
+    case Thursday
+    case Friday
+    case Saturday
+    case Sunday
     
-    var shortName: String {
-        switch self {
-        case .monday: return "Пн"
-        case .tuesday: return "Вт"
-        case .wednesday: return "Ср"
-        case .thursday: return "Чт"
-        case .friday: return "Пт"
-        case .saturday: return "Сб"
-        case .sunday: return "Вс"
-        }
+    var localizedName: String {
+        return NSLocalizedString(self.rawValue, comment: "")
     }
     
+    var shortName: String {
+        return NSLocalizedString("\(self.rawValue)_short", comment: "")
+    }
     var numberValue: Int {
         switch self {
-        case .monday: return 1
-        case .tuesday: return 2
-        case .wednesday: return 3
-        case .thursday: return 4
-        case .friday: return 5
-        case .saturday: return 6
-        case .sunday: return 7
+        case .Monday: return 1
+        case .Tuesday: return 2
+        case .Wednesday: return 3
+        case .Thursday: return 4
+        case .Friday: return 5
+        case .Saturday: return 6
+        case .Sunday: return 7
         }
     }
     

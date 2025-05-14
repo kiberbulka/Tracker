@@ -1,0 +1,59 @@
+/*
+  Localizable.strings
+  Tracker
+
+  Created by Olya on 14.05.2025.
+  
+*/
+
+"emptyState.title" = "Что будем отслеживать?";
+"emptySearchResult" = "Ничего не найдено";
+"delete" = "Удалить";
+"delete.confirmation" = "Уверены что хотите удалить трекер?";
+"cancel" = "Отменить";
+"onboardingBlue.title" = "Отслеживайте только то, что хотите";
+"onboardingRed.title" = "Даже если это не литры воды и йога";
+"onboarding.button" = "Вот это технологии!";
+"trackers.title" = "Трекеры";
+"statistic.title" = "Статистика";
+"searchBar" = "Поиск";
+"habit" = "Привычка";
+"irregularEvent" = "Нерегулярное событие";
+"createTracker.title" = "Создание трекера";
+"newHabit" = "Новая привычка";
+"newIrregularEvent" = "Новое нерегулярное событие";
+"textFieldTracker" = "Введите название трекера";
+"categoryTable.title" = "Категория";
+"scheduleTable.title" = "Расписание";
+"colorCollectionView.title" = "Цвет";
+"createButton" = "Создать";
+"limit.title" = "Ограничение 38 символов";
+"categoryCreateVC.title" = "Привычки и события можно объединить по смыслу";
+"addCategoryButton" = "Добавить категорию";
+"newCategory" = "Новая категория";
+"done" = "Готово";
+"textFieldCategories" = "Введите название категории";
+
+"monday" = "Понедельник";
+"tuesday" = "Вторник";
+"wednesday" = "Среда";
+"thursday" = "Четверг";
+"friday" = "Пятница";
+"saturday" = "Суббота";
+"sunday" = "Воскресенье";
+
+"Monday_short" = "Пн";
+"Tuesday_short" = "Вт";
+"Wednesday_short" = "Ср";
+"Thursday_short" = "Чт";
+"Friday_short" = "Пт";
+"Saturday_short" = "Сб";
+"Sunday_short" = "Вс";
+
+"tracker.day" = "день";
+"tracker.2,3,4day" = "дня";
+"tracker.days" = "дней";
+"everyDay" = "Каждый день";
+"alert" = "Эта категория точно не нужна?";
+"edit" = "Редактировать";
+
