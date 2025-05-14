@@ -34,13 +34,13 @@
 "done" = "Готово";
 "textFieldCategories" = "Введите название категории";
 
-"monday" = "Понедельник";
-"tuesday" = "Вторник";
-"wednesday" = "Среда";
-"thursday" = "Четверг";
-"friday" = "Пятница";
-"saturday" = "Суббота";
-"sunday" = "Воскресенье";
+"Monday" = "Понедельник";
+"Tuesday" = "Вторник";
+"Wednesday" = "Среда";
+"Thursday" = "Четверг";
+"Friday" = "Пятница";
+"Saturday" = "Суббота";
+"Sunday" = "Воскресенье";
 
 "Monday_short" = "Пн";
 "Tuesday_short" = "Вт";
