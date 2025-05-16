@@ -156,3 +156,59 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
     }
 }
 
+extension TrackerStore {
+    func updateTracker(original: Tracker, with updated: Tracker, category: TrackerCategory) {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", original.id as CVarArg)
+
+        do {
+            guard let trackerCoreData = try context.fetch(request).first else {
+                print("Не удалось найти трекер для обновления")
+                return
+            }
+
+            // Обновляем все поля
+            trackerCoreData.name = updated.name
+            trackerCoreData.emoji = updated.emoji
+            trackerCoreData.isHabit = updated.isHabit
+
+            if let colorString = updated.color.toHexString() {
+                trackerCoreData.color = colorString
+            } else {
+                print("Ошибка преобразования цвета в строку")
+                trackerCoreData.color = ""
+            }
+
+            if let scheduleString = Weekday.encodeSchedule(updated.schedule) {
+                trackerCoreData.schedule = scheduleString
+            } else {
+                print("Ошибка кодирования расписания")
+                trackerCoreData.schedule = ""
+            }
+
+            // Обновляем категорию
+            let categoryRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
+            categoryRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
+
+            let results = try context.fetch(categoryRequest)
+            let categoryCoreData: TrackerCategoryCoreData
+
+            if let existingCategory = results.first {
+                categoryCoreData = existingCategory
+            } else {
+                categoryCoreData = TrackerCategoryCoreData(context: context)
+                categoryCoreData.title = category.title
+            }
+
+            trackerCoreData.trackerCategory = categoryCoreData
+
+            // Сохраняем
+            CoreDataManager.shared.saveContext()
+
+        } catch {
+            print("Ошибка при обновлении трекера: \(error)")
+        }
+    }
+}
+
+

@@ -268,10 +268,33 @@ class TrackersViewController: UIViewController {
         let calendar = Calendar.current
         return calendar.isDateInToday(date)
     }
+    
+    private func openEditScreen(with tracker: Tracker) {
+        let editVC = NewHabitOrEventViewController()
+        editVC.isEditingTracker = true
+        editVC.trackerToEdit = tracker
+        
+        editVC.isHabit = tracker.isHabit
+        self.present(editVC, animated: true)
+    }
+
 }
 
 extension TrackersViewController: UICollectionViewDelegate {
     
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+
+        return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: nil) { _ in
+            let editAction = UIAction(title: "Редактировать", image: UIImage(systemName: "pencil")) { [weak self] _ in
+                self?.openEditScreen(with: tracker)
+            }
+
+            return UIMenu(title: "", children: [editAction])
+        }
+    }
+
+
 }
 
 extension TrackersViewController: UICollectionViewDataSource {

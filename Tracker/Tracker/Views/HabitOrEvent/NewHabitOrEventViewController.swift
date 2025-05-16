@@ -17,6 +17,9 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     // MARK: - Public Properties
     
     var isHabit: Bool = true
+    var isEditingTracker: Bool = false
+    var trackerToEdit: Tracker?
+    var trackerCategoryToEdit: TrackerCategory?
     var categoryCellIndexPath: IndexPath?
     var tracker: Tracker?
     
@@ -188,6 +191,8 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         super.viewDidLoad()
         setupUI()
         habitOrEventLabel()
+        editTracker()
+        setupEmojiAndColorForEditTracker()
         tableView.invalidateIntrinsicContentSize()
         updateTableViewHeight()
         tableView.delegate = self
@@ -205,17 +210,62 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     // MARK: - Private Methods
     
+    private func setupEmojiAndColorForEditTracker(){
+        if let habit = trackerToEdit {
+                // Найти индекс эмоджи
+                if let emojiIndex = emojis.firstIndex(of: habit.emoji) {
+                    selectedEmojiIndexPath = IndexPath(item: emojiIndex, section: 0)
+                }
+                
+                // Найти индекс цвета
+                if let colorIndex = colors.firstIndex(of: habit.color) {
+                    selectedColorIndexPath = IndexPath(item: colorIndex, section: 0)
+                }
+                
+                emojiCollection.reloadData()
+                colorCollection.reloadData()
+
+                // После reloadData надо выставить визуальное выделение
+                DispatchQueue.main.async {
+                    if let emojiIndex = self.selectedEmojiIndexPath,
+                       let emojiCell = self.emojiCollection.cellForItem(at: emojiIndex) as? EmojiCell {
+                        emojiCell.updateBackgroundColor(color: .ypGray)
+                    }
+                    if let colorIndex = self.selectedColorIndexPath,
+                       let colorCell = self.colorCollection.cellForItem(at: colorIndex) as? ColorCell {
+                        colorCell.updateFrameColor(color: self.colors[colorIndex.item], isHidden: false)
+                    }
+                }
+            }
+    }
+    
+    
     @objc private func createButtonDidTap() {
+        print("createButtonDidTap вызван")
         
-        if let category = selectedCategory {
-            trackerStore.addTracker(tracker: makeTracker(), category: category)
+        let newTracker = makeTracker()
+        
+        guard let category = selectedCategory else {
+            return
         }
+        
+        if isEditingTracker, let originalTracker = trackerToEdit {
+            trackerStore.updateTracker(original: originalTracker, with: newTracker, category: category)
+        } else {
+            trackerStore.addTracker(tracker: newTracker, category: category)
+        }
+        createButtonIsAvailable()
         
         NotificationCenter.default.post(name: Notification.Name("DidCreateTracker"), object: nil)
         
-        presentingViewController?.presentingViewController?.dismiss(animated: true)
+        if isEditingTracker{
+            presentingViewController?.dismiss(animated: true)
+        } else {
+            presentingViewController?.presentingViewController?.dismiss(animated: true)
+        }
     }
-    
+
+
     private func makeTracker() -> Tracker {
         let name = trackerNameTF.text ?? ""
         let id = UUID()
@@ -252,23 +302,28 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     }
     
     
-    private func createButtonIsAvailable(){
+    private func createButtonIsAvailable() {
         let isText = trackerNameTF.hasText
-        let selectedScedule = !selectedDays.isEmpty
-        let buttonIsAvailable: Bool
+        let selectedSchedule = !selectedDays.isEmpty
         let category = selectedCategory != nil
         let selectedEmoji = selectedEmoji != nil
         let selectedColor = selectedColor != nil
-        if isHabit{
-            buttonIsAvailable = isText && selectedScedule && category && selectedEmoji && selectedColor
+        if isEditingTracker {
+            isHabit = ((trackerToEdit?.isHabit) != nil)
+        }
+
+        print("isText: \(isText), selectedSchedule: \(selectedSchedule), category: \(category), emoji: \(selectedEmoji), color: \(selectedColor), isHabit: \(isHabit)")
+
+        let buttonIsAvailable: Bool
+        if isHabit {
+            buttonIsAvailable = isText && selectedSchedule && category && selectedEmoji && selectedColor
         } else {
             buttonIsAvailable = isText && category && selectedColor && selectedEmoji
         }
         createButton.isEnabled = buttonIsAvailable
         createButton.backgroundColor = buttonIsAvailable ? .black : .ypLightGray
-        
     }
-    
+
     private func setupUI() {
         view.backgroundColor = .white
         
@@ -386,6 +441,31 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
                 .map { $0.shortName }
             return shortNames.joined(separator: ", ")
         }
+    }
+    
+    private func editTracker() {
+        guard isEditingTracker, let tracker = trackerToEdit else {return}
+        
+        trackerNameTF.text = tracker.name
+        selectedColor = tracker.color
+        selectedEmoji = tracker.emoji
+        selectedDays = tracker.schedule
+        selectedCategory = trackerCategoryToEdit
+        isHabit = tracker.isHabit
+        
+        if let index = colors.firstIndex(of: tracker.color) {
+                selectedColorIndexPath = IndexPath(item: index, section: 0)
+            }
+
+            if let index = emojis.firstIndex(of: tracker.emoji) {
+                selectedEmojiIndexPath = IndexPath(item: index, section: 0)
+            }
+
+            tableView.reloadData()
+            emojiCollection.reloadData()
+            colorCollection.reloadData()
+        createButton.setTitle("Сохранить", for: .normal)
+            createButtonIsAvailable()
     }
     
 }
@@ -521,9 +601,19 @@ extension NewHabitOrEventViewController: UICollectionViewDelegate, UICollectionV
             cell.configureEmoji(emoji: emojis[indexPath.item])
             return cell
         case 2:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {return UICollectionViewCell()}
-            cell.updateColor(color: colors[indexPath.item])
-            return cell
+                guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ColorCell.cellIdentifier, for: indexPath) as? ColorCell else {
+                    return UICollectionViewCell()
+                }
+                let color = colors[indexPath.item]
+                cell.updateColor(color: color)
+                
+                // Если эта ячейка — выбранная, показываем рамку
+                if selectedColorIndexPath == indexPath {
+                    cell.updateFrameColor(color: color, isHidden: false)
+                } else {
+                    cell.updateFrameColor(color: color, isHidden: true)
+                }
+                return cell
         default:
             return UICollectionViewCell()
         }

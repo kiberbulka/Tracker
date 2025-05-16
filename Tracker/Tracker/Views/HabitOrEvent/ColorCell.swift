@@ -63,5 +63,7 @@ final class ColorCell: UICollectionViewCell {
         frameView.tintColor = color
         frameView.isHidden = isHidden
     }
+    
+    
 }
 
