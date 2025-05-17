@@ -54,6 +54,7 @@ final class StatisticViewController: UIViewController {
         setupUI()
         tableView.delegate = self
         tableView.dataSource = self
+        trackerRecordStore.delegate = self
         reloadStatistics()
     }
     
