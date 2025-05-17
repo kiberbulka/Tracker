@@ -23,7 +23,7 @@ final class TrackerCell: UICollectionViewCell {
     
     weak var delegate: TrackerCellDelegate?
     
-    private lazy var trackerCardView: UIView = {
+    lazy var trackerCardView: UIView = {
         let view = UIView()
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 16
@@ -46,6 +46,14 @@ final class TrackerCell: UICollectionViewCell {
         label.textColor = .white
         label.numberOfLines = 2
         return label
+    }()
+    
+    private lazy var trackerCardContentStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [trackerCardEmojiLabel, trackerCardNameLabel])
+        stack.axis = .vertical
+        stack.alignment = .leading
+        stack.spacing = 8
+        return stack
     }()
     
     private lazy var trackerButton: UIButton = {
@@ -74,35 +82,36 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func setupUI(){
-        [trackerCardView, trackerButton, trackerCardNameLabel, trackerCardEmojiLabel, daysCounterLabel].forEach{
+        [trackerCardView, trackerButton, daysCounterLabel].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
+
+        // Добавляем стек внутрь trackerCardView
+        trackerCardContentStack.translatesAutoresizingMaskIntoConstraints = false
+        trackerCardView.addSubview(trackerCardContentStack)
+
         NSLayoutConstraint.activate([
-            
             trackerCardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             trackerCardView.heightAnchor.constraint(equalToConstant: 90),
             trackerCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             trackerCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            
-            trackerCardEmojiLabel.heightAnchor.constraint(equalToConstant: 24),
-            trackerCardEmojiLabel.widthAnchor.constraint(equalToConstant: 24),
-            trackerCardEmojiLabel.topAnchor.constraint(equalTo: trackerCardView.topAnchor, constant: 12),
-            trackerCardEmojiLabel.leadingAnchor.constraint(equalTo: trackerCardView.leadingAnchor, constant: 12),
-            
+
+            trackerCardContentStack.topAnchor.constraint(equalTo: trackerCardView.topAnchor, constant: 12),
+            trackerCardContentStack.leadingAnchor.constraint(equalTo: trackerCardView.leadingAnchor, constant: 12),
+            trackerCardContentStack.trailingAnchor.constraint(lessThanOrEqualTo: trackerCardView.trailingAnchor, constant: -12),
+            trackerCardContentStack.bottomAnchor.constraint(lessThanOrEqualTo: trackerCardView.bottomAnchor, constant: -12),
+
             trackerButton.heightAnchor.constraint(equalToConstant: 34),
             trackerButton.widthAnchor.constraint(equalToConstant: 34),
             trackerButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             trackerButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
-            
+
             daysCounterLabel.centerYAnchor.constraint(equalTo: trackerButton.centerYAnchor),
-            daysCounterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            
-            trackerCardNameLabel.leadingAnchor.constraint(equalTo: trackerCardView.leadingAnchor, constant: 12),
-            trackerCardNameLabel.bottomAnchor.constraint(equalTo: trackerCardView.bottomAnchor, constant: -12),
-            trackerCardNameLabel.trailingAnchor.constraint(equalTo: trackerCardView.trailingAnchor, constant: -12),
+            daysCounterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
         ])
     }
+
     
     override init(frame: CGRect) {
         super.init(frame: frame)

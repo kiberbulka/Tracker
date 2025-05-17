@@ -15,7 +15,7 @@ protocol ScheduleViewControllerDelegate: AnyObject {
 final class ScheduleViewController: UIViewController {
     
     private let weekdays = Weekday.allCases
-    private var selectedDays: [Weekday] = []
+    var selectedDays: [Weekday] = []
     private let tableViewItems = Weekday.allCases
     
     weak var delegate: ScheduleViewControllerDelegate?
@@ -101,21 +101,21 @@ extension ScheduleViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.scheduleCellIdentifier, for: indexPath) as! ScheduleCell
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: ScheduleCell.scheduleCellIdentifier,
+            for: indexPath
+        ) as? ScheduleCell else {
+            return UITableViewCell()
+        }
+
+        let weekday = Weekday.allCases[indexPath.row]
+        let isSelected = selectedDays.contains(weekday)
+        
+        cell.configureCell(with: weekday, isOn: isSelected)
         cell.delegate = self
-        
-        // Получаем день недели из tableViewItems
-        let weekday = tableViewItems[indexPath.row]
-        
-        // Проверяем, включен ли этот день в selectedDays
-        let isOn = selectedDays.contains(weekday)
-        
-        // Передаём в ячейку сам день (Weekday) и его состояние
-        cell.configureCell(with: weekday, isOn: isOn)
-        
-        configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         return cell
     }
+
 
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -150,21 +150,13 @@ extension ScheduleViewController: UITableViewDataSource {
 }
 
 extension ScheduleViewController: ScheduleCellDelegate {
-   
     func switchStateChanged(isOn: Bool, for day: Weekday) {
         if isOn {
             if !selectedDays.contains(day) {
                 selectedDays.append(day)
             }
         } else {
-            if let index = selectedDays.firstIndex(of: day) {
-                selectedDays.remove(at: index)
-            }
+            selectedDays.removeAll { $0 == day }
         }
-
-        print("\(selectedDays)")
     }
-
-    
-    
 }

@@ -309,7 +309,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let selectedEmoji = selectedEmoji != nil
         let selectedColor = selectedColor != nil
         if isEditingTracker {
-            isHabit = ((trackerToEdit?.isHabit) != nil)
+            isHabit = trackerToEdit?.isHabit ?? false
         }
 
         print("isText: \(isText), selectedSchedule: \(selectedSchedule), category: \(category), emoji: \(selectedEmoji), color: \(selectedColor), isHabit: \(isHabit)")
@@ -509,6 +509,7 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
             present(categoryVC, animated: true)
         } else {
             let scheduleVC = ScheduleViewController()
+            scheduleVC.selectedDays = self.selectedDays
             scheduleVC.delegate = self
             present(scheduleVC, animated: true)
         }

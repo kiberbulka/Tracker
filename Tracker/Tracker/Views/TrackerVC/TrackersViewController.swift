@@ -293,6 +293,26 @@ extension TrackersViewController: UICollectionViewDelegate {
             return UIMenu(title: "", children: [editAction])
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                            previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+            guard let indexPath = configuration.identifier as? IndexPath,
+                  let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
+                return nil
+            }
+
+            // возвращаешь targeted preview только для trackerCardView
+            return UITargetedPreview(view: cell.trackerCardView)
+        }
+
+        func collectionView(_ collectionView: UICollectionView,
+                            previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+            guard let indexPath = configuration.identifier as? IndexPath,
+                  let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
+                return nil
+            }
+            return UITargetedPreview(view: cell.trackerCardView)
+        }
 
 
 }
