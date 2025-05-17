@@ -34,7 +34,7 @@ class TrackersViewController: UIViewController {
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
-       // datePicker.locale = Locale(identifier: "ru_RU")
+        // datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.calendar.firstWeekday = 2
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
@@ -96,7 +96,6 @@ class TrackersViewController: UIViewController {
         return placeholderLabel
     }()
     
-    // MARK: - Initializers
     
     // MARK: - Overrides Methods
     
@@ -114,6 +113,38 @@ class TrackersViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reloadData()
+    }
+    
+    // MARK: - UI
+    
+    private func setupUI() {
+        
+        [datePicker, collectionView, trackerLabel, searchStackView, placeholderImage, placeholderLabel].forEach{
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
+        
+        NSLayoutConstraint.activate([
+            
+            trackerLabel.heightAnchor.constraint(equalToConstant: 41),
+            trackerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            trackerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
+            searchStackView.topAnchor.constraint(equalTo: trackerLabel.bottomAnchor, constant: 7),
+            searchStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            searchStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            placeholderImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 358),
+            placeholderImage.heightAnchor.constraint(equalToConstant: 80),
+            placeholderImage.widthAnchor.constraint(equalToConstant: 80),
+            placeholderImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            
+            
+        ])
     }
     
     // MARK: - Private Methods
@@ -165,7 +196,6 @@ class TrackersViewController: UIViewController {
         }
     }
     
-    
     private func reloadData(){
         trackers = trackerStore.fetchTrackers()
         categories = trackerCategoryStore.fetchCategories()
@@ -174,36 +204,6 @@ class TrackersViewController: UIViewController {
         datePickerValueChanged()
         reloadVisibleCategories()
         showPlaceholder()
-    }
-    
-    private func setupUI() {
-        
-        [datePicker, collectionView, trackerLabel, searchStackView, placeholderImage, placeholderLabel].forEach{
-            $0.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview($0)
-        }
-        
-        NSLayoutConstraint.activate([
-            
-            trackerLabel.heightAnchor.constraint(equalToConstant: 41),
-            trackerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            trackerLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
-            searchStackView.topAnchor.constraint(equalTo: trackerLabel.bottomAnchor, constant: 7),
-            searchStackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            searchStackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            placeholderImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 358),
-            placeholderImage.heightAnchor.constraint(equalToConstant: 80),
-            placeholderImage.widthAnchor.constraint(equalToConstant: 80),
-            placeholderImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            placeholderLabel.topAnchor.constraint(equalTo: placeholderImage.bottomAnchor, constant: 8),
-            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
-            
-            
-        ])
     }
     
     @objc private func datePickerValueChanged() {
@@ -262,8 +262,6 @@ class TrackersViewController: UIViewController {
         showPlaceholder()
     }
     
-    
-    
     private func isCurrentDate(_ date: Date) -> Bool {
         let calendar = Calendar.current
         return calendar.isDateInToday(date)
@@ -277,45 +275,71 @@ class TrackersViewController: UIViewController {
         editVC.isHabit = tracker.isHabit
         self.present(editVC, animated: true)
     }
-
+    
+    private func deleteTracker(at indexPath: IndexPath) {
+        let trackerToDelete = visibleCategories[indexPath.section].trackers[indexPath.item]
+        trackerStore.deleteTracker(trackerToDelete)
+        
+        trackers = trackerStore.fetchTrackers()
+        categories = trackerCategoryStore.fetchCategories()
+        filteredCategories = categories
+        
+        reloadVisibleCategories()
+        collectionView.reloadData()
+        
+        showPlaceholder()
+    }
+    
+    private func showDeleteConfirmation(for tracker: Tracker, at indexPath: IndexPath) {
+        let alert = UIAlertController(title: "", message: "Уверены что хотите удалить трекер?", preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { _ in
+            self.deleteTracker(at: indexPath)
+        })
+        present(alert, animated: true)
+    }
 }
+
+// MARK: - Extension: UICollectionViewDelegate
 
 extension TrackersViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
-
+        
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: nil) { _ in
-            let editAction = UIAction(title: "Редактировать", image: UIImage(systemName: "pencil")) { [weak self] _ in
+            let editAction = UIAction(title: "Редактировать") { [weak self] _ in
                 self?.openEditScreen(with: tracker)
             }
-
-            return UIMenu(title: "", children: [editAction])
+            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
+                        self.showDeleteConfirmation(for: tracker, at: indexPath)
+                    }
+            
+            return UIMenu(title: "", children: [editAction, deleteAction])
         }
     }
     
     func collectionView(_ collectionView: UICollectionView,
-                            previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-            guard let indexPath = configuration.identifier as? IndexPath,
-                  let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
-                return nil
-            }
-
-            // возвращаешь targeted preview только для trackerCardView
-            return UITargetedPreview(view: cell.trackerCardView)
+                        previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
+            return nil
         }
-
-        func collectionView(_ collectionView: UICollectionView,
-                            previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-            guard let indexPath = configuration.identifier as? IndexPath,
-                  let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
-                return nil
-            }
-            return UITargetedPreview(view: cell.trackerCardView)
+        return UITargetedPreview(view: cell.trackerCardView)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let indexPath = configuration.identifier as? IndexPath,
+              let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
+            return nil
         }
-
-
+        return UITargetedPreview(view: cell.trackerCardView)
+    }
+    
+    
 }
+// MARK: - Extension: UICollectionViewDataSource
 
 extension TrackersViewController: UICollectionViewDataSource {
     
@@ -326,7 +350,6 @@ extension TrackersViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return visibleCategories[section].trackers.count
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCell.trackerCellIdentifier, for: indexPath) as? TrackerCell else {
@@ -364,6 +387,8 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: - Extension: UITextFieldDelegate
+
 extension TrackersViewController: UITextFieldDelegate{
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -372,6 +397,8 @@ extension TrackersViewController: UITextFieldDelegate{
         return true
     }
 }
+
+// MARK: - Extension: TrackerCellDelegate
 
 extension TrackersViewController: TrackerCellDelegate {
     func completeTracker(id: UUID, at indexPath: IndexPath) {
@@ -405,12 +432,16 @@ extension TrackersViewController: TrackerCellDelegate {
     }
 }
 
+// MARK: - Extension: NewHabitOrEventViewControllerDelegate
+
 extension TrackersViewController: NewHabitOrEventViewControllerDelegate {
     func didCreateTrackerOrEvent(tracker: Tracker) {
         trackers.append(tracker)
         reloadData()
     }
 }
+
+// MARK: - Extension: UICollectionViewDelegateFlowLayout
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView,
@@ -438,6 +469,8 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout{
         return UIEdgeInsets(top: 10, left: 16, bottom: 10, right: 16)
     }
 }
+
+// MARK: - Extension: TrackersStoresDelegates
 
 extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelegate, TrackerCategoryStoreDelegate {
     func didUpdate(_ update: TrackerStoreUpdate) {

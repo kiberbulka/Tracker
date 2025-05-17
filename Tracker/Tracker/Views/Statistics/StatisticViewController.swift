@@ -61,7 +61,6 @@ final class StatisticViewController: UIViewController {
     private func reloadStatistics() {
         statisticsData = statisticsService.fetchStatistics()
         
-        // Проверяем, есть ли хотя бы один показатель > 0
         let hasData = [
             statisticsData?.longestStreak ?? 0,
             statisticsData?.perfectDays ?? 0,

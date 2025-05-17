@@ -209,6 +209,22 @@ extension TrackerStore {
             print("Ошибка при обновлении трекера: \(error)")
         }
     }
+    
+    func deleteTracker(_ tracker: Tracker) {
+            let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+            
+            do {
+                if let trackerCoreData = try context.fetch(request).first {
+                    context.delete(trackerCoreData)
+                    try context.save()
+                } else {
+                    print("Трекер для удаления не найден")
+                }
+            } catch {
+                print("Ошибка при удалении трекера: \(error)")
+            }
+        }
 }
 
 
