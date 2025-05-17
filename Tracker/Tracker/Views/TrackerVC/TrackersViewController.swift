@@ -17,6 +17,8 @@ class TrackersViewController: UIViewController {
     private var visibleCategories: [TrackerCategory] = []
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
+    private var pinnedTrackers: [Tracker] = []
+
     private var currentDate: Date?
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerStore = TrackerStore()
@@ -234,15 +236,46 @@ class TrackersViewController: UIViewController {
         let filterText = (searchTextField.text ?? "").lowercased()
         let today = Date()
         
-        visibleCategories = filteredCategories.compactMap { category in
+        // Категория закрепленных трекеров
+        let pinnedFilteredTrackers = pinnedTrackers.filter { tracker in
+            let textCondition = filterText.isEmpty || tracker.name.lowercased().contains(filterText)
+            var dateCondition = false
+            
+            if tracker.isHabit {
+                let filterWeekDay = calendar.component(.weekday, from: currentDate)
+                let adjustedWeekDay = filterWeekDay == 1 ? 7 : filterWeekDay - 1
+                dateCondition = tracker.schedule.contains { $0.numberValue == adjustedWeekDay }
+            } else {
+                if let record = completedTrackers.first(where: { $0.trackerID == tracker.id }) {
+                    dateCondition = calendar.isDate(record.date, inSameDayAs: currentDate)
+                } else {
+                    dateCondition = calendar.isDate(currentDate, inSameDayAs: today) || currentDate > today
+                }
+            }
+            
+            return textCondition && dateCondition
+        }
+        
+        visibleCategories = []
+        
+        if !pinnedFilteredTrackers.isEmpty {
+            visibleCategories.append(TrackerCategory(title: "Закрепленные", trackers: pinnedFilteredTrackers))
+        }
+        
+        // Теперь остальные категории без закрепленных трекеров
+        let otherCategories = filteredCategories.compactMap { category -> TrackerCategory? in
             let trackers = category.trackers.filter { tracker in
+                // Пропускаем закрепленные
+                if pinnedTrackers.contains(where: { $0.id == tracker.id }) {
+                    return false
+                }
+                
                 let textCondition = filterText.isEmpty || tracker.name.lowercased().contains(filterText)
                 var dateCondition = false
                 
                 if tracker.isHabit {
                     let filterWeekDay = calendar.component(.weekday, from: currentDate)
                     let adjustedWeekDay = filterWeekDay == 1 ? 7 : filterWeekDay - 1
-                    
                     dateCondition = tracker.schedule.contains { $0.numberValue == adjustedWeekDay }
                 } else {
                     if let record = completedTrackers.first(where: { $0.trackerID == tracker.id }) {
@@ -258,9 +291,12 @@ class TrackersViewController: UIViewController {
             return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
         
+        visibleCategories.append(contentsOf: otherCategories)
+        
         collectionView.reloadData()
         showPlaceholder()
     }
+
     
     private func isCurrentDate(_ date: Date) -> Bool {
         let calendar = Calendar.current
@@ -290,6 +326,17 @@ class TrackersViewController: UIViewController {
         showPlaceholder()
     }
     
+    private func togglePinTracker(_ tracker: Tracker) {
+        if let index = pinnedTrackers.firstIndex(where: { $0.id == tracker.id }) {
+            // Открепляем
+            pinnedTrackers.remove(at: index)
+        } else {
+            // Закрепляем
+            pinnedTrackers.append(tracker)
+        }
+        reloadVisibleCategories()
+    }
+
     private func showDeleteConfirmation(for tracker: Tracker, at indexPath: IndexPath) {
         let alert = UIAlertController(title: "", message: "Уверены что хотите удалить трекер?", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
@@ -314,8 +361,12 @@ extension TrackersViewController: UICollectionViewDelegate {
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
                         self.showDeleteConfirmation(for: tracker, at: indexPath)
                     }
+            let pinTitle = self.pinnedTrackers.contains(where: { $0.id == tracker.id }) ? "Открепить" : "Закрепить"
+                    let pinAction = UIAction(title: pinTitle) { [weak self] _ in
+                        self?.togglePinTracker(tracker)
+                    }
             
-            return UIMenu(title: "", children: [editAction, deleteAction])
+            return UIMenu(title: "", children: [pinAction, editAction, deleteAction])
         }
     }
     
@@ -359,9 +410,11 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.delegate = self
         let isCompletedToday = isTrackerCompletedToday(id: tracker.id)
         let completedDays = completedTrackers.filter { $0.trackerID == tracker.id}.count
-        cell.configureCell(tracker: tracker, isCompletedToday: isCompletedToday, completedDays: completedDays, indexPath: indexPath)
+        let isPinned = pinnedTrackers.contains { $0.id == tracker.id }
+        cell.configureCell(tracker: tracker, isCompletedToday: isCompletedToday, completedDays: completedDays, indexPath: indexPath, isPinned: isPinned)
         return cell
     }
+
     
     func collectionView(_ collectionView: UICollectionView,
                         viewForSupplementaryElementOfKind kind: String,

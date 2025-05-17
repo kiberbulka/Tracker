@@ -64,6 +64,13 @@ final class TrackerCell: UICollectionViewCell {
         return button
     }()
     
+    private lazy var pinImage: UIImageView = {
+       let image = UIImageView()
+        image.image = .pin
+        image.isHidden = true
+        return image
+    }()
+    
     private lazy var daysCounterLabel: UILabel = {
         let label = UILabel()
         let labelText = NSLocalizedString("tracker.day", comment: "")
@@ -82,12 +89,11 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func setupUI(){
-        [trackerCardView, trackerButton, daysCounterLabel].forEach {
+        [trackerCardView, trackerButton, daysCounterLabel, pinImage].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
 
-        // Добавляем стек внутрь trackerCardView
         trackerCardContentStack.translatesAutoresizingMaskIntoConstraints = false
         trackerCardView.addSubview(trackerCardContentStack)
 
@@ -108,7 +114,10 @@ final class TrackerCell: UICollectionViewCell {
             trackerButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
 
             daysCounterLabel.centerYAnchor.constraint(equalTo: trackerButton.centerYAnchor),
-            daysCounterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12)
+            daysCounterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            
+            pinImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 18),
+            pinImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         ])
     }
 
@@ -123,7 +132,8 @@ final class TrackerCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configureCell(tracker: Tracker, isCompletedToday: Bool, completedDays:Int, indexPath: IndexPath){
+    func configureCell(tracker: Tracker, isCompletedToday: Bool, completedDays:Int, indexPath: IndexPath, isPinned: Bool){
+        
         self.trackerId = tracker.id
         self.isCompletedToday = isCompletedToday
         self.indexPath = indexPath
@@ -132,11 +142,13 @@ final class TrackerCell: UICollectionViewCell {
         trackerCardEmojiLabel.text = tracker.emoji
         daysCounterLabel.text = pluralizeDays(completedDays)
         trackerButton.tintColor = tracker.color
+        
         let imageName = isCompletedToday ? "doneButton" : "plusButton"
         if let image = UIImage(named: imageName)?.withRenderingMode(.alwaysTemplate) {
             trackerButton.setImage(image, for: .normal)
             trackerButton.tintColor = tracker.color
         }
+        pinImage.isHidden = !isPinned
 
     }
     
