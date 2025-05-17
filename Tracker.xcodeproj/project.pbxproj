@@ -39,6 +39,9 @@
 		CEBFFC1C2DC8EC56000185E5 /* AddCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC1B2DC8EC56000185E5 /* AddCategoryViewController.swift */; };
 		CEBFFC1E2DC9027B000185E5 /* CategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */; };
 		CEE54E782DD4C95A008D8780 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CEE54E762DD4C95A008D8780 /* Localizable.strings */; };
+		CEE54E9A2DD89FC7008D8780 /* StatisticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E992DD89FC7008D8780 /* StatisticsService.swift */; };
+		CEE54E9C2DD8A021008D8780 /* StatisticsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E9B2DD8A021008D8780 /* StatisticsCell.swift */; };
+		CEE54E9E2DD8A049008D8780 /* GradientBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E9D2DD8A049008D8780 /* GradientBorderView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -77,6 +80,9 @@
 		CEBFFC1D2DC9027B000185E5 /* CategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewModel.swift; sourceTree = "<group>"; };
 		CEE54E772DD4C95A008D8780 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CEE54E7A2DD4D87A008D8780 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CEE54E992DD89FC7008D8780 /* StatisticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsService.swift; sourceTree = "<group>"; };
+		CEE54E9B2DD8A021008D8780 /* StatisticsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsCell.swift; sourceTree = "<group>"; };
+		CEE54E9D2DD8A049008D8780 /* GradientBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBorderView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -194,9 +200,9 @@
 		CE9614B32D92F90800AC062C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				CEE54E982DD89FB3008D8780 /* Statistics */,
 				CEBFFC122DC5E0E1000185E5 /* Onboarding */,
 				CE5D27D02D9AF4A800257869 /* CategoryVC */,
-				CE9614632D8D9BB300AC062C /* StatisticViewController.swift */,
 				CE5D27CE2D9AF2B700257869 /* TrackerVC */,
 				CE5D27BF2D999C3700257869 /* CreateTrackerViewController.swift */,
 				CE5D27CF2D9AF2D100257869 /* HabitOrEvent */,
@@ -240,6 +246,17 @@
 				CEE54E762DD4C95A008D8780 /* Localizable.strings */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		CEE54E982DD89FB3008D8780 /* Statistics */ = {
+			isa = PBXGroup;
+			children = (
+				CE9614632D8D9BB300AC062C /* StatisticViewController.swift */,
+				CEE54E992DD89FC7008D8780 /* StatisticsService.swift */,
+				CEE54E9B2DD8A021008D8780 /* StatisticsCell.swift */,
+				CEE54E9D2DD8A049008D8780 /* GradientBorderView.swift */,
+			);
+			path = Statistics;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -340,8 +357,11 @@
 				CEA330752DB3D09D00BAA309 /* TrackerRecordStore.swift in Sources */,
 				CEA330732DB3D08C00BAA309 /* TrackerCategoryStore.swift in Sources */,
 				CE96144B2D8C6F9800AC062C /* SceneDelegate.swift in Sources */,
+				CEE54E9E2DD8A049008D8780 /* GradientBorderView.swift in Sources */,
+				CEE54E9C2DD8A021008D8780 /* StatisticsCell.swift in Sources */,
 				CE5D27D22D9AF4BC00257869 /* CategoryViewController.swift in Sources */,
 				CEBFFC162DC5E34A000185E5 /* OnboardingContentViewController.swift in Sources */,
+				CEE54E9A2DD89FC7008D8780 /* StatisticsService.swift in Sources */,
 				CE9614B02D92F5E100AC062C /* TrackerCategory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
