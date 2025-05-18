@@ -42,6 +42,7 @@
 		CEE54E9A2DD89FC7008D8780 /* StatisticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E992DD89FC7008D8780 /* StatisticsService.swift */; };
 		CEE54E9C2DD8A021008D8780 /* StatisticsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E9B2DD8A021008D8780 /* StatisticsCell.swift */; };
 		CEE54E9E2DD8A049008D8780 /* GradientBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E9D2DD8A049008D8780 /* GradientBorderView.swift */; };
+		CEE54EA02DDA48B0008D8780 /* FiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE54E9F2DDA48B0008D8780 /* FiltersViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +84,7 @@
 		CEE54E992DD89FC7008D8780 /* StatisticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsService.swift; sourceTree = "<group>"; };
 		CEE54E9B2DD8A021008D8780 /* StatisticsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsCell.swift; sourceTree = "<group>"; };
 		CEE54E9D2DD8A049008D8780 /* GradientBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBorderView.swift; sourceTree = "<group>"; };
+		CEE54E9F2DDA48B0008D8780 /* FiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +202,7 @@
 		CE9614B32D92F90800AC062C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				CEE54EA12DDA495D008D8780 /* FiltersVC */,
 				CEE54E982DD89FB3008D8780 /* Statistics */,
 				CEBFFC122DC5E0E1000185E5 /* Onboarding */,
 				CE5D27D02D9AF4A800257869 /* CategoryVC */,
@@ -257,6 +260,14 @@
 				CEE54E9D2DD8A049008D8780 /* GradientBorderView.swift */,
 			);
 			path = Statistics;
+			sourceTree = "<group>";
+		};
+		CEE54EA12DDA495D008D8780 /* FiltersVC */ = {
+			isa = PBXGroup;
+			children = (
+				CEE54E9F2DDA48B0008D8780 /* FiltersViewController.swift */,
+			);
+			path = FiltersVC;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -362,6 +373,7 @@
 				CE5D27D22D9AF4BC00257869 /* CategoryViewController.swift in Sources */,
 				CEBFFC162DC5E34A000185E5 /* OnboardingContentViewController.swift in Sources */,
 				CEE54E9A2DD89FC7008D8780 /* StatisticsService.swift in Sources */,
+				CEE54EA02DDA48B0008D8780 /* FiltersViewController.swift in Sources */,
 				CE9614B02D92F5E100AC062C /* TrackerCategory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

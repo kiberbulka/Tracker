@@ -26,6 +26,24 @@ class TrackersViewController: UIViewController {
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
     
+    private var selectedFilter: FilterType = .all {
+        didSet {
+          //  updateUIForSelectedFilter()
+        }
+    }
+    
+    private lazy var filterButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Фильтры", for: .normal)
+        button.backgroundColor = .ypBlue
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        button.layer.masksToBounds = true
+        button.layer.cornerRadius = 16
+        button.addTarget(self, action: #selector(filtersButtonDidTap), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var trackerLabel: UILabel = {
         let label = UILabel()
         let labelText = NSLocalizedString("trackers.title", comment: "Заголовок на главном экране трекеров")
@@ -123,7 +141,7 @@ class TrackersViewController: UIViewController {
     
     private func setupUI() {
         
-        [datePicker, collectionView, trackerLabel, searchStackView, placeholderImage, placeholderLabel].forEach{
+        [datePicker, collectionView, trackerLabel, searchStackView, placeholderImage, placeholderLabel, filterButton].forEach{
             $0.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview($0)
         }
@@ -145,13 +163,27 @@ class TrackersViewController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: searchStackView.bottomAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant:  -16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.heightAnchor.constraint(equalToConstant: 50),
+            filterButton.widthAnchor.constraint(equalToConstant: 114)
             
             
         ])
     }
     
     // MARK: - Private Methods
+    
+    @objc private func filtersButtonDidTap() {
+        let filtersVC = FiltersViewController()
+        filtersVC.selectedFilter = selectedFilter
+        filtersVC.onFilterSelected = { [weak self] filter in
+            self?.selectedFilter = filter
+        }
+        present(filtersVC, animated: true)
+    }
     
     private func savePinnedTrackers() {
         let pinnedIDs = pinnedTrackers.map { $0.id.uuidString }
