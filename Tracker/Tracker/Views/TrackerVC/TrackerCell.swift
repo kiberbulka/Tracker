@@ -149,6 +149,7 @@ final class TrackerCell: UICollectionViewCell {
             trackerButton.tintColor = tracker.color
         }
         pinImage.isHidden = !isPinned
+        print("tracker.color: \(tracker.color)")
 
     }
     

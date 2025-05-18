@@ -110,7 +110,7 @@ final class TrackerStore: NSObject {
             return Tracker(
                 id: coreDataTracker.id ?? UUID(),
                 name: coreDataTracker.name ?? "",
-                color: UIColor(named: coreDataTracker.color ?? "") ?? .black,
+                color: UIColor(hex: coreDataTracker.color ?? "#FFFFFF") ?? .gray, // ✅ исправлено здесь
                 emoji: coreDataTracker.emoji ?? "",
                 schedule: schedule,
                 isHabit: coreDataTracker.isHabit
