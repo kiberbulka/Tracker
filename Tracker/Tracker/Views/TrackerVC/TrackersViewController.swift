@@ -539,18 +539,23 @@ extension TrackersViewController: TrackerCellDelegate {
     
     
     func uncompletedTracker(id: UUID, at indexPath: IndexPath) {
-        completedTrackers.removeAll() { trackerRecord in
-            do {
-                try trackerRecordStore.delete(trackerRecord: trackerRecord)
-            } catch {
-                print("Failed to delete tracker record: \(error)")
-            }
+        completedTrackers.removeAll { trackerRecord in
             let isSameDay = Calendar.current.isDate(trackerRecord.date, inSameDayAs: datePicker.date)
-            return trackerRecord.trackerID == id && isSameDay
+            let shouldRemove = trackerRecord.trackerID == id && isSameDay
+
+            if shouldRemove {
+                do {
+                    try trackerRecordStore.delete(trackerRecord: trackerRecord)
+                } catch {
+                    print("Failed to delete tracker record: \(error)")
+                }
+            }
+            return shouldRemove
         }
         
         collectionView.reloadItems(at: [indexPath])
     }
+
 }
 
 // MARK: - Extension: NewHabitOrEventViewControllerDelegate
