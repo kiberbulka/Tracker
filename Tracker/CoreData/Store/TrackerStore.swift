@@ -19,13 +19,19 @@ struct TrackerStoreUpdate {
 
 final class TrackerStore: NSObject {
     
-    weak var delegate: TrackerStoreDelegate?
+    // MARK: - Private properties
     
     private var insertedIndexes: IndexSet = []
     private var deletedIndexes: IndexSet = []
     
     private let context = CoreDataManager.shared.viewContext
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>
+    
+    // MARK: - Public properties
+    
+    weak var delegate: TrackerStoreDelegate?
+    
+    // MARK: - Initializers
     
     override init() {
         let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
@@ -48,6 +54,8 @@ final class TrackerStore: NSObject {
             print("Failed to fetch trackers: \(error)")
         }
     }
+    
+    // MARK: - Public Methods
     
     func numberOfSections() -> Int {
         fetchedResultsController.sections?.count ?? 0
@@ -100,7 +108,7 @@ final class TrackerStore: NSObject {
         
         CoreDataManager.shared.saveContext()
     }
-        
+    
     func fetchTrackers() -> [Tracker] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         return objects.map { coreDataTracker in
@@ -110,7 +118,7 @@ final class TrackerStore: NSObject {
             return Tracker(
                 id: coreDataTracker.id ?? UUID(),
                 name: coreDataTracker.name ?? "",
-                color: UIColor(hex: coreDataTracker.color ?? "#FFFFFF") ?? .gray, // ✅ исправлено здесь
+                color: UIColor(hex: coreDataTracker.color ?? "#FFFFFF") ?? .gray,
                 emoji: coreDataTracker.emoji ?? "",
                 schedule: schedule,
                 isHabit: coreDataTracker.isHabit
@@ -119,6 +127,7 @@ final class TrackerStore: NSObject {
     }}
 
 // MARK: - NSFetchedResultsControllerDelegate
+
 extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
         insertedIndexes.removeAll()
@@ -156,75 +165,72 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
     }
 }
 
+// MARK: - Extensions
+
 extension TrackerStore {
     func updateTracker(original: Tracker, with updated: Tracker, category: TrackerCategory) {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", original.id as CVarArg)
-
+        
         do {
             guard let trackerCoreData = try context.fetch(request).first else {
                 print("Не удалось найти трекер для обновления")
                 return
             }
-
-            // Обновляем все поля
             trackerCoreData.name = updated.name
             trackerCoreData.emoji = updated.emoji
             trackerCoreData.isHabit = updated.isHabit
-
+            
             if let colorString = updated.color.toHexString() {
                 trackerCoreData.color = colorString
             } else {
                 print("Ошибка преобразования цвета в строку")
                 trackerCoreData.color = ""
             }
-
+            
             if let scheduleString = Weekday.encodeSchedule(updated.schedule) {
                 trackerCoreData.schedule = scheduleString
             } else {
                 print("Ошибка кодирования расписания")
                 trackerCoreData.schedule = ""
             }
-
-            // Обновляем категорию
             let categoryRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
             categoryRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), category.title)
-
+            
             let results = try context.fetch(categoryRequest)
             let categoryCoreData: TrackerCategoryCoreData
-
+            
             if let existingCategory = results.first {
                 categoryCoreData = existingCategory
             } else {
                 categoryCoreData = TrackerCategoryCoreData(context: context)
                 categoryCoreData.title = category.title
             }
-
+            
             trackerCoreData.trackerCategory = categoryCoreData
-
-            // Сохраняем
+            
             CoreDataManager.shared.saveContext()
-
+            
         } catch {
             print("Ошибка при обновлении трекера: \(error)")
         }
     }
     
     func deleteTracker(_ tracker: Tracker) {
-            let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
-            request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
-            
-            do {
-                if let trackerCoreData = try context.fetch(request).first {
-                    context.delete(trackerCoreData)
-                    try context.save()
-                } else {
-                    print("Трекер для удаления не найден")
-                }
-            } catch {
-                print("Ошибка при удалении трекера: \(error)")
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        do {
+            if let trackerCoreData = try context.fetch(request).first {
+                context.delete(trackerCoreData)
+                try context.save()
+            } else {
+                print("Трекер для удаления не найден")
             }
+        } catch {
+            print("Ошибка при удалении трекера: \(error)")
         }
+    }
 }
 
 

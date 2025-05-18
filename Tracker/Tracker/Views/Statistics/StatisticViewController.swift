@@ -10,14 +10,16 @@ import UIKit
 
 final class StatisticViewController: UIViewController {
     
+    // MARK: - Private Properties
+    
     private let statisticsService = StatisticsService()
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
     
-    private var statisticsData: StatisticsService.StatisticsData?
+    private var statisticsData: StatisticsData?
     
     private lazy var titleLabel: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.text = "Статистика"
         label.font = .systemFont(ofSize: 34, weight: .bold)
         label.textColor = .ypBlack
@@ -25,13 +27,13 @@ final class StatisticViewController: UIViewController {
     }()
     
     private lazy var placeholderImage: UIImageView = {
-       let image = UIImageView()
+        let image = UIImageView()
         image.image = .statPlaceholder
         return image
     }()
     
     private let placeholderLabel: UILabel = {
-       let label = UILabel()
+        let label = UILabel()
         label.text = "Анализировать пока нечего"
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlack
@@ -49,6 +51,8 @@ final class StatisticViewController: UIViewController {
         return tableView
     }()
     
+    // MARK: - Overrides Methods
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -57,6 +61,8 @@ final class StatisticViewController: UIViewController {
         trackerRecordStore.delegate = self
         reloadStatistics()
     }
+    
+    // MARK: - Private Methods
     
     private func reloadStatistics() {
         statisticsData = statisticsService.fetchStatistics()
@@ -105,11 +111,15 @@ final class StatisticViewController: UIViewController {
     }
 }
 
+// MARK: - Extension: UITableViewDelegate
+
 extension StatisticViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         102
     }
 }
+
+// MARK: - Extension: UITableViewDataSource
 
 extension StatisticViewController: UITableViewDataSource {
     
@@ -138,11 +148,16 @@ extension StatisticViewController: UITableViewDataSource {
         return cell
     }
 }
+
+// MARK: - Extension: TrackerStoreDelegate
+
 extension StatisticViewController: TrackerStoreDelegate {
     func didUpdate(_ update: TrackerStoreUpdate) {
         reloadStatistics()
     }
 }
+
+// MARK: - Extension: TrackerRecordStoreDelegate
 
 extension StatisticViewController: TrackerRecordStoreDelegate {
     func didUpdateRecords(_ update: TrackerCategoryStoreUpdate) {

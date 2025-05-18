@@ -29,6 +29,8 @@ enum FilterType: String, CaseIterable {
 
 class FiltersViewController: UIViewController {
     
+    // MARK: - Public Properties
+    
     var selectedFilter: FilterType = .all
     var onFilterSelected: ((FilterType) -> Void)?
     
@@ -44,11 +46,10 @@ class FiltersViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.bounces = false
         return tableView
     }()
     
-    // MARK: - Override func
+    // MARK: - Overrides methods
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +59,7 @@ class FiltersViewController: UIViewController {
         tableView.dataSource = self
     }
     
-    // MARK: - Private func
+    // MARK: - Private methods
     
     private func setupUI() {
         [titleLabel, tableView].forEach {
@@ -72,17 +73,47 @@ class FiltersViewController: UIViewController {
             
             tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
-    // MARK: - Navigation
+    private func configureCornerRadius(for cell: UITableViewCell, indexPath: IndexPath, tableView: UITableView) {
+        let cornerRadius:CGFloat = 16
+        let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
+        
+        if numberOfRows == 1 {
+            cell.layer.cornerRadius = cornerRadius
+            cell.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        } else {
+            switch indexPath.row {
+            case 0:
+                cell.layer.cornerRadius = cornerRadius
+                cell.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            case numberOfRows - 1:
+                cell.layer.cornerRadius = cornerRadius
+                cell.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+            default:
+                cell.layer.cornerRadius = 0
+                cell.layer.maskedCorners = []
+            }
+        }
+        
+        cell.layer.masksToBounds = true
+    }
 
 }
+
+// MARK: - Extension: UITableViewDelegate
 
 extension FiltersViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+           return 75
+       }
 }
+
+// MARK: - Extension: UITableViewDataSource
 
 extension FiltersViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -93,6 +124,8 @@ extension FiltersViewController: UITableViewDataSource {
         let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
         let filter = FilterType.allCases[indexPath.row]
         cell.textLabel?.text = filter.title
+        cell.backgroundColor = .ypGray
+        configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         cell.accessoryType = filter == selectedFilter ? .checkmark : .none
         return cell
     }

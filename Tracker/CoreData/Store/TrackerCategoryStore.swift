@@ -99,9 +99,6 @@ final class TrackerCategoryStore: NSObject {
         CoreDataManager.shared.saveContext()
     }
     
-    
-    
-    
     func fetchCategories() -> [TrackerCategory] {
         let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
         

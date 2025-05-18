@@ -11,7 +11,6 @@ class StatisticsCell: UITableViewCell {
     
     static let statisticsCellIdentifier = "statisticsCell"
     
-    //MARK: - UIModels
     private lazy var countLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 34, weight: .bold)
@@ -31,7 +30,6 @@ class StatisticsCell: UITableViewCell {
         return view
     }()
     
-    //MARK: - Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         accessoryType = .none
@@ -43,13 +41,11 @@ class StatisticsCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    //MARK: - Layout
     override func layoutSubviews() {
         super.layoutSubviews()
         separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
     }
     
-    //MARK: - Public Methods
     func configureCell(with title: String, count: Int) {
         self.titleLabel.text = title
         self.countLabel.text = String(count)
