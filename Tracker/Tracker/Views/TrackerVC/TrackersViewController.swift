@@ -18,6 +18,8 @@ class TrackersViewController: UIViewController {
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
     private var pinnedTrackers: [Tracker] = []
+    private let pinnedTrackersKey = "pinnedTrackersIDs"
+
 
     private var currentDate: Date?
     private let trackerCategoryStore = TrackerCategoryStore()
@@ -151,6 +153,20 @@ class TrackersViewController: UIViewController {
     
     // MARK: - Private Methods
     
+    private func savePinnedTrackers() {
+        let pinnedIDs = pinnedTrackers.map { $0.id.uuidString }
+        UserDefaults.standard.set(pinnedIDs, forKey: pinnedTrackersKey)
+    }
+    
+    private func loadPinnedTrackers() {
+        guard let pinnedIDs = UserDefaults.standard.array(forKey: pinnedTrackersKey) as? [String] else {
+            pinnedTrackers = []
+            return
+        }
+        
+        pinnedTrackers = trackers.filter { pinnedIDs.contains($0.id.uuidString) }
+    }
+    
     private func setupNavigationItem(){
         let image = UIImage(named: "addTracker")?.withRenderingMode(.alwaysOriginal)
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -203,6 +219,7 @@ class TrackersViewController: UIViewController {
         categories = trackerCategoryStore.fetchCategories()
         filteredCategories = categories
         completedTrackers = trackerRecordStore.fetch()
+        loadPinnedTrackers()
         datePickerValueChanged()
         reloadVisibleCategories()
         showPlaceholder()
@@ -334,6 +351,7 @@ class TrackersViewController: UIViewController {
             // Закрепляем
             pinnedTrackers.append(tracker)
         }
+        savePinnedTrackers()
         reloadVisibleCategories()
     }
 
