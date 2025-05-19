@@ -14,14 +14,14 @@ class StatisticsCell: UITableViewCell {
     private lazy var countLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 34, weight: .bold)
-        label.textColor = .label
+        label.textColor = .ypBlack
         return label
     }()
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .label
+        label.textColor = .ypBlack
         return label
     }()
     

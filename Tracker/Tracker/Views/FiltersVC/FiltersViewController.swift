@@ -53,7 +53,7 @@ class FiltersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupUI()
         tableView.delegate = self
         tableView.dataSource = self

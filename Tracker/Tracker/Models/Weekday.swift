@@ -52,7 +52,6 @@ enum Weekday: String, CaseIterable, Codable {
         }
     }
 
-    // Кастомный Decodable, чтобы обрабатывать русские значения
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)
@@ -62,7 +61,6 @@ enum Weekday: String, CaseIterable, Codable {
             return
         }
         
-        // Маппинг русских названий на enum
         let mapping: [String: Weekday] = [
             "Понедельник": .Monday,
             "Вторник": .Tuesday,
@@ -83,13 +81,11 @@ enum Weekday: String, CaseIterable, Codable {
         }
     }
 
-    // Encodable оставляем стандартным — будет сохраняться на английском
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
 
-    // Кодирование расписания в JSON строку
     static func encodeSchedule(_ schedule: [Weekday]) -> String? {
         let encoder = JSONEncoder()
         do {
@@ -101,7 +97,6 @@ enum Weekday: String, CaseIterable, Codable {
         }
     }
 
-    // Декодирование JSON строки в массив Weekday
     static func decodeSchedule(from string: String) -> [Weekday]? {
         let decoder = JSONDecoder()
         guard let data = string.data(using: .utf8) else {
@@ -117,3 +112,4 @@ enum Weekday: String, CaseIterable, Codable {
         }
     }
 }
+

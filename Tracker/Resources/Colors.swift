@@ -1,0 +1,14 @@
+//
+//  Colors.swift
+//  Tracker
+//
+//  Created by Olya on 19.05.2025.
+//
+
+import Foundation
+import UIKit
+
+final class Colors {
+    let viewBackgroundColor = UIColor.systemBackground
+    let labelColor = UIColor.label
+}

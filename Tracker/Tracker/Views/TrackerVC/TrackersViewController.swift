@@ -19,6 +19,7 @@ class TrackersViewController: UIViewController {
     private var completedTrackers: [TrackerRecord] = []
     private var pinnedTrackers: [Tracker] = []
     private let pinnedTrackersKey = "pinnedTrackersIDs"
+    private let colors = Colors()
     
     
     private var currentDate: Date?
@@ -38,7 +39,7 @@ class TrackersViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Фильтры", for: .normal)
         button.backgroundColor = .ypBlue
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -51,7 +52,7 @@ class TrackersViewController: UIViewController {
         let labelText = NSLocalizedString("trackers.title", comment: "Заголовок на главном экране трекеров")
         label.text = labelText
         label.font = .boldSystemFont(ofSize: 34)
-        label.textColor = .black
+        label.textColor = .ypBlack
         
         return label
     }()
@@ -88,8 +89,8 @@ class TrackersViewController: UIViewController {
     private lazy var searchTextField: UISearchTextField = {
         let searchTextField = UISearchTextField()
         searchTextField.backgroundColor = .ypGray
-        searchTextField.textColor = .black
-        searchTextField.tintColor = .black
+        searchTextField.textColor = .ypBlack
+        searchTextField.tintColor = .ypBlack
         searchTextField.layer.cornerRadius = 10
         searchTextField.layer.masksToBounds = true
         searchTextField.borderStyle = .none
@@ -117,6 +118,7 @@ class TrackersViewController: UIViewController {
         let placeholderText = NSLocalizedString("emptyState.title", comment: "Заглушка если трекеров нет")
         placeholderLabel.text = placeholderText
         placeholderLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        placeholderLabel.textColor = .ypBlack
         return placeholderLabel
     }()
     
@@ -129,7 +131,7 @@ class TrackersViewController: UIViewController {
         setupNavigationItem()
         setupUI()
         showPlaceholder()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
         trackerCategoryStore.delegate = self
     }
@@ -192,7 +194,7 @@ class TrackersViewController: UIViewController {
     private func setupNavigationAppearance() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white
+        appearance.backgroundColor = .ypWhite
         appearance.shadowColor = .clear
         
         navigationController?.navigationBar.standardAppearance = appearance
@@ -207,13 +209,11 @@ class TrackersViewController: UIViewController {
             placeholderLabel.isHidden = false
             placeholderImage.image = UIImage(named: "placeholder")
             placeholderLabel.text = NSLocalizedString("emptyState.title", comment: "Заглушка если трекеров совсем нет")
-            filterButton.isHidden = true
         } else if visibleCategories.isEmpty {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
             placeholderImage.image = UIImage(named: "placeholder2")
             placeholderLabel.text = NSLocalizedString("emptySearchResult", comment: "Заглушка если выдача нулевая")
-            filterButton.isHidden = true
         } else {
             placeholderImage.isHidden = true
             placeholderLabel.isHidden = true
@@ -241,7 +241,7 @@ class TrackersViewController: UIViewController {
     
     @objc private func datePickerValueChanged() {
         currentDate = datePicker.date
-      //  selectedFilter = .all
+
         reloadVisibleCategories()
         collectionView.reloadData()
     }
@@ -291,37 +291,60 @@ class TrackersViewController: UIViewController {
             datePicker.setDate(today, animated: false)
             currentDate = today
         }
-        
+
         guard let currentDate = currentDate else { return }
-        let calendar = Calendar.current
+
         let searchText = (searchTextField.text ?? "").lowercased()
-        
+
+        // Проверка наличия трекеров на текущую дату без фильтров
+        let hasTrackersForDate = filteredCategories.contains { category in
+            category.trackers.contains { tracker in
+                isTrackerActiveOnDate(tracker, date: currentDate)
+            }
+        }
+        filterButton.isHidden = !hasTrackersForDate
+
+        // ---- Основная фильтрация для отображения ----
+
+        // Фильтруем закреплённые трекеры
         let pinnedFilteredTrackers = pinnedTrackers.filter {
             trackerPassesAllFilters($0, on: currentDate, searchText: searchText)
         }
-        
+
         visibleCategories = []
-        
+
         if !pinnedFilteredTrackers.isEmpty {
             visibleCategories.append(TrackerCategory(title: "Закрепленные", trackers: pinnedFilteredTrackers))
         }
-        
+
         let otherCategories = filteredCategories.compactMap { category -> TrackerCategory? in
             let trackers = category.trackers.filter { tracker in
-                guard !pinnedTrackers.contains(where: { $0.id == tracker.id }) else {
-                    return false
-                }
-                return trackerPassesAllFilters(tracker, on: currentDate, searchText: searchText)
+                !pinnedTrackers.contains(where: { $0.id == tracker.id }) &&
+                trackerPassesAllFilters(tracker, on: currentDate, searchText: searchText)
             }
-            
             return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
-        
+
         visibleCategories.append(contentsOf: otherCategories)
+
         collectionView.reloadData()
         showPlaceholder()
     }
+
     
+    private func isTrackerActiveOnDate(_ tracker: Tracker, date: Date) -> Bool {
+        let calendar = Calendar.current
+
+        if tracker.isHabit {
+            let weekday = calendar.component(.weekday, from: date)
+            let adjustedWeekday = weekday == 1 ? 7 : weekday - 1
+            return tracker.schedule.contains { $0.numberValue == adjustedWeekday }
+        } else {
+            // Просто считаем все не привычные трекеры активными на любую дату
+            return true
+        }
+    }
+
     private func isCurrentDate(_ date: Date) -> Bool {
         let calendar = Calendar.current
         return calendar.isDateInToday(date)

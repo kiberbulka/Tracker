@@ -26,7 +26,7 @@ final class CategoryViewController: UIViewController {
         let label = UILabel()
         let labelText = NSLocalizedString("categoryTable.title", comment: "ячейка таблицы")
         label.text = labelText
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
@@ -38,7 +38,7 @@ final class CategoryViewController: UIViewController {
         button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(addCategoryButtonTap), for: .touchUpInside)
-        button.backgroundColor = .black
+        button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         return button
     }()
@@ -73,7 +73,7 @@ final class CategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupUI()
         
         viewModel.reloadData = { [weak self] in

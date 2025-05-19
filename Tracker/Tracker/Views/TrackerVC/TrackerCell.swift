@@ -16,6 +16,7 @@ protocol TrackerCellDelegate: AnyObject {
 final class TrackerCell: UICollectionViewCell {
     
     static let trackerCellIdentifier = "TrackerCell"
+    private let colors = Colors()
     
     private var isCompletedToday: Bool = false
     private var trackerId: UUID?
@@ -43,7 +44,7 @@ final class TrackerCell: UICollectionViewCell {
     private lazy var trackerCardNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .white
+        label.textColor = colors.labelColor
         label.numberOfLines = 2
         return label
     }()
@@ -90,7 +91,7 @@ final class TrackerCell: UICollectionViewCell {
         let label = UILabel()
         let labelText = NSLocalizedString("tracker.day", comment: "")
         label.text = "1 \(labelText)"
-        label.textColor = .black
+        label.textColor = colors.labelColor
         label.font = .systemFont(ofSize: 12, weight: .medium)
         return label
     }()

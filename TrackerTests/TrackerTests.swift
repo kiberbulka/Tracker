@@ -15,7 +15,9 @@ final class TrackerTests: XCTestCase {
         
         let vc = TrackersViewController()
         
+        let nav = UINavigationController(rootViewController: vc)
         
+        assertSnapshot(of: nav, as: .image)
     }
 
 }
