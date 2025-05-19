@@ -33,12 +33,13 @@ final class CategoryViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         let button = UIButton()
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         let buttonText = NSLocalizedString("addCategoryButton", comment: "Кнопка добавления категории")
         button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(addCategoryButtonTap), for: .touchUpInside)
         button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
         return button
     }()
@@ -95,7 +96,6 @@ final class CategoryViewController: UIViewController {
             placeholderLabel.isHidden = true
         }
     }
-    
     
     private func setupUI(){
         
@@ -235,7 +235,6 @@ extension CategoryViewController: UITableViewDataSource {
         }
     }
     
-    
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let isLastCell = indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1
         
@@ -243,7 +242,6 @@ extension CategoryViewController: UITableViewDataSource {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
     }
-    
 }
 
 extension CategoryViewController: AddCategoryViewControllerDelegate{

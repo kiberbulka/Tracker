@@ -45,7 +45,7 @@ class AddCategoryViewController: UIViewController {
         let labelText = NSLocalizedString("newCategory", comment: "")
         label.text =  labelText
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .black
+        label.textColor = .ypBlack
         return label
     }()
     
@@ -56,14 +56,15 @@ class AddCategoryViewController: UIViewController {
         button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.addTarget(self, action: #selector(doneButtonTap), for: .touchUpInside)
-        button.backgroundColor = .black
+        button.backgroundColor = .ypBlack
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.cornerRadius = 16
         return button
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .ypWhite
         setupUI()
         
         if let category = categoryToEdit {
@@ -98,10 +99,8 @@ class AddCategoryViewController: UIViewController {
         let trimmedText = categoryNameTF.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let isNotEmpty = !trimmedText.isEmpty
         doneButton.isEnabled = isNotEmpty
-        doneButton.backgroundColor = isNotEmpty ? .black : .ypLightGray
+        doneButton.backgroundColor = isNotEmpty ? .ypBlack : .ypLightGray
     }
-    
-    
     
     private func setupUI(){
         [categoryNameTF, categoryLabel, doneButton].forEach{

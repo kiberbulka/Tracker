@@ -10,13 +10,10 @@ import UIKit
 
 final class SupplementaryView: UICollectionReusableView {
     
-    private let colors = Colors()
-    
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
         titleLabel.textColor = .ypBlack
-        titleLabel.text = "Важное"
         return titleLabel
     }()
     

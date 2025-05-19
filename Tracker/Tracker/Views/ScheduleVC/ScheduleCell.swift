@@ -22,7 +22,7 @@ final class ScheduleCell: UITableViewCell {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 17)
         return label
     }()

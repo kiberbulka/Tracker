@@ -24,7 +24,7 @@ final class ScheduleViewController: UIViewController {
         let label = UILabel()
         let labelText = NSLocalizedString("scheduleTable.title", comment: "ячейка таблицы")
         label.text = labelText
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
@@ -36,7 +36,8 @@ final class ScheduleViewController: UIViewController {
         button.setTitle(buttonText, for: .normal)
         button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .black
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         return button
     }()
@@ -49,7 +50,7 @@ final class ScheduleViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupUI()
         tableView.delegate = self
         tableView.dataSource = self
@@ -110,7 +111,7 @@ extension ScheduleViewController: UITableViewDataSource {
 
         let weekday = Weekday.allCases[indexPath.row]
         let isSelected = selectedDays.contains(weekday)
-        
+        configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
         cell.configureCell(with: weekday, isOn: isSelected)
         cell.delegate = self
         return cell

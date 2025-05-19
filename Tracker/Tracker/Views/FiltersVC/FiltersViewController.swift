@@ -40,7 +40,7 @@ class FiltersViewController: UIViewController {
        let label = UILabel()
         label.text = "Фильтры"
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .ypBlack
+        label.textColor = .ypWhite
         return label
     }()
     

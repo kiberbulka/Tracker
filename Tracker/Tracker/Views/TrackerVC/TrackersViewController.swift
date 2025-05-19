@@ -19,13 +19,11 @@ class TrackersViewController: UIViewController {
     private var completedTrackers: [TrackerRecord] = []
     private var pinnedTrackers: [Tracker] = []
     private let pinnedTrackersKey = "pinnedTrackersIDs"
-    private let colors = Colors()
-    
-    
     private var currentDate: Date?
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
+    private let colors = Colors()
     
     private var selectedFilter: FilterType = .all {
         didSet {
@@ -39,7 +37,7 @@ class TrackersViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Фильтры", for: .normal)
         button.backgroundColor = .ypBlue
-        button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(colors.filterLabelColor, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -75,6 +73,7 @@ class TrackersViewController: UIViewController {
         collectionView.register(SupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.backgroundColor = .ypWhite
         return collectionView
     }()
     

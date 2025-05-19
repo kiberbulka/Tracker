@@ -49,7 +49,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let labelText = NSLocalizedString("newHabit", comment: "Заголовок экрана создания привычки или события")
         label.text = labelText
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .black
+        label.textColor = .ypBlack
         return label
     }()
     
@@ -108,10 +108,10 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let buttonText = NSLocalizedString("createButton", comment: "Кнопка создания")
         button.setTitle(buttonText, for: .normal)
         button.addTarget(self, action: #selector(createButtonDidTap), for: .touchUpInside)
-        button.titleLabel?.textColor = .white
+        button.titleLabel?.textColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
         button.isEnabled = false
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        
         return button
     }()
     
@@ -125,7 +125,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(EmojiCell.self, forCellWithReuseIdentifier: EmojiCell.cellIdentifier)
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .ypWhite
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.allowsSelection = true
@@ -139,7 +139,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.register(ColorCell.self, forCellWithReuseIdentifier: ColorCell.cellIdentifier)
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .ypWhite
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.allowsSelection = true
@@ -185,7 +185,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         updateTableViewHeight()
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -210,7 +209,7 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     // MARK: - UI
 
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -288,12 +287,10 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     private func setupEmojiAndColorForEditTracker(){
         if let habit = trackerToEdit {
-                // Найти индекс эмоджи
                 if let emojiIndex = emojis.firstIndex(of: habit.emoji) {
                     selectedEmojiIndexPath = IndexPath(item: emojiIndex, section: 0)
                 }
-                
-                // Найти индекс цвета
+
                 if let colorIndex = colors.firstIndex(of: habit.color) {
                     selectedColorIndexPath = IndexPath(item: colorIndex, section: 0)
                 }
@@ -301,7 +298,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
                 emojiCollection.reloadData()
                 colorCollection.reloadData()
 
-                // После reloadData надо выставить визуальное выделение
                 DispatchQueue.main.async {
                     if let emojiIndex = self.selectedEmojiIndexPath,
                        let emojiCell = self.emojiCollection.cellForItem(at: emojiIndex) as? EmojiCell {
@@ -377,7 +373,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
         return Weekday.allCases.first(where: { $0.numberValue == weekdayNumber })
     }
     
-    
     private func createButtonIsAvailable() {
         let isText = trackerNameTF.hasText
         let selectedSchedule = !selectedDays.isEmpty
@@ -397,16 +392,14 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
             buttonIsAvailable = isText && category && selectedColor && selectedEmoji
         }
         createButton.isEnabled = buttonIsAvailable
-        createButton.backgroundColor = buttonIsAvailable ? .black : .ypLightGray
+        createButton.backgroundColor = buttonIsAvailable ? .ypBlack : .ypLightGray
     }
-    
     
     private func updateTableViewHeight() {
         tableView.layoutIfNeeded()
         let height = tableView.contentSize.height
         tableViewHeightConstraint.constant = height
     }
-    
     
     @objc private func cancelButtonDidTap(){
         dismiss(animated: true)
@@ -550,8 +543,7 @@ extension NewHabitOrEventViewController: UITableViewDataSource {
             cell.separatorInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: tableView.bounds.width)
         }
     }
-    
-    
+
 }
 
 // MARK: - Extension: UITableViewDelegate

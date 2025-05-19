@@ -17,7 +17,7 @@ final class CreateTrackerViewController: UIViewController {
         let buttonText = NSLocalizedString("habit", comment: "Кнопка на экране выбора создания трекера или привычки")
         button.setTitle( buttonText, for: .normal)
         button.backgroundColor = .ypBlack
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -30,7 +30,7 @@ final class CreateTrackerViewController: UIViewController {
         let buttonText = NSLocalizedString("irregularEvent", comment: "Кнопка на экране выбора создания трекера или привычки")
         button.setTitle(buttonText, for: .normal)
         button.backgroundColor = .ypBlack
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.layer.masksToBounds = true
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
@@ -43,14 +43,14 @@ final class CreateTrackerViewController: UIViewController {
         let labelText = NSLocalizedString("createTracker.title", comment: "Заголовок экрана создания трекера")
         label.text = labelText
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .black
+        label.textColor = .ypBlack
         return label
     }()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupUI()
     }
     

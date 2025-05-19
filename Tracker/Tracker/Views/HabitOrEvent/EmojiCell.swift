@@ -13,7 +13,7 @@ final class EmojiCell: UICollectionViewCell {
     
     private lazy var label: UILabel = {
         let label = UILabel()
-        label.backgroundColor = .white
+        label.backgroundColor = .ypWhite
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 32, weight: .bold)
         label.layer.masksToBounds = true
