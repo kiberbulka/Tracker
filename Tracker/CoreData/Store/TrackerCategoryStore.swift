@@ -108,7 +108,8 @@ final class TrackerCategoryStore: NSObject {
             return trackerCategories.map { categoryCoreData in
                 let title = categoryCoreData.title ?? ""
                 let trackers = categoryCoreData.trackers?.allObjects as? [TrackerCoreData] ?? []
-                let trackerObjects = trackers.compactMap { trackerCoreData in
+                let sortedTrackers = trackers.sorted { ($0.name ?? "") < ($1.name ?? "") }
+                let trackerObjects = sortedTrackers.compactMap { trackerCoreData in
                     
                     let scheduleString = trackerCoreData.schedule ?? ""
                     let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []

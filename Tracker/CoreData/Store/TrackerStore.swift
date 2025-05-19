@@ -124,7 +124,8 @@ final class TrackerStore: NSObject {
                 isHabit: coreDataTracker.isHabit
             )
         }
-    }}
+    }
+}
 
 // MARK: - NSFetchedResultsControllerDelegate
 

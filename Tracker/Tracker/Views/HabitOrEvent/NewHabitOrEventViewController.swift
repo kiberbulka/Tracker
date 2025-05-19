@@ -27,7 +27,6 @@ final class NewHabitOrEventViewController: UIViewController, CategorySelectionDe
     
     // MARK: - Private Properties
     
-    private var category: TrackerCategory? = TrackerCategory(title: "Домашний уют", trackers: [])
     private var selectedDays: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?

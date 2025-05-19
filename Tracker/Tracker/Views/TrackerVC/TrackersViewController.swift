@@ -192,29 +192,35 @@ class TrackersViewController: UIViewController {
     private func setupNavigationAppearance() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .white // Или любой твой цвет
-        appearance.shadowColor = .clear // Если не хочешь нижнюю тень
+        appearance.backgroundColor = .white
+        appearance.shadowColor = .clear
         
         navigationController?.navigationBar.standardAppearance = appearance
         navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
     
     private func showPlaceholder() {
-        if categories.isEmpty {
+        let hasAnyTrackers = categories.contains { !$0.trackers.isEmpty }
+
+        if !hasAnyTrackers {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
+            placeholderImage.image = UIImage(named: "placeholder")
+            placeholderLabel.text = NSLocalizedString("emptyState.title", comment: "Заглушка если трекеров совсем нет")
+            filterButton.isHidden = true
         } else if visibleCategories.isEmpty {
             placeholderImage.isHidden = false
             placeholderLabel.isHidden = false
             placeholderImage.image = UIImage(named: "placeholder2")
-            let placeholderText = NSLocalizedString("emptySearchResult", comment: "Заглушка если выдача нулевая")
-            placeholderLabel.text = placeholderText
+            placeholderLabel.text = NSLocalizedString("emptySearchResult", comment: "Заглушка если выдача нулевая")
+            filterButton.isHidden = true
         } else {
             placeholderImage.isHidden = true
             placeholderLabel.isHidden = true
+            filterButton.isHidden = false
         }
     }
-    
+
     // MARK: -  Objc Private Properties
     
     @objc private func filtersButtonDidTap() {
@@ -235,6 +241,7 @@ class TrackersViewController: UIViewController {
     
     @objc private func datePickerValueChanged() {
         currentDate = datePicker.date
+      //  selectedFilter = .all
         reloadVisibleCategories()
         collectionView.reloadData()
     }
@@ -380,6 +387,8 @@ class TrackersViewController: UIViewController {
         editVC.isHabit = tracker.isHabit
         self.present(editVC, animated: true)
     }
+    
+    // MARK: - UIContextMenu Methods
     
     private func deleteTracker(at indexPath: IndexPath) {
         let trackerToDelete = visibleCategories[indexPath.section].trackers[indexPath.item]
