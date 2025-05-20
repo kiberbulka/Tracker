@@ -28,7 +28,7 @@
 "colorCollectionView.title" = "Цвет";
 "createButton" = "Создать";
 "limit.title" = "Ограничение 38 символов";
-"categoryCreateVC.title" = "Привычки и события можно объединить по смыслу";
+"categoryCreateVC.title" = "Привычки и события можно \n объединить по смыслу";
 "addCategoryButton" = "Добавить категорию";
 "newCategory" = "Новая категория";
 "done" = "Готово";
@@ -57,3 +57,15 @@
 "alert" = "Эта категория точно не нужна?";
 "edit" = "Редактировать";
 
+"statisticsLabel" = "Статистика";
+"filterButton" = "Фильтры";
+"allTrackers" = "Все трекеры";
+"trackersForToday" = "Трекеры на сегодня";
+"completedTrackers" = "Завершённые";
+"uncompletedTrackers" = "Незавершённые";
+"statisticPlaceholder" = "Анализировать пока нечего";
+"bestPeriod" = "Лучший период";
+"idealDays" = "Идеальные дни";
+"numberOfCompletedTrackers" = "Трекеров завершено";
+"average" = "Среднее значение";
+"editHabit" = "Редактирование привычки";

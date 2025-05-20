@@ -31,7 +31,7 @@ final class ScheduleViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         let button = UIButton()
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         let buttonText = NSLocalizedString("done", comment: "Кнопка готово")
         button.setTitle(buttonText, for: .normal)
         button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)

@@ -7,26 +7,6 @@
 
 import UIKit
 
-enum FilterType: String, CaseIterable {
-    case all
-    case today
-    case completed
-    case notCompleted
-    
-    var title: String {
-        switch self {
-        case .all: return "Все трекеры"
-        case .today: return "Трекеры на сегодня"
-        case .completed: return "Завершённые"
-        case .notCompleted: return "Незавершённые"
-        }
-    }
-    
-    var isDefault: Bool {
-        return self == .all
-    }
-}
-
 class FiltersViewController: UIViewController {
     
     // MARK: - Public Properties
@@ -38,9 +18,10 @@ class FiltersViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
        let label = UILabel()
-        label.text = "Фильтры"
+        let text = NSLocalizedString("filterButton", comment: "заголовок")
+        label.text = text
         label.font = .systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .ypWhite
+        label.textColor = .ypBlack
         return label
     }()
     

@@ -20,7 +20,8 @@ final class StatisticViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Статистика"
+        let text = NSLocalizedString("statisticsLabel", comment: "")
+        label.text = text
         label.font = .systemFont(ofSize: 34, weight: .bold)
         label.textColor = .ypBlack
         return label
@@ -34,7 +35,8 @@ final class StatisticViewController: UIViewController {
     
     private let placeholderLabel: UILabel = {
         let label = UILabel()
-        label.text = "Анализировать пока нечего"
+        let text = NSLocalizedString("statisticPlaceholder", comment: "")
+        label.text = text
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlack
         return label
@@ -46,7 +48,7 @@ final class StatisticViewController: UIViewController {
         tableView.bounces = false
         tableView.layer.masksToBounds = true
         tableView.showsVerticalScrollIndicator = false
-        tableView.backgroundColor = .clear
+        tableView.backgroundColor = .ypWhite
         tableView.separatorStyle = .none
         return tableView
     }()
@@ -132,7 +134,12 @@ extension StatisticViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let titles = ["Лучший период", "Идеальные дни", "Трекеров завершено", "Среднее значение"]
+        let titles = [
+            NSLocalizedString("bestPeriod", comment: "Best period"),
+            NSLocalizedString("idealDays", comment: "Ideal days"),
+            NSLocalizedString("numberOfCompletedTrackers", comment: "Trackers completed"),
+            NSLocalizedString("average", comment: "Average value")
+        ]
         
         let counts = [
             statisticsData?.longestStreak ?? 0,
@@ -147,6 +154,7 @@ extension StatisticViewController: UITableViewDataSource {
         
         return cell
     }
+
 }
 
 // MARK: - Extension: TrackerStoreDelegate

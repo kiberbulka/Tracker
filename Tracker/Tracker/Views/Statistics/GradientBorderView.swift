@@ -25,7 +25,7 @@ final class GradientBorderView: UIView {
     }
     
     private func setupLayers() {
-        backgroundColor = .clear
+        backgroundColor = .ypWhite
         layer.cornerRadius = 12
         layer.masksToBounds = true
         

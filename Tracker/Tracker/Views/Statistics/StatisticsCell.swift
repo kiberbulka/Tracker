@@ -59,7 +59,7 @@ class StatisticsCell: UITableViewCell {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .ypWhite
         
         NSLayoutConstraint.activate([
             gradientBorderView.topAnchor.constraint(equalTo: contentView.topAnchor),

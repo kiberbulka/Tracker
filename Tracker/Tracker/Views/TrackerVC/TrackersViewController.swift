@@ -35,7 +35,8 @@ class TrackersViewController: UIViewController {
     
     private lazy var filterButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Фильтры", for: .normal)
+        let text = NSLocalizedString("filterButton", comment: "")
+        button.setTitle(text, for: .normal)
         button.backgroundColor = .ypBlue
         button.setTitleColor(colors.filterLabelColor, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
@@ -51,13 +52,11 @@ class TrackersViewController: UIViewController {
         label.text = labelText
         label.font = .boldSystemFont(ofSize: 34)
         label.textColor = .ypBlack
-        
         return label
     }()
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
-        // datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.calendar.firstWeekday = 2
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
@@ -121,7 +120,6 @@ class TrackersViewController: UIViewController {
         return placeholderLabel
     }()
     
-    
     // MARK: - Overrides Methods
     
     override func viewDidLoad() {
@@ -173,20 +171,22 @@ class TrackersViewController: UIViewController {
             filterButton.heightAnchor.constraint(equalToConstant: 50),
             filterButton.widthAnchor.constraint(equalToConstant: 114)
             
-            
         ])
     }
     
     private func setupNavigationItem(){
-        let image = UIImage(named: "addTracker")?.withRenderingMode(.alwaysOriginal)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
+        let image = UIImage(named: "addTracker")
+        let barButton = UIBarButtonItem(
             image: image,
             style: .plain,
             target: self,
             action: #selector(createTrackerOrHabit)
         )
+        barButton.tintColor = .label
+        navigationItem.leftBarButtonItem = barButton
         
         let datePickerItem = UIBarButtonItem(customView: datePicker)
+
         navigationItem.rightBarButtonItem = datePickerItem
     }
     
@@ -303,13 +303,9 @@ class TrackersViewController: UIViewController {
         }
         filterButton.isHidden = !hasTrackersForDate
 
-        // ---- Основная фильтрация для отображения ----
-
-        // Фильтруем закреплённые трекеры
         let pinnedFilteredTrackers = pinnedTrackers.filter {
             trackerPassesAllFilters($0, on: currentDate, searchText: searchText)
         }
-
         visibleCategories = []
 
         if !pinnedFilteredTrackers.isEmpty {
@@ -339,7 +335,6 @@ class TrackersViewController: UIViewController {
             let adjustedWeekday = weekday == 1 ? 7 : weekday - 1
             return tracker.schedule.contains { $0.numberValue == adjustedWeekday }
         } else {
-            // Просто считаем все не привычные трекеры активными на любую дату
             return true
         }
     }
@@ -452,10 +447,18 @@ extension TrackersViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+            let completedDays = completedTrackers.filter { $0.trackerID == tracker.id }.count
         
+            let category = visibleCategories[indexPath.section]
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: nil) { _ in
             let editAction = UIAction(title: "Редактировать") { [weak self] _ in
-                self?.openEditScreen(with: tracker)
+                let editVC = NewHabitOrEventViewController()
+                editVC.isEditingTracker = true
+                editVC.trackerToEdit = tracker
+                editVC.completedDays = completedDays
+                editVC.isHabit = tracker.isHabit
+                editVC.trackerCategoryToEdit = category
+                self?.present(editVC, animated: true)
             }
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
                 self.showDeleteConfirmation(for: tracker, at: indexPath)
@@ -655,6 +658,8 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
         collectionView.reloadData()
     }
 }
+
+
 
 
 
