@@ -458,15 +458,18 @@ extension TrackersViewController: UICollectionViewDelegate {
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
             let completedDays = completedTrackers.filter { $0.trackerID == tracker.id }.count
         
-            let category = visibleCategories[indexPath.section]
+       
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: nil) { _ in
             let editAction = UIAction(title: "Редактировать") { [weak self] _ in
                 let editVC = NewHabitOrEventViewController()
+                if let realCategory = self?.trackerCategoryStore.category(for: tracker) {
+                    editVC.trackerCategoryToEdit = realCategory
+                    editVC.trackerCategoryToEdit = realCategory
+                }
                 editVC.isEditingTracker = true
                 editVC.trackerToEdit = tracker
                 editVC.completedDays = completedDays
                 editVC.isHabit = tracker.isHabit
-                editVC.trackerCategoryToEdit = category
                 self?.present(editVC, animated: true)
                 AnalyticsService.shared.report(event: "click", screen: "Main", item: "edit")
             }
