@@ -131,11 +131,17 @@ class TrackersViewController: UIViewController {
         view.backgroundColor = .ypWhite
         NotificationCenter.default.addObserver(self, selector: #selector(handleDidCreateTracker), name: Notification.Name("DidCreateTracker"), object: nil)
         trackerCategoryStore.delegate = self
+        AnalyticsService.shared.report(event: "open", screen: "Main")
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         reloadData()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.report(event: "close", screen: "Main")
     }
     
     // MARK: -  Setup UI
@@ -229,6 +235,7 @@ class TrackersViewController: UIViewController {
             self?.selectedFilter = filter
         }
         present(filtersVC, animated: true)
+        AnalyticsService.shared.report(event: "click", screen: "Main", item: "filter")
     }
     
     @objc private func handleDidCreateTracker() {
@@ -250,6 +257,7 @@ class TrackersViewController: UIViewController {
         createTrackerVC.delegate = self
         present(createTrackerVC, animated: true)
         navigationController?.setNavigationBarHidden(false, animated: true)
+        AnalyticsService.shared.report(event: "click", screen: "Main", item: "add_track")
     }
     
     // MARK: - Private Methods Filters
@@ -436,6 +444,7 @@ class TrackersViewController: UIViewController {
         alert.addAction(UIAlertAction(title: "Отмена", style: .cancel))
         alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { _ in
             self.deleteTracker(at: indexPath)
+            AnalyticsService.shared.report(event: "click", screen: "Main", item: "delete")
         })
         present(alert, animated: true)
     }
@@ -459,6 +468,7 @@ extension TrackersViewController: UICollectionViewDelegate {
                 editVC.isHabit = tracker.isHabit
                 editVC.trackerCategoryToEdit = category
                 self?.present(editVC, animated: true)
+                AnalyticsService.shared.report(event: "click", screen: "Main", item: "edit")
             }
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
                 self.showDeleteConfirmation(for: tracker, at: indexPath)

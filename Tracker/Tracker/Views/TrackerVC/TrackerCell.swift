@@ -103,6 +103,7 @@ final class TrackerCell: UICollectionViewCell {
         isCompletedToday
             ? delegate?.uncompletedTracker(id: id, at: indexPath)
             : delegate?.completeTracker(id: id, at: indexPath)
+        AnalyticsService.shared.report(event: "click", screen: "Main", item: "track")
     }
     
     private func setupUI() {
