@@ -109,6 +109,10 @@ final class TrackerStore: NSObject {
         CoreDataManager.shared.saveContext()
     }
     
+    func tracker(with id: UUID) -> Tracker? {
+        return fetchTrackers().first { $0.id == id }
+    }
+    
     func fetchTrackers() -> [Tracker] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         return objects.map { coreDataTracker in

@@ -416,19 +416,28 @@ class TrackersViewController: UIViewController {
     // MARK: - UIContextMenu Methods
     
     private func deleteTracker(at indexPath: IndexPath) {
-        let trackerToDelete = visibleCategories[indexPath.section].trackers[indexPath.item]
+        let visualTracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+
+        guard let trackerToDelete = trackerStore.tracker(with: visualTracker.id) else {
+            print("Не найден трекер в базе")
+            return
+        }
+
+        if let pinnedIndex = pinnedTrackers.firstIndex(where: { $0.id == trackerToDelete.id }) {
+            pinnedTrackers.remove(at: pinnedIndex)
+            savePinnedTrackers()
+        }
+
         trackerStore.deleteTracker(trackerToDelete)
-        
+
         trackers = trackerStore.fetchTrackers()
         categories = trackerCategoryStore.fetchCategories()
         filteredCategories = categories
-        
         reloadVisibleCategories()
         collectionView.reloadData()
-        
         showPlaceholder()
     }
-    
+
     private func togglePinTracker(_ tracker: Tracker) {
         if let index = pinnedTrackers.firstIndex(where: { $0.id == tracker.id }) {
             pinnedTrackers.remove(at: index)
@@ -455,35 +464,49 @@ class TrackersViewController: UIViewController {
 extension TrackersViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
-            let completedDays = completedTrackers.filter { $0.trackerID == tracker.id }.count
-        
-       
+
+        let visualTracker = visibleCategories[indexPath.section].trackers[indexPath.item]
+  
+        guard let tracker = trackerStore.tracker(with: visualTracker.id) else {
+            print("Не найден трекер в базе")
+            return nil
+        }
+
+        let completedDays = completedTrackers.filter { $0.trackerID == tracker.id }.count
+
+        guard let trackerCategory = trackerCategoryStore.loadCategories().first(where: { category in
+            category.trackers.contains(where: { $0.id == tracker.id })
+        }) else {
+            print("Категория трекера не найдена")
+            return nil
+        }
+
         return UIContextMenuConfiguration(identifier: indexPath as NSCopying, previewProvider: nil) { _ in
             let editAction = UIAction(title: "Редактировать") { [weak self] _ in
                 let editVC = NewHabitOrEventViewController()
-                if let realCategory = self?.trackerCategoryStore.category(for: tracker) {
-                    editVC.trackerCategoryToEdit = realCategory
-                    editVC.trackerCategoryToEdit = realCategory
-                }
                 editVC.isEditingTracker = true
                 editVC.trackerToEdit = tracker
                 editVC.completedDays = completedDays
                 editVC.isHabit = tracker.isHabit
+                editVC.trackerCategoryToEdit = trackerCategory
+
                 self?.present(editVC, animated: true)
                 AnalyticsService.shared.report(event: "click", screen: "Main", item: "edit")
             }
-            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { _ in
-                self.showDeleteConfirmation(for: tracker, at: indexPath)
+
+            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { [weak self] _ in
+                self?.showDeleteConfirmation(for: tracker, at: indexPath)
             }
-            let pinTitle = self.pinnedTrackers.contains(where: { $0.id == tracker.id }) ? "Открепить" : "Закрепить"
+
+            let pinTitle = self.pinnedTrackers.contains(where: { $0.id == tracker.id }) == true ? "Открепить" : "Закрепить"
             let pinAction = UIAction(title: pinTitle) { [weak self] _ in
                 self?.togglePinTracker(tracker)
             }
-            
+
             return UIMenu(title: "", children: [pinAction, editAction, deleteAction])
         }
     }
+
     
     func collectionView(_ collectionView: UICollectionView,
                         previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
