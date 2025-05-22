@@ -92,15 +92,23 @@ final class TrackerCategoryStore: NSObject {
         }
     }
     
+    func category(for tracker: Tracker) -> TrackerCategory? {
+        let categories = fetchCategories()
+        for category in categories {
+            if category.trackers.contains(where: { $0.id == tracker.id }) {
+                return category
+            }
+        }
+        return nil
+    }
+
+    
     
     func updateCategory(at indexPath: IndexPath, with title: String) {
         let category = fetchedResultsController.object(at: indexPath)
         category.title = title
         CoreDataManager.shared.saveContext()
     }
-    
-    
-    
     
     func fetchCategories() -> [TrackerCategory] {
         let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
@@ -111,7 +119,8 @@ final class TrackerCategoryStore: NSObject {
             return trackerCategories.map { categoryCoreData in
                 let title = categoryCoreData.title ?? ""
                 let trackers = categoryCoreData.trackers?.allObjects as? [TrackerCoreData] ?? []
-                let trackerObjects = trackers.compactMap { trackerCoreData in
+                let sortedTrackers = trackers.sorted { ($0.name ?? "") < ($1.name ?? "") }
+                let trackerObjects = sortedTrackers.compactMap { trackerCoreData in
                     
                     let scheduleString = trackerCoreData.schedule ?? ""
                     let schedule = scheduleString.isEmpty ? [] : Weekday.decodeSchedule(from: scheduleString) ?? []

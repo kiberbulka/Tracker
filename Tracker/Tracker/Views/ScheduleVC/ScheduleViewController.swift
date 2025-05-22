@@ -15,26 +15,29 @@ protocol ScheduleViewControllerDelegate: AnyObject {
 final class ScheduleViewController: UIViewController {
     
     private let weekdays = Weekday.allCases
-    private var selectedDays: [Weekday] = []
-    private let tableViewItems = Weekday.allCases.map(\.rawValue)
+    var selectedDays: [Weekday] = []
+    private let tableViewItems = Weekday.allCases
     
     weak var delegate: ScheduleViewControllerDelegate?
     
     private lazy var scheduleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
-        label.textColor = .black
+        let labelText = NSLocalizedString("scheduleTable.title", comment: "ячейка таблицы")
+        label.text = labelText
+        label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
     
     private lazy var doneButton: UIButton = {
         let button = UIButton()
-        button.setTitleColor(.white, for: .normal)
-        button.setTitle("Готово", for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
+        let buttonText = NSLocalizedString("done", comment: "Кнопка готово")
+        button.setTitle(buttonText, for: .normal)
         button.addTarget(self, action: #selector(doneButtonDidTap), for: .touchUpInside)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .black
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         return button
     }()
@@ -47,7 +50,7 @@ final class ScheduleViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupUI()
         tableView.delegate = self
         tableView.dataSource = self
@@ -99,13 +102,22 @@ extension ScheduleViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleCell.scheduleCellIdentifier, for: indexPath) as! ScheduleCell
-        cell.delegate = self
-        let isOn = selectedDays.contains(where: { $0.rawValue == tableViewItems[indexPath.row] })
-        cell.configureCell(with: tableViewItems[indexPath.row], isOn: isOn)
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: ScheduleCell.scheduleCellIdentifier,
+            for: indexPath
+        ) as? ScheduleCell else {
+            return UITableViewCell()
+        }
+
+        let weekday = Weekday.allCases[indexPath.row]
+        let isSelected = selectedDays.contains(weekday)
         configureCornerRadius(for: cell, indexPath: indexPath, tableView: tableView)
+        cell.configureCell(with: weekday, isOn: isSelected)
+        cell.delegate = self
         return cell
     }
+
+
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         75
@@ -139,19 +151,13 @@ extension ScheduleViewController: UITableViewDataSource {
 }
 
 extension ScheduleViewController: ScheduleCellDelegate {
-    func switchStateChanged(isOn: Bool, for day: String?) {
-        guard let day = Weekday(rawValue: day ?? "") else {return}
+    func switchStateChanged(isOn: Bool, for day: Weekday) {
         if isOn {
-             if !selectedDays.contains(day) {
-                 selectedDays.append(day)
-             }
-         } else {
-             if let index = selectedDays.firstIndex(of: day) {
-                 selectedDays.remove(at: index)
-             }
-         }
-        print("\(selectedDays)")
+            if !selectedDays.contains(day) {
+                selectedDays.append(day)
+            }
+        } else {
+            selectedDays.removeAll { $0 == day }
+        }
     }
-    
-    
 }

@@ -9,18 +9,20 @@ import Foundation
 import UIKit
 
 protocol ScheduleCellDelegate: AnyObject {
-    func switchStateChanged(isOn: Bool, for day: String?)
+    func switchStateChanged(isOn: Bool, for day: Weekday)
 }
 
 final class ScheduleCell: UITableViewCell {
     
     static let scheduleCellIdentifier = "ScheduleCell"
     
+    private var currentWeekday: Weekday?
+    
     weak var delegate: ScheduleCellDelegate?
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 17)
         return label
     }()
@@ -45,11 +47,13 @@ final class ScheduleCell: UITableViewCell {
     }
     
     @objc private func switchDidChanged(){
-        delegate?.switchStateChanged(isOn: switchControl.isOn, for: titleLabel.text)
+        guard let weekday = currentWeekday else {return}
+        delegate?.switchStateChanged(isOn: switchControl.isOn, for: weekday)
     }
     
-    func configureCell(with weekdays: String, isOn: Bool) {
-        titleLabel.text = weekdays
+    func configureCell(with weekdays: Weekday, isOn: Bool) {
+        currentWeekday = weekdays
+        titleLabel.text = weekdays.localizedName
         switchControl.isOn = isOn
     }
     

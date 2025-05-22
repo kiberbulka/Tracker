@@ -12,17 +12,21 @@ class OnboardingContentViewController: UIViewController {
     private let imageName: String
     private let descriptionLabel: String
     
+    private let colors = Colors()
+    
     lazy var button: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .ypBlack
-        button.setTitle("Вот это технологии!", for: .normal)
+        button.backgroundColor = colors.onboardingButtonColor
         
+        let buttonText = NSLocalizedString("onboarding.button", comment: "Кнопка на экране онбординга")
+        button.setTitle(buttonText, for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.titleLabel?.textColor = .white
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         return button
     }()
+
     
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: imageName))
@@ -34,7 +38,7 @@ class OnboardingContentViewController: UIViewController {
         let label = UILabel()
         label.text = descriptionLabel
         label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.textColor = .ypBlack
+        label.textColor = colors.onboardingButtonColor
         label.textAlignment = .center
         label.numberOfLines = 0
         return label

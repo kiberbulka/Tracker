@@ -57,6 +57,7 @@ final class TrackerRecordStore: NSObject {
         trackerRecordCD.date = trackerRecord.date
         
         CoreDataManager.shared.saveContext()
+        try? fetchedResultsController.performFetch()
     }
     
     func fetch() -> [TrackerRecord] {
@@ -89,6 +90,7 @@ final class TrackerRecordStore: NSObject {
         }
         
         CoreDataManager.shared.saveContext()
+        try? fetchedResultsController.performFetch()
     }
 }
 
@@ -97,6 +99,7 @@ extension TrackerRecordStore : NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         insertedIndexes = IndexSet()
         deletedIndexes = IndexSet()
+        updatedIndexes = IndexSet()
     }
     
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
@@ -126,6 +129,10 @@ extension TrackerRecordStore : NSFetchedResultsControllerDelegate {
             case .insert:
                 if let newIndexPath = newIndexPath {
                     insertedIndexes?.insert(newIndexPath.row)
+                }
+            case .update:
+                if let indexPath = indexPath {
+                    updatedIndexes?.insert(indexPath.row)
                 }
             default:
                 break
